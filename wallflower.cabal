@@ -19,7 +19,7 @@ executable wallflower
   hs-source-dirs:      src
   main-is:             Main.hs
   default-language:    Haskell2010
-  build-depends:       base >= 4.7 && < 5, gi-gtk4, haskell-gi-base
+  build-depends:       base >= 4.7 && < 5, gi-gtk4, gi-gio, haskell-gi-base
   ghc-options:         -Wall
                        -Wcompat
                        -Widentities
