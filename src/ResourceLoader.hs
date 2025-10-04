@@ -29,25 +29,26 @@ getResourcePath path = do
 
 loadUI :: Gtk.Application -> IO ()
 loadUI app = do
-  uiPath <- getDataFileName "resources/window.ui"
-  return ()
-  -- builder <- new Gtk.Builder []
-  -- Gtk.builderAddFromFile builder uiPath
-  -- Just windowObj <- Gtk.builderGetObject builder "main_window"
-  -- window <- Gtk.unsafeCastTo Gtk.Window windowObj
-  --
-  -- Just buttonObj <- Gtk.builderGetObject builder "my_button"
-  -- button <- Gtk.unsafeCastTo Gtk.Button buttonObj
-  -- _ <- on button #clicked (putStrLn "Button was clicked!")
-  --
-  -- #show window
-  --
-  -- Gtk.main
+  uiFile <- getResourcePath "resources/window.ui"
+  builder <- Gtk.builderNew
+  _ <- Gtk.builderAddFromFile builder uiFile
+
+  Just winObj <- Gtk.builderGetObject builder "main_window"
+  window <- Gtk.unsafeCastTo Gtk.ApplicationWindow winObj
+
+  #setApplication window (Just app)
+
+  Just btnObj <- Gtk.builderGetObject builder "my_button"
+  button <- Gtk.unsafeCastTo Gtk.Button btnObj
+  _ <- on button #clicked (putStrLn "Button clicked!")
+
+  #show window
 
 loadCSS :: IO ()
 loadCSS = do
     cssPath <- getDataFileName "resources/style.css"
     return ()
+
     -- provider <- new Gtk.CssProvider []
     -- #loadFromPath provider cssPath
     -- display <- Gdk.displayGetDefault >>= \case
