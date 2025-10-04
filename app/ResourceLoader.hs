@@ -50,6 +50,6 @@ loadCSS = do
       Nothing -> putStrLn "Failed to get default display"
       Just d  -> do
         Gtk.styleContextAddProviderForDisplay 
-          d 
+          d
           provider 
           (fromIntegral Gtk.STYLE_PROVIDER_PRIORITY_USER)

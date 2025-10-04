@@ -10,7 +10,7 @@ license-file:        LICENSE
 author:              Warren Wu 
 maintainer:          warrenwu.dev
 copyright:           2025 Warren Wu 
-category:            Web
+category:            Desktop 
 build-type:          Simple
 extra-source-files:  README.md
 extra-doc-files:     CHANGELOG.md
@@ -18,7 +18,7 @@ extra-doc-files:     CHANGELOG.md
 data-files:          resources/style.css, resources/window.ui
 
 executable wallflower
-  hs-source-dirs:      src
+  hs-source-dirs:      app 
   main-is:             Main.hs
   default-language:    Haskell2010
   build-depends:       base >= 4.7 && < 5, gi-gtk4, gi-gio, haskell-gi-base, directory, filepath, split, gi-gdk
