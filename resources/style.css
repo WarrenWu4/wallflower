@@ -1,0 +1,32 @@
+.main-window {
+  background-color: #282828;
+}
+
+.main-header {
+  color: #334155;
+  font-size: 24pt;
+  font-weight: bold;
+  font-family: 'Inter', sans-serif;
+  margin-bottom: 12px;
+}
+
+.primary-button {
+  background-color: black;
+  color: white;
+  border-radius: 8px;
+  padding: 12px 24px;
+  border: none;
+  min-width: 180px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease-in-out;
+}
+
+.primary-button:hover {
+  background-color: #0f766e;
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+.primary-button:active {
+  background-color: #0e7490;
+  box-shadow: none;
+}

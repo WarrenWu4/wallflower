@@ -38,10 +38,6 @@ loadUI app = do
 
   #setApplication window (Just app)
 
-  Just btnObj <- Gtk.builderGetObject builder "my_button"
-  button <- Gtk.unsafeCastTo Gtk.Button btnObj
-  _ <- on button #clicked (putStrLn "Button clicked!")
-
   #show window
 
 loadCSS :: IO ()

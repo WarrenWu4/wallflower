@@ -2,27 +2,33 @@
 <interface>
   <requires lib="gtk" version="4.0"/>
   <object class="GtkApplicationWindow" id="main_window">
-    <property name="name">main_window</property>
-    <property name="title">Wallflower</property>
+    <property name="title">GTK Styling Example</property>
     <property name="default-width">400</property>
-    <property name="default-height">300</property>
+    <property name="default-height">200</property>
+    <property name="css-classes">main-window</property>
     <child>
-      <object class="GtkBox" id="box1">
+      <object class="GtkBox">
         <property name="orientation">vertical</property>
-        <property name="spacing">8</property>
+        <property name="spacing">24</property>
+        <property name="margin-top">30</property>
+        <property name="margin-bottom">30</property>
+        <property name="margin-start">30</property>
+        <property name="margin-end">30</property>
+        <property name="halign">center</property>
+        <property name="valign">center</property>
         <child>
-          <object class="GtkButton" id="my_button">
-            <property name="label">YUESSSSSS</property>
+          <object class="GtkLabel" id="app_header">
+            <property name="label">Welcome to GTK App</property>
+            <property name="css-classes">main-header</property>
           </object>
-          <object class="GtkLabel" id="label1">
-            <property name="label">micky mouse</property>
-          </object>
-          <object class="GtkLabel" id="label2">
-            <property name="label">fuk me</property>
+        </child>
+        <child>
+          <object class="GtkButton" id="action_button">
+            <property name="label">Start Interaction</property>
+            <property name="css-classes">primary-button</property>
           </object>
         </child>
       </object>
     </child>
   </object>
 </interface>
-
