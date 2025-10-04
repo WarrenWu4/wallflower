@@ -8,16 +8,31 @@ import qualified GI.Gtk as Gtk
 import qualified GI.Gio as Gio
 import Data.GI.Base
 
+import DirectoryManager
+import ResourceLoader
+
 main :: IO ()
 main = void $ do
   app <- new Gtk.Application [ #applicationId := "com.warrenwu.wallflower" ]
-  _ <- on app #activate $ do
-    window <- new Gtk.ApplicationWindow [ #application := app
-                                        , #title := "Wallflower"
-                                        , #defaultWidth := 800
-                                        , #defaultHeight := 600
-                                        ]
-    label <- new Gtk.Label [ #label := "Testing" ]
-    #setChild window (Just label)
-    #present window
-  Gio.applicationRun app Nothing
+
+  let searchDirectories = getDirectoriesFromSetting ""
+  imagePaths <- getImagesInDirectories searchDirectories 
+
+  on app #activate $ do
+    uiFile <- getResourcePath "resources/window.ui"
+    builder <- Gtk.builderNew
+    _ <- Gtk.builderAddFromFile builder uiFile
+
+    Just winObj <- Gtk.builderGetObject builder "main_window"
+    window <- Gtk.unsafeCastTo Gtk.ApplicationWindow winObj
+
+    #setApplication window (Just app)
+
+    Just btnObj <- Gtk.builderGetObject builder "my_button"
+    button <- Gtk.unsafeCastTo Gtk.Button btnObj
+    _ <- on button #clicked (putStrLn "Button clicked!")
+
+    #show window
+
+  _ <- #run app Nothing
+  pure ()
