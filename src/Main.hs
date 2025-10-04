@@ -19,6 +19,7 @@ main = void $ do
   imagePaths <- getImagesInDirectories searchDirectories 
 
   on app #activate $ do
+    loadCSS
     loadUI app
 
   _ <- #run app Nothing

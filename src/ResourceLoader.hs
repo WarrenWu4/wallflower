@@ -46,13 +46,14 @@ loadUI app = do
 
 loadCSS :: IO ()
 loadCSS = do
-    cssPath <- getDataFileName "resources/style.css"
-    return ()
-
-    -- provider <- new Gtk.CssProvider []
-    -- #loadFromPath provider cssPath
-    -- display <- Gdk.displayGetDefault >>= \case
-    --     Just disp -> return disp
-    --     Nothing   -> error "Error: Could not get default display."
-    -- Gtk.styleContextAddProviderForDisplay display provider
-    --     (fromIntegral Gtk.STYLE_PROVIDER_PRIORITY_USER)
+    cssPath <- getResourcePath "resources/style.css"
+    provider <- Gtk.cssProviderNew 
+    Gtk.cssProviderLoadFromPath provider cssPath
+    display <- Gdk.displayGetDefault
+    case display of
+      Nothing -> putStrLn "Failed to get default display"
+      Just d  -> do
+        Gtk.styleContextAddProviderForDisplay 
+          d 
+          provider 
+          (fromIntegral Gtk.STYLE_PROVIDER_PRIORITY_USER)

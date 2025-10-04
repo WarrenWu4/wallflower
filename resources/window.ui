@@ -2,12 +2,25 @@
 <interface>
   <requires lib="gtk" version="4.0"/>
   <object class="GtkApplicationWindow" id="main_window">
+    <property name="name">main_window</property>
     <property name="title">Wallflower</property>
     <property name="default-width">400</property>
     <property name="default-height">300</property>
     <child>
-      <object class="GtkButton" id="my_button">
-        <property name="label">YUESSSSSS</property>
+      <object class="GtkBox" id="box1">
+        <property name="orientation">vertical</property>
+        <property name="spacing">8</property>
+        <child>
+          <object class="GtkButton" id="my_button">
+            <property name="label">YUESSSSSS</property>
+          </object>
+          <object class="GtkLabel" id="label1">
+            <property name="label">micky mouse</property>
+          </object>
+          <object class="GtkLabel" id="label2">
+            <property name="label">fuk me</property>
+          </object>
+        </child>
       </object>
     </child>
   </object>
