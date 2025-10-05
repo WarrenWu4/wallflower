@@ -3,7 +3,7 @@
 
 module Main (main) where
 
-import Control.Monad (void)
+import Control.Monad (void, zipWithM)
 import Data.GI.Base
 import DirectoryManager
 import qualified GI.Gtk as Gtk
@@ -16,11 +16,11 @@ main = void $ do
 
   let searchDirectories = getDirectoriesFromSetting ""
   imagePaths <- getImagesInDirectories searchDirectories
-  let imageMarkups = zipWith createImageMarkup imagePaths [1..(length imagePaths)]
-
+  imageMarkups <- zipWithM createImageMarkup imagePaths [1..(length imagePaths)]
+  
   _ <- on app #activate $ do
     loadCSS
     loadUI app imageMarkups 
 
   _ <- #run app Nothing
-  pure ()
+  return ()

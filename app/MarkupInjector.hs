@@ -1,7 +1,10 @@
-module MarkupInjector (
-  createTempFile,
-  createImageMarkup
-) where
+module MarkupInjector
+  ( createTempFile,
+    createImageMarkup,
+  )
+where
+
+import DirectoryManager (isCurrentWallpaper)
 
 -- | writes temporary file with image ui markup
 createTempFile :: String -> IO ()
@@ -11,5 +14,7 @@ createTempFile content = do
   writeFile "resources/images.ui" $ header ++ content ++ footer
 
 -- | for an image path, creates a GtkPicture widget
-createImageMarkup:: FilePath -> Int -> String
-createImageMarkup path imageNum = "\t<object class=\"GtkPicture\" id=\"background-image-" ++ show imageNum ++ "\">\n\t\t<property name=\"file\">" ++ path ++ "</property>\n\t</object>\n"
+createImageMarkup :: FilePath -> Int -> IO String
+createImageMarkup path imageNum = do
+  isActive <- isCurrentWallpaper path
+  return ("\t<object class=\"GtkPicture\" id=\"background-image-" ++ show imageNum ++ "\">" ++ "\n\t\t<property name=\"file\">" ++ path ++ "</property>" ++ "\n\t\t<property name=\"css-classes\">" ++ (if isActive then "wallpaper-active" else "wallpaper") ++ "</property>" ++ "\n\t</object>\n")

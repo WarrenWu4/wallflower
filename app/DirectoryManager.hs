@@ -3,7 +3,10 @@ module DirectoryManager (
   getImagesInDirectory,
   getImagesInDirectories,
   getDirectoriesFromSetting,
-  saveDirectoriesToSetting
+  saveDirectoriesToSetting,
+  getHyprpaperConfigPath,
+  getCurrentWallpaperPath,
+  isCurrentWallpaper
 ) where
 
 import System.Directory
@@ -49,5 +52,29 @@ getDirectoriesFromSetting _ = ["/home/warrenwu/backgrounds"]
 -- | save directories to setting file
 saveDirectoriesToSetting :: FilePath -> [FilePath] -> IO ()
 saveDirectoriesToSetting settingPath dirs = return ()
+
+getHyprpaperConfigPath :: IO FilePath
+getHyprpaperConfigPath = do
+  homeDir <- getHomeDirectory 
+  return (homeDir </> ".config" </> "hypr" </> "hyprpaper.conf")
+
+getCurrentWallpaperPath :: IO (Maybe FilePath)
+getCurrentWallpaperPath = do
+  configPath <- getHyprpaperConfigPath
+  exists <- doesFileExist configPath
+  if not exists
+    then return Nothing
+  else do 
+    contents <- readFile configPath
+    let strPath = last $ splitOn " " contents
+    let parsedPath = filter (\c -> c /= '"' && c /= '\n') strPath
+    return (Just parsedPath)
+
+isCurrentWallpaper :: FilePath -> IO Bool
+isCurrentWallpaper path = do
+  currentWallpaper <- getCurrentWallpaperPath
+  case currentWallpaper of
+    Just p  -> return (p == path)
+    Nothing -> return False 
 
 
