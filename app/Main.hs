@@ -1,24 +1,22 @@
-{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE OverloadedLabels #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Main (main) where
 
 import Control.Monad (void)
-import qualified GI.Gtk as Gtk
-import qualified GI.Gio as Gio
 import Data.GI.Base
-
 import DirectoryManager
+import qualified GI.Gtk as Gtk
 import ResourceLoader
 
 main :: IO ()
 main = void $ do
-  app <- new Gtk.Application [ #applicationId := "com.warrenwu.wallflower" ]
+  app <- new Gtk.Application [#applicationId := "com.warrenwu.wallflower"]
 
   let searchDirectories = getDirectoriesFromSetting ""
-  imagePaths <- getImagesInDirectories searchDirectories 
+  imagePaths <- getImagesInDirectories searchDirectories
 
-  on app #activate $ do
+  _ <- on app #activate $ do
     loadCSS
     loadUI app
 

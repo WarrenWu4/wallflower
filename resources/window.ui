@@ -2,33 +2,47 @@
 <interface>
   <requires lib="gtk" version="4.0"/>
   <object class="GtkApplicationWindow" id="main_window">
-    <property name="title">GTK Styling Example</property>
-    <property name="default-width">400</property>
-    <property name="default-height">200</property>
+    <property name="title">Wallflower</property>
+    <property name="default-width">600</property>
+    <property name="default-height">400</property>
     <property name="css-classes">main-window</property>
     <child>
       <object class="GtkBox">
+        <property name="css-classes">root</property>
         <property name="orientation">vertical</property>
-        <property name="spacing">24</property>
-        <property name="margin-top">30</property>
-        <property name="margin-bottom">30</property>
-        <property name="margin-start">30</property>
-        <property name="margin-end">30</property>
-        <property name="halign">center</property>
-        <property name="valign">center</property>
+        <property name="spacing">10</property>
         <child>
-          <object class="GtkLabel" id="app_header">
-            <property name="label">Welcome to GTK App</property>
-            <property name="css-classes">main-header</property>
-          </object>
-        </child>
-        <child>
-          <object class="GtkButton" id="action_button">
-            <property name="label">Start Interaction</property>
-            <property name="css-classes">primary-button</property>
+          <object class="GtkBox">
+            <property name="orientation">horizontal</property>
+            <property name="halign">fill</property>
+            <property name="hexpand">true</property>
+            <child>
+              <object class="GtkLabel">
+                <property name="label">Wallflower</property>
+                <property name="css-classes">title-label</property>
+                <property name="halign">center</property>
+                <attributes>
+                  <attribute name="weight" value="bold"/>
+                  <attribute name="scale" value="1.2"/>
+                </attributes>
+              </object>
+            </child>
+            <child>
+              <object class="GtkBox">
+                <property name="hexpand">true</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="settings_button">
+                <property name="label">Settings</property>
+                <property name="css-classes">settings-button</property>
+                <property name="halign">end</property>
+              </object>
+            </child>
           </object>
         </child>
       </object>
     </child>
   </object>
 </interface>
+
