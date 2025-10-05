@@ -3,14 +3,13 @@ module MarkupInjector (
   createImageMarkup
 ) where
 
+-- | writes temporary file with image ui markup
 createTempFile :: String -> IO ()
 createTempFile content = do
   let header = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<interface>\n\t<requires lib=\"gtk\" version=\"4.0\"/>\n"
   let footer = "\n</interface>"
-  writeFile "resources/images.ui" header
-  writeFile "resources/images.ui" content
-  writeFile "resources/images.ui" footer
+  writeFile "resources/images.ui" $ header ++ content ++ footer
 
 -- | for an image path, creates a GtkPicture widget
 createImageMarkup:: FilePath -> String
-createImageMarkup path = "<object class=\"GtkPicture\">\n<property name=\"filename\">" ++ path ++ "</property>\n</object>"
+createImageMarkup path = "\t<object class=\"GtkPicture\">\n\t\t<property name=\"filename\">" ++ path ++ "</property>\n\t</object>\n"

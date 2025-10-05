@@ -17,7 +17,7 @@ main = void $ do
   let searchDirectories = getDirectoriesFromSetting ""
   imagePaths <- getImagesInDirectories searchDirectories
   let imageMarkups = map createImageMarkup imagePaths
-  createTempFile (concat imageMarkups)
+  createTempFile (concat imageMarkups) 
 
   _ <- on app #activate $ do
     loadCSS
