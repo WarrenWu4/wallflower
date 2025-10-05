@@ -28,7 +28,8 @@ getResourcePath path = do
   return absPath 
 
 loadUI :: Gtk.Application -> IO ()
-loadUI app = do
+loadUI app = do 
+  imageFiles <- getResourcePath "resources/images.ui"
   uiFile <- getResourcePath "resources/window.ui"
   builder <- Gtk.builderNew
   _ <- Gtk.builderAddFromFile builder uiFile

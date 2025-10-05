@@ -8,6 +8,7 @@ import Data.GI.Base
 import DirectoryManager
 import qualified GI.Gtk as Gtk
 import ResourceLoader
+import MarkupInjector
 
 main :: IO ()
 main = void $ do
@@ -15,6 +16,8 @@ main = void $ do
 
   let searchDirectories = getDirectoriesFromSetting ""
   imagePaths <- getImagesInDirectories searchDirectories
+  let imageMarkups = map createImageMarkup imagePaths
+  createTempFile (concat imageMarkups)
 
   _ <- on app #activate $ do
     loadCSS

@@ -11,11 +11,13 @@
         <property name="css-classes">root</property>
         <property name="orientation">vertical</property>
         <property name="spacing">10</property>
+
         <child>
           <object class="GtkBox">
             <property name="orientation">horizontal</property>
             <property name="halign">fill</property>
             <property name="hexpand">true</property>
+
             <child>
               <object class="GtkLabel">
                 <property name="label">Wallflower</property>
@@ -27,11 +29,13 @@
                 </attributes>
               </object>
             </child>
+
             <child>
               <object class="GtkBox">
                 <property name="hexpand">true</property>
               </object>
             </child>
+
             <child>
               <object class="GtkButton" id="settings_button">
                 <property name="label">Settings</property>
@@ -39,6 +43,16 @@
                 <property name="halign">end</property>
               </object>
             </child>
+
+            <child>
+              <object class="GtkGrid" id="backgrounds">
+                <property name="css-classes">background-grid</property>
+                <property name="row-spacing">12</property>
+                <property name="column-spacing">12</property>
+                <property name="hexpand">true</property>
+              </object>
+            </child>
+
           </object>
         </child>
       </object>
