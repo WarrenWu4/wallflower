@@ -11,5 +11,5 @@ createTempFile content = do
   writeFile "resources/images.ui" $ header ++ content ++ footer
 
 -- | for an image path, creates a GtkPicture widget
-createImageMarkup:: FilePath -> String
-createImageMarkup path = "\t<object class=\"GtkPicture\">\n\t\t<property name=\"filename\">" ++ path ++ "</property>\n\t</object>\n"
+createImageMarkup:: FilePath -> Int -> String
+createImageMarkup path imageNum = "\t<object class=\"GtkPicture\" id=\"background-image-" ++ show imageNum ++ "\">\n\t\t<property name=\"filename\">" ++ path ++ "</property>\n\t</object>\n"

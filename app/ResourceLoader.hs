@@ -37,6 +37,9 @@ loadUI app = do
   Just winObj <- Gtk.builderGetObject builder "main_window"
   window <- Gtk.unsafeCastTo Gtk.ApplicationWindow winObj
 
+  Just imgContainerObj <- Gtk.builderGetObject builder "backgrounds"
+  imgContainer <- Gtk.unsafeCastTo Gtk.Grid imgContainerObj
+
   #setApplication window (Just app)
 
   #show window

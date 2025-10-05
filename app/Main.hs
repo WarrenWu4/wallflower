@@ -16,7 +16,7 @@ main = void $ do
 
   let searchDirectories = getDirectoriesFromSetting ""
   imagePaths <- getImagesInDirectories searchDirectories
-  let imageMarkups = map createImageMarkup imagePaths
+  let imageMarkups = zipWith createImageMarkup imagePaths [1..(length imagePaths)]
   createTempFile (concat imageMarkups) 
 
   _ <- on app #activate $ do
