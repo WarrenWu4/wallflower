@@ -12,4 +12,4 @@ createTempFile content = do
 
 -- | for an image path, creates a GtkPicture widget
 createImageMarkup:: FilePath -> Int -> String
-createImageMarkup path imageNum = "\t<object class=\"GtkPicture\" id=\"background-image-" ++ show imageNum ++ "\">\n\t\t<property name=\"filename\">" ++ path ++ "</property>\n\t</object>\n"
+createImageMarkup path imageNum = "\t<object class=\"GtkPicture\" id=\"background-image-" ++ show imageNum ++ "\">\n\t\t<property name=\"file\">" ++ path ++ "</property>\n\t</object>\n"

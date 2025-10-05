@@ -17,11 +17,10 @@ main = void $ do
   let searchDirectories = getDirectoriesFromSetting ""
   imagePaths <- getImagesInDirectories searchDirectories
   let imageMarkups = zipWith createImageMarkup imagePaths [1..(length imagePaths)]
-  createTempFile (concat imageMarkups) 
 
   _ <- on app #activate $ do
     loadCSS
-    loadUI app
+    loadUI app imageMarkups 
 
   _ <- #run app Nothing
   pure ()

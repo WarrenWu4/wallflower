@@ -44,17 +44,21 @@
               </object>
             </child>
 
-            <child>
-              <object class="GtkGrid" id="backgrounds">
-                <property name="css-classes">background-grid</property>
-                <property name="row-spacing">12</property>
-                <property name="column-spacing">12</property>
-                <property name="hexpand">true</property>
-              </object>
-            </child>
 
           </object>
         </child>
+
+        <child>
+          <object class="GtkBox" id="backgrounds">
+            <property name="css-classes">background-grid</property>
+            <property name="orientation">vertical</property>
+            <property name="spacing">16</property>
+            <!-- <property name="row-spacing">12</property> -->
+            <!-- <property name="column-spacing">12</property> -->
+            <!-- <property name="hexpand">true</property> -->
+          </object>
+        </child>
+
       </object>
     </child>
   </object>
