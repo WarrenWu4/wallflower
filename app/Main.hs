@@ -10,9 +10,11 @@ import qualified GI.Gtk as Gtk
 import MarkupInjector
 import ResourceLoader
 import Validator (checkHyprland, checkHyprpaper)
+import LoggerGe
 
 main :: IO ()
 main = void $ do
+  logMsg INFO "Starting application"
   checkHyprland
   checkHyprpaper
 
