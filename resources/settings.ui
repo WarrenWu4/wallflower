@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <object class="GtkWindow" id="settings_window">
-    <property name="destroy-with-parent">true</property>
-    <property name="modal">true</property>
+  <object class="GtkBox" id="settings-container">
+    <property name="orientation">vertical</property>
+    <property name="spacing">12</property>
+    <property name="hexpand">true</property>
+    <property name="vexpand">true</property>
     <child>
       <object class="GtkBox">
         <property name="orientation">vertical</property>
@@ -15,11 +17,6 @@
           <object class="GtkLabel">
             <property name="label">This content is now inside a modal GtkDialog!</property>
             <property name="wrap">true</property>
-          </object>
-        </child>
-        <child>
-          <object class="GtkButton" id="close_window">
-            <property name="label">Close</property>
           </object>
         </child>
       </object>

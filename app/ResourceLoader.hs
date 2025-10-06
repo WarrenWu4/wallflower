@@ -1,5 +1,6 @@
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module ResourceLoader
   ( loadResource,
@@ -9,6 +10,7 @@ module ResourceLoader
   )
 where
 
+import ContentAreaManager
 import Control.Monad (forM_, zipWithM)
 import Data.Int
 import Data.Text.Internal
@@ -18,6 +20,7 @@ import qualified GI.Gtk as Gtk
 import LoggerGe
 import MarkupInjector
 import Paths_wallflower (getDataFileName)
+import Utilities
 
 loadResource :: FilePath -> IO String
 loadResource path = do
@@ -30,8 +33,7 @@ getResourcePath path = do
 
 getImageById :: Gtk.Builder -> Text -> IO Gtk.Picture
 getImageById builder objectId = do
-  Just obj <- Gtk.builderGetObject builder objectId
-  Gtk.unsafeCastTo Gtk.Picture obj
+  getObjectSafe builder Gtk.Picture objectId
 
 placeImages :: Gtk.Grid -> [Gtk.Picture] -> IO ()
 placeImages container imgs = do
@@ -50,13 +52,14 @@ loadActionBar builder = do
   Gtk.builderAddFromFile builder actionBarFile
   let getActionById =
         ( \b id -> do
-            Just obj <- Gtk.builderGetObject b id
-            Gtk.unsafeCastTo Gtk.Box obj
+            getObjectSafe b Gtk.Box id
         )
   actionObjs <- mapM (getActionById builder . pack) ["btn-" ++ a ++ "-container" | a <- actions]
   Just actionBarObj <- Gtk.builderGetObject builder "action-bar"
   actionBar <- Gtk.unsafeCastTo Gtk.Box actionBarObj
   _ <- mapM (\a -> Gtk.boxAppend actionBar a) actionObjs
+  actionButtons <- mapM (getObjectSafe builder Gtk.Button . pack) ["btn-" ++ a | a <- actions]
+  _ <- zipWithM (applyActions builder) actionButtons actions
   logMsg OK "Action bar loaded"
 
 loadWallpapers :: Gtk.Builder -> IO ()
@@ -75,39 +78,33 @@ loadWallpapers builder = do
   Just imgContainerObj <- Gtk.builderGetObject builder "wallpaper-container"
   imgContainer <- Gtk.unsafeCastTo Gtk.Grid imgContainerObj
   placeImages imgContainer imgs
-  Just contentArea <- Gtk.builderGetObject builder "content-area"
-  contentBox <- Gtk.unsafeCastTo Gtk.Box contentArea
-  Gtk.boxAppend contentBox imgContainer
   logMsg OK "Wallpapers loaded"
+
+loadSettings :: Gtk.Builder -> IO ()
+loadSettings builder = do
+  logMsg INFO "Loading settings"
+  settingsFile <- getResourcePath "resources/settings.ui"
+  Gtk.builderAddFromFile builder settingsFile
+  logMsg OK "Settings loaded"
 
 loadUI :: Gtk.Application -> IO ()
 loadUI app = do
-  popupFile <- getResourcePath "resources/settings.ui"
-
+  -- tab ids: wallpaper-container, settings-container
   uiFile <- getResourcePath "resources/window.ui"
   builder <- Gtk.builderNew
   _ <- Gtk.builderAddFromFile builder uiFile
-  _ <- Gtk.builderAddFromFile builder popupFile
 
   loadActionBar builder
+
   loadWallpapers builder
+  loadSettings builder
+
+  setContentArea builder Gtk.Grid "wallpaper-container"
 
   Just winObj <- Gtk.builderGetObject builder "main_window"
   window <- Gtk.unsafeCastTo Gtk.ApplicationWindow winObj
 
-  Just popupObj <- Gtk.builderGetObject builder "settings_window"
-  popup <- Gtk.unsafeCastTo Gtk.Window popupObj
-  Just closeBtnOj <- Gtk.builderGetObject builder "close_window"
-  closeBtn <- Gtk.unsafeCastTo Gtk.Button closeBtnOj
-
-  _ <- Gtk.on closeBtn #clicked $ do
-    logMsg INFO "Closing settings window"
-    Gtk.setWidgetVisible popup False
-
-  Gtk.setWindowTransientFor popup window
-
   #setApplication window (Just app)
-
   Gtk.setWidgetVisible window True
 
 loadCSS :: IO ()
