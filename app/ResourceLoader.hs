@@ -14,9 +14,9 @@ import Data.Int
 import Data.Text.Internal
 import qualified GI.Gdk as Gdk
 import qualified GI.Gtk as Gtk
+import LoggerGe
 import MarkupInjector
 import Paths_wallflower (getDataFileName)
-import LoggerGe
 
 loadResource :: FilePath -> IO String
 loadResource path = do
@@ -34,12 +34,32 @@ getImageById builder objectId = do
 
 placeImages :: Gtk.Grid -> [Gtk.Picture] -> IO ()
 placeImages container imgs = do
-  let indexedImgs = zip [0..(length imgs - 1)] imgs
+  let indexedImgs = zip [0 .. (length imgs - 1)] imgs
   forM_ indexedImgs $ \(i, img) -> do
     let num = fromIntegral i :: Int32
     let col = num `mod` 3 :: Int32
     let row = num `div` 3 :: Int32
     Gtk.gridAttach container img col row 1 1
+
+loadActionBar :: Gtk.Builder -> IO ()
+loadActionBar builder = do
+  logMsg INFO "Loading action bar"
+  let actions = ["wallpapers", "settings"]
+
+  actionBarFile <- getResourcePath "resources/actions.ui"
+  Gtk.builderAddFromFile builder actionBarFile
+
+  let getActionById =
+        ( \b id -> do
+            Just obj <- Gtk.builderGetObject b id
+            Gtk.unsafeCastTo Gtk.Box obj
+        )
+  actionObjs <- mapM (getActionById builder . pack) ["btn-" ++ a ++ "-container" | a <- actions]
+
+  Just actionBarObj <- Gtk.builderGetObject builder "action-bar"
+  actionBar <- Gtk.unsafeCastTo Gtk.Box actionBarObj
+  _ <- mapM (\a -> Gtk.boxAppend actionBar a) actionObjs
+  logMsg OK "Action bar loaded"
 
 loadUI :: Gtk.Application -> [String] -> IO ()
 loadUI app imageMarkups = do
@@ -51,16 +71,15 @@ loadUI app imageMarkups = do
   builder <- Gtk.builderNew
   _ <- Gtk.builderAddFromFile builder uiFile
   _ <- Gtk.builderAddFromFile builder imageFiles
-  _ <- Gtk.builderAddFromFile builder popupFile 
+  _ <- Gtk.builderAddFromFile builder popupFile
+
+  loadActionBar builder
 
   Just winObj <- Gtk.builderGetObject builder "main_window"
   window <- Gtk.unsafeCastTo Gtk.ApplicationWindow winObj
 
-  Just settingsBtnObj <- Gtk.builderGetObject builder "settings_button"
-  settingsBtn <- Gtk.unsafeCastTo Gtk.Button settingsBtnObj
-
   Just popupObj <- Gtk.builderGetObject builder "settings_window"
-  popup <- Gtk.unsafeCastTo Gtk.Window popupObj 
+  popup <- Gtk.unsafeCastTo Gtk.Window popupObj
   Just closeBtnOj <- Gtk.builderGetObject builder "close_window"
   closeBtn <- Gtk.unsafeCastTo Gtk.Button closeBtnOj
 
@@ -68,15 +87,7 @@ loadUI app imageMarkups = do
     logMsg INFO "Closing settings window"
     Gtk.setWidgetVisible popup False
 
-  Gtk.setWindowTransientFor popup window 
-
-  _ <- Gtk.on settingsBtn #clicked $ do
-    logMsg INFO "Opening settings window"
-    width <- Gtk.getWindowDefaultWidth window
-    height <- Gtk.getWindowDefaultHeight window
-    Gtk.setWindowDefaultWidth popup (width `div` 2)
-    Gtk.setWindowDefaultHeight popup (height `div` 2)
-    Gtk.setWidgetVisible popup True
+  Gtk.setWindowTransientFor popup window
 
   let imageIds = ["background-image-" ++ show n | n <- [1 .. length imageMarkups]]
   imgs <- mapM (getImageById builder . pack) imageIds

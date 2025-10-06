@@ -13,38 +13,11 @@
         <property name="spacing">10</property>
 
         <child>
-          <object class="GtkBox">
+          <object class="GtkBox" id="action-bar">
             <property name="orientation">horizontal</property>
             <property name="halign">fill</property>
             <property name="hexpand">true</property>
-
-            <child>
-              <object class="GtkLabel">
-                <property name="label">Wallflower</property>
-                <property name="css-classes">title-label</property>
-                <property name="halign">center</property>
-                <attributes>
-                  <attribute name="weight" value="bold"/>
-                  <attribute name="scale" value="1.2"/>
-                </attributes>
-              </object>
-            </child>
-
-            <child>
-              <object class="GtkBox">
-                <property name="hexpand">true</property>
-              </object>
-            </child>
-
-            <child>
-              <object class="GtkButton" id="settings_button">
-                <property name="label">Settings</property>
-                <property name="css-classes">settings-button</property>
-                <property name="halign">end</property>
-              </object>
-            </child>
-
-
+            <property name="spacing">16</property>
           </object>
         </child>
 

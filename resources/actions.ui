@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+	<requires lib="gtk" version="4.0"/>
+  <object class="GtkBox" id="btn-wallpapers-container">
+    <property name="orientation">horizontal</property>
+    <property name="spacing">8</property>
+    <property name="css-classes">action-btn-container</property>
+    <child>
+      <object class="GtkButton" id="btn-wallpapers">
+        <property name="label">Wallpapers</property>
+        <property name="margin-start">16</property>
+        <property name="margin-end">16</property>
+        <property name="margin-top">10</property>
+        <property name="margin-bottom">10</property>
+        <property name="css-classes">action-btn</property>
+      </object>
+    </child>
+  </object>
+
+  <object class="GtkBox" id="btn-settings-container">
+    <property name="orientation">horizontal</property>
+    <property name="spacing">8</property>
+    <property name="css-classes">action-btn-container</property>
+    <child>
+      <object class="GtkButton" id="btn-settings">
+        <property name="label">Settings</property>
+        <property name="margin-start">16</property>
+        <property name="margin-end">16</property>
+        <property name="margin-top">10</property>
+        <property name="margin-bottom">10</property>
+        <property name="css-classes">action-btn</property>
+      </object>
+    </child>
+  </object>
+</interface>
