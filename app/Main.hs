@@ -3,11 +3,9 @@
 
 module Main (main) where
 
-import Control.Monad (void, zipWithM)
+import Control.Monad (void)
 import Data.GI.Base
-import DirectoryManager
 import qualified GI.Gtk as Gtk
-import MarkupInjector
 import ResourceLoader
 import Validator (checkHyprland, checkHyprpaper)
 import LoggerGe
@@ -20,13 +18,10 @@ main = void $ do
 
   app <- new Gtk.Application [#applicationId := "com.warrenwu.wallflower"]
 
-  let searchDirectories = getDirectoriesFromSetting ""
-  imagePaths <- getImagesInDirectories searchDirectories
-  imageMarkups <- zipWithM createImageMarkup imagePaths [1 .. (length imagePaths)]
 
   _ <- on app #activate $ do
     loadCSS
-    loadUI app imageMarkups
+    loadUI app
 
   _ <- #run app Nothing
   return ()

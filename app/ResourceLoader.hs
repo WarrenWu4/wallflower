@@ -9,9 +9,10 @@ module ResourceLoader
   )
 where
 
-import Control.Monad (forM_)
+import Control.Monad (forM_, zipWithM)
 import Data.Int
 import Data.Text.Internal
+import DirectoryManager
 import qualified GI.Gdk as Gdk
 import qualified GI.Gtk as Gtk
 import LoggerGe
@@ -45,35 +46,46 @@ loadActionBar :: Gtk.Builder -> IO ()
 loadActionBar builder = do
   logMsg INFO "Loading action bar"
   let actions = ["wallpapers", "settings"]
-
   actionBarFile <- getResourcePath "resources/actions.ui"
   Gtk.builderAddFromFile builder actionBarFile
-
   let getActionById =
         ( \b id -> do
             Just obj <- Gtk.builderGetObject b id
             Gtk.unsafeCastTo Gtk.Box obj
         )
   actionObjs <- mapM (getActionById builder . pack) ["btn-" ++ a ++ "-container" | a <- actions]
-
   Just actionBarObj <- Gtk.builderGetObject builder "action-bar"
   actionBar <- Gtk.unsafeCastTo Gtk.Box actionBarObj
   _ <- mapM (\a -> Gtk.boxAppend actionBar a) actionObjs
   logMsg OK "Action bar loaded"
 
-loadUI :: Gtk.Application -> [String] -> IO ()
-loadUI app imageMarkups = do
+loadWallpapers :: Gtk.Builder -> IO ()
+loadWallpapers builder = do
+  logMsg INFO "Loading wallpapers"
+  let searchDirectories = getDirectoriesFromSetting ""
+  imagePaths <- getImagesInDirectories searchDirectories
+  imageMarkups <- zipWithM createImageMarkup imagePaths [1 .. (length imagePaths)]
   createTempFile $ concat imageMarkups
   imageFiles <- getResourcePath "resources/images.ui"
+  Gtk.builderAddFromFile builder imageFiles
+  let imageIds = ["background-image-" ++ show n | n <- [1 .. length imageMarkups]]
+  imgs <- mapM (getImageById builder . pack) imageIds
+  Just imgContainerObj <- Gtk.builderGetObject builder "backgrounds"
+  imgContainer <- Gtk.unsafeCastTo Gtk.Grid imgContainerObj
+  placeImages imgContainer imgs
+  logMsg OK "Wallpapers loaded"
+
+loadUI :: Gtk.Application -> IO ()
+loadUI app = do
   popupFile <- getResourcePath "resources/settings.ui"
 
   uiFile <- getResourcePath "resources/window.ui"
   builder <- Gtk.builderNew
   _ <- Gtk.builderAddFromFile builder uiFile
-  _ <- Gtk.builderAddFromFile builder imageFiles
   _ <- Gtk.builderAddFromFile builder popupFile
 
   loadActionBar builder
+  loadWallpapers builder
 
   Just winObj <- Gtk.builderGetObject builder "main_window"
   window <- Gtk.unsafeCastTo Gtk.ApplicationWindow winObj
@@ -88,14 +100,6 @@ loadUI app imageMarkups = do
     Gtk.setWidgetVisible popup False
 
   Gtk.setWindowTransientFor popup window
-
-  let imageIds = ["background-image-" ++ show n | n <- [1 .. length imageMarkups]]
-  imgs <- mapM (getImageById builder . pack) imageIds
-
-  Just imgContainerObj <- Gtk.builderGetObject builder "backgrounds"
-  imgContainer <- Gtk.unsafeCastTo Gtk.Grid imgContainerObj
-
-  placeImages imgContainer imgs
 
   #setApplication window (Just app)
 
