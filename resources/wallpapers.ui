@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+	<requires lib="gtk" version="4.0"/>
+  <object class="GtkGrid" id="wallpaper-container">
+    <property name="css-classes">background-grid</property>
+    <property name="row-spacing">12</property>
+    <property name="column-spacing">12</property>
+    <property name="hexpand">true</property>
+  </object>
+</interface>

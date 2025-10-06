@@ -67,12 +67,17 @@ loadWallpapers builder = do
   imageMarkups <- zipWithM createImageMarkup imagePaths [1 .. (length imagePaths)]
   createTempFile $ concat imageMarkups
   imageFiles <- getResourcePath "resources/images.ui"
+  wallpaperFile <- getResourcePath "resources/wallpapers.ui"
   Gtk.builderAddFromFile builder imageFiles
+  Gtk.builderAddFromFile builder wallpaperFile
   let imageIds = ["background-image-" ++ show n | n <- [1 .. length imageMarkups]]
   imgs <- mapM (getImageById builder . pack) imageIds
-  Just imgContainerObj <- Gtk.builderGetObject builder "backgrounds"
+  Just imgContainerObj <- Gtk.builderGetObject builder "wallpaper-container"
   imgContainer <- Gtk.unsafeCastTo Gtk.Grid imgContainerObj
   placeImages imgContainer imgs
+  Just contentArea <- Gtk.builderGetObject builder "content-area"
+  contentBox <- Gtk.unsafeCastTo Gtk.Box contentArea
+  Gtk.boxAppend contentBox imgContainer
   logMsg OK "Wallpapers loaded"
 
 loadUI :: Gtk.Application -> IO ()

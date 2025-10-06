@@ -22,10 +22,7 @@
         </child>
 
         <child>
-          <object class="GtkGrid" id="backgrounds">
-            <property name="css-classes">background-grid</property>
-            <property name="row-spacing">12</property>
-            <property name="column-spacing">12</property>
+          <object class="GtkBox" id="content-area">
             <property name="hexpand">true</property>
           </object>
         </child>
