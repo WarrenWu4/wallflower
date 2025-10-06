@@ -15,7 +15,7 @@ build-type:          Simple
 extra-source-files:  README.md
 extra-doc-files:     CHANGELOG.md
 
-data-files:          resources/style.css, resources/window.ui, resources/images.ui
+data-files:          resources/*
 
 executable wallflower
   hs-source-dirs:      app 

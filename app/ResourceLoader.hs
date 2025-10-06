@@ -16,6 +16,7 @@ import qualified GI.Gdk as Gdk
 import qualified GI.Gtk as Gtk
 import MarkupInjector
 import Paths_wallflower (getDataFileName)
+import LoggerGe
 
 loadResource :: FilePath -> IO String
 loadResource path = do
@@ -44,14 +45,38 @@ loadUI :: Gtk.Application -> [String] -> IO ()
 loadUI app imageMarkups = do
   createTempFile $ concat imageMarkups
   imageFiles <- getResourcePath "resources/images.ui"
+  popupFile <- getResourcePath "resources/settings.ui"
 
   uiFile <- getResourcePath "resources/window.ui"
   builder <- Gtk.builderNew
   _ <- Gtk.builderAddFromFile builder uiFile
   _ <- Gtk.builderAddFromFile builder imageFiles
+  _ <- Gtk.builderAddFromFile builder popupFile 
 
   Just winObj <- Gtk.builderGetObject builder "main_window"
   window <- Gtk.unsafeCastTo Gtk.ApplicationWindow winObj
+
+  Just settingsBtnObj <- Gtk.builderGetObject builder "settings_button"
+  settingsBtn <- Gtk.unsafeCastTo Gtk.Button settingsBtnObj
+
+  Just popupObj <- Gtk.builderGetObject builder "settings_window"
+  popup <- Gtk.unsafeCastTo Gtk.Window popupObj 
+  Just closeBtnOj <- Gtk.builderGetObject builder "close_window"
+  closeBtn <- Gtk.unsafeCastTo Gtk.Button closeBtnOj
+
+  _ <- Gtk.on closeBtn #clicked $ do
+    logMsg INFO "Closing settings window"
+    Gtk.setWidgetVisible popup False
+
+  Gtk.setWindowTransientFor popup window 
+
+  _ <- Gtk.on settingsBtn #clicked $ do
+    logMsg INFO "Opening settings window"
+    width <- Gtk.getWindowDefaultWidth window
+    height <- Gtk.getWindowDefaultHeight window
+    Gtk.setWindowDefaultWidth popup (width `div` 2)
+    Gtk.setWindowDefaultHeight popup (height `div` 2)
+    Gtk.setWidgetVisible popup True
 
   let imageIds = ["background-image-" ++ show n | n <- [1 .. length imageMarkups]]
   imgs <- mapM (getImageById builder . pack) imageIds
@@ -63,7 +88,7 @@ loadUI app imageMarkups = do
 
   #setApplication window (Just app)
 
-  #show window
+  Gtk.setWidgetVisible window True
 
 loadCSS :: IO ()
 loadCSS = do
