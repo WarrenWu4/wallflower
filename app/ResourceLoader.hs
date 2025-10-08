@@ -31,11 +31,7 @@ getResourcePath :: FilePath -> IO FilePath
 getResourcePath path = do
   getDataFileName path
 
-getImageById :: Gtk.Builder -> Text -> IO Gtk.Picture
-getImageById builder objectId = do
-  getObjectSafe builder Gtk.Picture objectId
-
-placeImages :: Gtk.Grid -> [Gtk.Picture] -> IO ()
+placeImages :: Gtk.Grid -> [Gtk.Button] -> IO ()
 placeImages container imgs = do
   let indexedImgs = zip [0 .. (length imgs - 1)] imgs
   forM_ indexedImgs $ \(i, img) -> do
@@ -67,16 +63,17 @@ loadWallpapers builder = do
   logMsg INFO "Loading wallpapers"
   let searchDirectories = getDirectoriesFromSetting ""
   imagePaths <- getImagesInDirectories searchDirectories
-  imageMarkups <- zipWithM createImageMarkup imagePaths [1 .. (length imagePaths)]
+  imageMarkups <- zipWithM buildImageTemplate imagePaths [1 .. (length imagePaths)]
   createTempFile $ concat imageMarkups
   imageFiles <- getResourcePath "resources/images.ui"
   wallpaperFile <- getResourcePath "resources/wallpapers.ui"
   Gtk.builderAddFromFile builder imageFiles
   Gtk.builderAddFromFile builder wallpaperFile
-  let imageIds = ["background-image-" ++ show n | n <- [1 .. length imageMarkups]]
-  imgs <- mapM (getImageById builder . pack) imageIds
+  let imageIds = ["btn-background-image-" ++ show n | n <- [1 .. length imageMarkups]]
+  imgs <- mapM (getObjectSafe builder Gtk.Button . pack) imageIds
   Just imgContainerObj <- Gtk.builderGetObject builder "wallpaper-container"
   imgContainer <- Gtk.unsafeCastTo Gtk.Grid imgContainerObj
+  _ <- zipWithM (applyBackgroundAction builder) [1 .. length imageMarkups] imagePaths
   placeImages imgContainer imgs
   logMsg OK "Wallpapers loaded"
 
