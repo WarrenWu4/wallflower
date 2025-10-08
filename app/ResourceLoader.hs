@@ -12,7 +12,7 @@ module ResourceLoader
 where
 
 import ContentAreaManager
-import Control.Monad (forM_, zipWithM)
+import Control.Monad (forM_, zipWithM, zipWithM_)
 import Data.Int
 import Data.Text.Internal
 import DirectoryManager
@@ -42,22 +42,29 @@ placeImages container imgs = do
     let row = num `div` 3 :: Int32
     Gtk.gridAttach container img col row 1 1
 
+loadActionIcon :: Gtk.Builder -> String -> String -> IO ()
+loadActionIcon builder action iconPath = do
+  container <- getObjectSafe builder Gtk.Box (pack $ "btn-" ++ action ++ "-container")
+  box <- Gtk.unsafeCastTo Gtk.Box container 
+  imgObj <- getResourcePath iconPath
+  img <- Gtk.imageNewFromFile imgObj
+  Gtk.boxPrepend box img 
+
 loadActionBar :: Gtk.Builder -> IO ()
 loadActionBar builder = do
   logMsg INFO "Loading action bar"
   let actions = ["wallpapers", "settings"]
+  let icons = ["resources/wallpaper-icon-d.png", "resources/settings-icon-l.png"]
   actionBarFile <- getResourcePath "resources/actions.ui"
   Gtk.builderAddFromFile builder actionBarFile
-  let getActionById =
-        ( \b id -> do
-            getObjectSafe b Gtk.Box id
-        )
+  let getActionById b actionId = do getObjectSafe b Gtk.Box actionId
   actionObjs <- mapM (getActionById builder . pack) ["btn-" ++ a ++ "-container" | a <- actions]
   Just actionBarObj <- Gtk.builderGetObject builder "action-bar"
   actionBar <- Gtk.unsafeCastTo Gtk.Box actionBarObj
-  _ <- mapM (\a -> Gtk.boxAppend actionBar a) actionObjs
+  mapM_ (Gtk.boxAppend actionBar) actionObjs
   actionButtons <- mapM (getObjectSafe builder Gtk.Button . pack) ["btn-" ++ a | a <- actions]
-  _ <- zipWithM (applyActions builder) actionButtons actions
+  zipWithM_ (applyActions builder) actionButtons actions
+  zipWithM_ (loadActionIcon builder) actions icons
   logMsg OK "Action bar loaded"
 
 loadWallpapers :: Gtk.Builder -> IO ()
