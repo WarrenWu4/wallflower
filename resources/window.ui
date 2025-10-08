@@ -10,18 +10,11 @@
       <object class="GtkBox">
         <property name="css-classes">root</property>
         <property name="orientation">vertical</property>
-        <property name="spacing">10</property>
-
-        <child>
-          <object class="GtkLabel" id="header-label">
-            <property name="label">Wallflower</property>
-            <property name="css-classes">header-label</property>
-            <property name="halign">center</property>
-            <property name="valign">center</property>
-            <property name="margin-top">10</property>
-            <property name="margin-bottom">10</property>
-          </object>
-        </child>
+        <property name="spacing">20</property>
+        <property name="margin-start">32</property>
+        <property name="margin-end">32</property>
+        <property name="margin-top">32</property>
+        <property name="margin-bottom">32</property>
 
         <child>
           <object class="GtkBox" id="action-bar">

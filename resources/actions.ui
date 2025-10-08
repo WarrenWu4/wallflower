@@ -10,8 +10,8 @@
         <property name="label">Wallpapers</property>
         <property name="margin-start">16</property>
         <property name="margin-end">16</property>
-        <property name="margin-top">10</property>
-        <property name="margin-bottom">10</property>
+        <property name="margin-top">6</property>
+        <property name="margin-bottom">6</property>
         <property name="css-classes">action-btn</property>
       </object>
     </child>
@@ -20,15 +20,15 @@
   <object class="GtkBox" id="btn-settings-container">
     <property name="orientation">horizontal</property>
     <property name="spacing">8</property>
-    <property name="css-classes">action-btn-container</property>
+    <property name="css-classes">action-btn-container-inactive</property>
     <child>
       <object class="GtkButton" id="btn-settings">
         <property name="label">Settings</property>
         <property name="margin-start">16</property>
         <property name="margin-end">16</property>
-        <property name="margin-top">10</property>
-        <property name="margin-bottom">10</property>
-        <property name="css-classes">action-btn</property>
+        <property name="margin-top">6</property>
+        <property name="margin-bottom">6</property>
+        <property name="css-classes">action-btn-inactive</property>
       </object>
     </child>
   </object>

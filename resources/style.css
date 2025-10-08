@@ -2,14 +2,6 @@
   background-color: #282828;
 }
 
-.title-label {
-  color: #ebdbb2;
-}
-
-.root {
-  margin: 24px;
-}
-
 .wallpaper {
 
 }
@@ -23,10 +15,24 @@
   background-color: #ebdbb2;
 }
 
-.action-btn {
+.action-btn-container-inactive {
+  border-radius: 800px;
+  background-color: transparent;
+  border: 2px solid #BDAE93;
+}
+
+.action-btn, .action-btn-inactive {
+  color: #282828;
   background-image: none;
   border: none;
-  color: #282828;
+  font-family: "Montserrat", sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.action-btn-inactive {
+  color: #BDAE93;
+
 }
 
 .header-label {
