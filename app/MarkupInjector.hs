@@ -22,7 +22,8 @@ createTempFile :: String -> IO ()
 createTempFile content = do
   let header = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<interface>\n\t<requires lib=\"gtk\" version=\"4.0\"/>\n"
   let footer = "\n</interface>"
-  writeFile "resources/images.ui" $ header ++ content ++ footer
+  imgPath <- getResourcePath "resources/ui/images.ui"
+  writeFile imgPath $ header ++ content ++ footer
 
 -- | for an image path, creates a GtkPicture widget
 createImageMarkup :: FilePath -> Int -> IO String
@@ -38,7 +39,8 @@ buildImageTemplate :: FilePath -> Int -> IO String
 buildImageTemplate imgPath numId = do
   let btnId = "btn-background-image-" ++ show numId
   let imgId = "background-image-" ++ show numId
-  template <- readFile "resources/image.template"
+  templatePath <- getResourcePath "resources/templates/image.template"
+  template <- readFile templatePath
   let withBtnId = T.replace (T.pack "{btn_id}") (T.pack btnId) (T.pack template)
   let withImgId = T.replace (T.pack "{img_id}") (T.pack imgId) withBtnId
   let withImgPath = T.replace (T.pack "{img_path}") (T.pack imgPath) withImgId
