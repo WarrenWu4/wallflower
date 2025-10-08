@@ -40,7 +40,10 @@ executable wallflower
                        LoggerGe,
                        ContentAreaManager,
                        Utilities,
-                       HyprpaperManager
+                       HyprpaperManager,
+                       FontBindings
+  c-sources:           cbits/font_loader.c
+  extra-libraries:     fontconfig
   autogen-modules:     Paths_wallflower
   ghc-options:         -Wall
                        -Wcompat

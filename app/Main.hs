@@ -20,6 +20,7 @@ main = void $ do
 
 
   _ <- on app #activate $ do
+    loadFont
     loadCSS
     loadUI app
 

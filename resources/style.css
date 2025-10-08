@@ -28,3 +28,9 @@
   border: none;
   color: #282828;
 }
+
+.header-label {
+  font-family: "Montserrat", sans-serif;
+  font-weight: 600;
+  font-size: 18px;
+}

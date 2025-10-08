@@ -7,6 +7,7 @@ module ResourceLoader
     getResourcePath,
     loadUI,
     loadCSS,
+    loadFont
   )
 where
 
@@ -21,6 +22,7 @@ import LoggerGe
 import MarkupInjector
 import Paths_wallflower (getDataFileName)
 import Utilities
+import FontBindings
 
 loadResource :: FilePath -> IO String
 loadResource path = do
@@ -116,4 +118,12 @@ loadCSS = do
       Gtk.styleContextAddProviderForDisplay
         d
         provider
-        (fromIntegral Gtk.STYLE_PROVIDER_PRIORITY_USER)
+        (fromIntegral Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+
+loadFont :: IO ()
+loadFont = do
+  fontPath <- getResourcePath "resources/Montserrat-VariableFont_wght.ttf"
+  success <- addFontFile (pack fontPath)
+  if success then
+    logMsg OK $ "Font loaded from: " ++ fontPath
+    else logMsg ERROR $ "Failed to load font from: " ++ fontPath
