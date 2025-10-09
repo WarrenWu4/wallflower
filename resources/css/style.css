@@ -2,41 +2,16 @@
   background-color: #282828;
 }
 
-.wallpaper {
-
-}
-
-.wallpaper-active {
-  border: 4px solid #ebdbb2;
-}
-
-.action-btn-container {
-  border-radius: 800px;
-  background-color: #ebdbb2;
-}
-
-.action-btn-container-inactive {
-  border-radius: 800px;
-  background-color: transparent;
-  border: 2px solid #BDAE93;
-}
-
 .action-btn, .action-btn-inactive {
-  color: #282828;
   background-image: none;
   border: none;
+  background-color: #ebdbb2;
+  border-radius: 600px;
+}
+
+.action-label {
   font-family: "Montserrat", sans-serif;
   font-weight: 600;
   font-size: 16px;
-}
-
-.action-btn-inactive {
-  color: #BDAE93;
-
-}
-
-.header-label {
-  font-family: "Montserrat", sans-serif;
-  font-weight: 600;
-  font-size: 18px;
+  color: #282828;
 }

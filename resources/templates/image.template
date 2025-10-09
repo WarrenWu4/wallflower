@@ -1,8 +1,8 @@
-    <object class="GtkButton" id="{btn_id}">
-      <child>
-        <object class="GtkPicture" id="{img_id}">
-          <property name="file">{img_path}</property>
-          <property name="css-classes">wallpaper</property>
-        </object>
-      </child>
-    </object>
+  <object class="GtkButton" id="{btn_id}">
+    <child>
+      <object class="GtkPicture" id="{img_id}">
+        <property name="file">{img_path}</property>
+        <property name="css-classes">wallpaper</property>
+      </object>
+    </child>
+  </object>

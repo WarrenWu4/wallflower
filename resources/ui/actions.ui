@@ -1,35 +1,65 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
 	<requires lib="gtk" version="4.0"/>
-  <object class="GtkBox" id="btn-wallpapers-container">
-    <property name="orientation">horizontal</property>
-    <property name="spacing">8</property>
-    <property name="css-classes">action-btn-container</property>
+  <object class="GtkButton" id="btn-wallpapers">
+    <property name="css-classes">action-btn</property>
+
     <child>
-      <object class="GtkButton" id="btn-wallpapers">
-        <property name="label">Wallpapers</property>
-        <property name="margin-start">16</property>
-        <property name="margin-end">16</property>
-        <property name="margin-top">6</property>
-        <property name="margin-bottom">6</property>
-        <property name="css-classes">action-btn</property>
+      <object class="GtkBox">
+        <property name="orientation">horizontal</property>
+        <property name="margin-start">12</property>
+        <property name="margin-end">12</property>
+        <property name="margin-top">8</property>
+        <property name="margin-bottom">8</property>
+        <property name="spacing">8</property>
+
+        <child>
+          <object class="GtkImage" id="btn-icon-wallpapers">
+            <property name="file">/home/warrenwu/projects/wallflower/././resources/icons/wallpaper-icon-d.png</property>
+            <property name="icon-size">1</property>
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkLabel">
+            <property name="label">Wallpapers</property>
+            <property name="halign">start</property>
+            <property name="css-classes">action-label</property>
+          </object>
+        </child>
+
+      </object>
+    </child>
+  </object>
+  <object class="GtkButton" id="btn-settings">
+    <property name="css-classes">action-btn</property>
+
+    <child>
+      <object class="GtkBox">
+        <property name="orientation">horizontal</property>
+        <property name="margin-start">12</property>
+        <property name="margin-end">12</property>
+        <property name="margin-top">8</property>
+        <property name="margin-bottom">8</property>
+        <property name="spacing">8</property>
+
+        <child>
+          <object class="GtkImage" id="btn-icon-settings">
+            <property name="file">/home/warrenwu/projects/wallflower/././resources/icons/settings-icon-l.png</property>
+            <property name="icon-size">1</property>
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkLabel">
+            <property name="label">Settings</property>
+            <property name="halign">start</property>
+            <property name="css-classes">action-label</property>
+          </object>
+        </child>
+
       </object>
     </child>
   </object>
 
-  <object class="GtkBox" id="btn-settings-container">
-    <property name="orientation">horizontal</property>
-    <property name="spacing">8</property>
-    <property name="css-classes">action-btn-container-inactive</property>
-    <child>
-      <object class="GtkButton" id="btn-settings">
-        <property name="label">Settings</property>
-        <property name="margin-start">16</property>
-        <property name="margin-end">16</property>
-        <property name="margin-top">6</property>
-        <property name="margin-bottom">6</property>
-        <property name="css-classes">action-btn-inactive</property>
-      </object>
-    </child>
-  </object>
 </interface>

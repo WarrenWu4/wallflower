@@ -5,7 +5,9 @@ module MarkupInjector
   ( createTempFile,
     createImageMarkup,
     buildImageTemplate,
-    applyBackgroundAction
+    applyBackgroundAction,
+    insertActionTemplate,
+    buildTemplate
   )
 where
 
@@ -16,6 +18,24 @@ import qualified GI.Gtk as Gtk
 import HyprpaperManager
 import Utilities
 import LoggerGe
+
+insertActionTemplate :: (String, String, String) -> IO String
+insertActionTemplate (btnId, iconPath, btnLabel) = do
+  templatePath <- getResourcePath "resources/templates/action.template"
+  absIconPath <- getResourcePath iconPath
+  template <- readFile templatePath
+  let withBtnId = T.replace (T.pack "{id}") (T.pack btnId) (T.pack template)
+  let withBtnLabel = T.replace (T.pack "{btn-label}") (T.pack btnLabel) withBtnId
+  let final = T.replace (T.pack "{icon-path}") (T.pack absIconPath) withBtnLabel 
+  return (T.unpack final) 
+
+
+buildTemplate:: String -> String -> IO () 
+buildTemplate content filePath = do
+  let header = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<interface>\n\t<requires lib=\"gtk\" version=\"4.0\"/>\n"
+  let footer = "\n</interface>"
+  uiPath <- getResourcePath filePath
+  writeFile uiPath $ header ++ content ++ footer
 
 -- | writes temporary file with image ui markup
 createTempFile :: String -> IO ()

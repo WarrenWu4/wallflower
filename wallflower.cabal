@@ -41,7 +41,8 @@ executable wallflower
                        ContentAreaManager,
                        Utilities,
                        HyprpaperManager,
-                       FontBindings
+                       FontBindings,
+                       UiData
   c-sources:           cbits/font_loader.c
   extra-libraries:     fontconfig
   autogen-modules:     Paths_wallflower

@@ -1,0 +1,30 @@
+  <object class="GtkButton" id="btn-{id}">
+    <property name="css-classes">action-btn</property>
+
+    <child>
+      <object class="GtkBox">
+        <property name="orientation">horizontal</property>
+        <property name="margin-start">12</property>
+        <property name="margin-end">12</property>
+        <property name="margin-top">8</property>
+        <property name="margin-bottom">8</property>
+        <property name="spacing">8</property>
+
+        <child>
+          <object class="GtkImage" id="btn-icon-{id}">
+            <property name="file">{icon-path}</property>
+            <property name="icon-size">1</property>
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkLabel">
+            <property name="label">{btn-label}</property>
+            <property name="halign">start</property>
+            <property name="css-classes">action-label</property>
+          </object>
+        </child>
+
+      </object>
+    </child>
+  </object>
