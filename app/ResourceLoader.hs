@@ -19,8 +19,8 @@ import qualified GI.Gdk as Gdk
 import qualified GI.Gtk as Gtk
 import LoggerGe
 import MarkupInjector
-import Utilities
 import UiData
+import Utilities
 
 placeImages :: Gtk.Grid -> [Gtk.Button] -> IO ()
 placeImages container imgs = do
@@ -33,26 +33,31 @@ placeImages container imgs = do
 
 loadActionBar :: Gtk.Builder -> IO ()
 loadActionBar builder = do
-  logMsg INFO "Loading action bar" 
+  logMsg INFO "Loading action bar"
 
   -- generate action template & build ui file
-  actionsRaw <- mapM insertActionTemplate $ zip3 getActionIds getActionIcons getActionLabels 
+  actionsRaw <- mapM insertActionTemplate $ zip3 getActionIds getActionIcons getActionLabels
   buildTemplate (concat actionsRaw) "resources/ui/actions.ui"
 
   -- load action ui file & append to main window
   actionsPath <- getResourcePath "resources/ui/actions.ui"
-  Gtk.builderAddFromFile builder actionsPath 
-  actionButtons <- mapM (getObjectSafe builder Gtk.Button . pack) getActionButtonIds 
+  Gtk.builderAddFromFile builder actionsPath
+  actionButtons <- mapM (getObjectSafe builder Gtk.Button . pack) getActionButtonIds
   actionBar <- Gtk.unsafeCastTo Gtk.Box =<< getObjectSafe builder Gtk.Box "action-bar"
   forM_ actionButtons $ \container -> do Gtk.boxAppend actionBar container
 
   -- set onclick event handler for each button
   zipWithM_ (applyActions builder) actionButtons getActionIds
+  
+  -- set pointer cursor on hover
+  fallback <- Gtk.widgetGetCursor actionBar
+  pointerCursor <- Gdk.cursorNewFromName "pointer" fallback
+  forM_ actionButtons $ \btn -> Gtk.widgetSetCursor btn pointerCursor 
 
   -- set default ui button states
-  setButtonState builder "wallpapers" "resources/icons/wallpaper-icon-d.png" True 
-  setButtonState builder "settings" "resources/icons/settings-icon-l.png" False 
-  
+  setButtonState builder "wallpapers" "resources/icons/wallpaper-icon-d.png" True
+  setButtonState builder "settings" "resources/icons/settings-icon-l.png" False
+
   logMsg OK "Action bar loaded"
 
 loadWallpapers :: Gtk.Builder -> IO ()
