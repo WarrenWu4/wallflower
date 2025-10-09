@@ -18,7 +18,7 @@
         </child>
 
         <child>
-          <object class="GtkLabel">
+          <object class="GtkLabel" id="btn-label-{id}">
             <property name="label">{btn-label}</property>
             <property name="halign">start</property>
             <property name="css-classes">action-label</property>

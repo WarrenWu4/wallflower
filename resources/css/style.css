@@ -2,7 +2,7 @@
   background-color: #282828;
 }
 
-.action-btn, .action-btn-inactive {
+.action-btn {
   background-image: none;
   border: none;
   background-color: #ebdbb2;
@@ -14,4 +14,18 @@
   font-weight: 600;
   font-size: 16px;
   color: #282828;
+}
+
+.action-btn-inactive {
+  background-image: none;
+  border: 2px solid #BDAE93;
+  background-color: #282828;
+  border-radius: 600px;
+}
+
+.action-label-inactive {
+  font-family: "Montserrat", sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  color: #BDAE93;
 }

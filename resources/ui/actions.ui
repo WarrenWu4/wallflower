@@ -21,7 +21,7 @@
         </child>
 
         <child>
-          <object class="GtkLabel">
+          <object class="GtkLabel" id="btn-label-wallpapers">
             <property name="label">Wallpapers</property>
             <property name="halign">start</property>
             <property name="css-classes">action-label</property>
@@ -51,7 +51,7 @@
         </child>
 
         <child>
-          <object class="GtkLabel">
+          <object class="GtkLabel" id="btn-label-settings">
             <property name="label">Settings</property>
             <property name="halign">start</property>
             <property name="css-classes">action-label</property>

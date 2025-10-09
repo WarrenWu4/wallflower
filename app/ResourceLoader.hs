@@ -35,16 +35,24 @@ loadActionBar :: Gtk.Builder -> IO ()
 loadActionBar builder = do
   logMsg INFO "Loading action bar" 
 
+  -- generate action template & build ui file
   actionsRaw <- mapM insertActionTemplate $ zip3 getActionIds getActionIcons getActionLabels 
   buildTemplate (concat actionsRaw) "resources/ui/actions.ui"
 
+  -- load action ui file & append to main window
   actionsPath <- getResourcePath "resources/ui/actions.ui"
   Gtk.builderAddFromFile builder actionsPath 
   actionButtons <- mapM (getObjectSafe builder Gtk.Button . pack) getActionButtonIds 
   actionBar <- Gtk.unsafeCastTo Gtk.Box =<< getObjectSafe builder Gtk.Box "action-bar"
   forM_ actionButtons $ \container -> do Gtk.boxAppend actionBar container
+
+  -- set onclick event handler for each button
   zipWithM_ (applyActions builder) actionButtons getActionIds
 
+  -- set default ui button states
+  setButtonState builder "wallpapers" "resources/icons/wallpaper-icon-d.png" True 
+  setButtonState builder "settings" "resources/icons/settings-icon-l.png" False 
+  
   logMsg OK "Action bar loaded"
 
 loadWallpapers :: Gtk.Builder -> IO ()

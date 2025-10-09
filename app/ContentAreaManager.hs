@@ -5,13 +5,31 @@ module ContentAreaManager
   ( applyActions,
     setContentArea,
     clearContentArea,
+    setButtonState
   )
 where
 
-import Data.Text (Text)
+import Data.Text (pack, Text)
 import qualified GI.Gtk as Gtk
 import LoggerGe
 import Utilities
+import UiData
+
+setButtonState :: Gtk.Builder -> String -> String -> Bool -> IO ()
+setButtonState builder actionId btnIconPath active = do
+  let btnId = getActionButtonId actionId
+  let btnLabel = getActionLabelId actionId
+  let btnIcon = getActionIconId actionId
+  let (addedClass, removedClass) = if active then ("", "-inactive") else ("-inactive", "")
+  btnObj <- getObjectSafe builder Gtk.Button (pack btnId) 
+  btnLabelObj <- getObjectSafe builder Gtk.Label (pack btnLabel) 
+  btnIconObj <- getObjectSafe builder Gtk.Image (pack btnIcon) 
+  Gtk.widgetRemoveCssClass btnObj $ pack ("action-btn" ++ removedClass)
+  Gtk.widgetRemoveCssClass btnLabelObj $ pack ("action-label" ++ removedClass)
+  Gtk.widgetAddCssClass btnObj $ pack ("action-btn" ++ addedClass)
+  Gtk.widgetAddCssClass btnLabelObj $ pack ("action-label" ++ addedClass)
+  absBtnIconPath <- getResourcePath btnIconPath
+  Gtk.imageSetFromFile btnIconObj (Just absBtnIconPath)
 
 applyActions:: Gtk.Builder -> Gtk.Button -> String -> IO ()
 applyActions builder btn action = do
@@ -20,11 +38,16 @@ applyActions builder btn action = do
       _ <- Gtk.on btn #clicked $ do
         logMsg DEBUG "Wallpapers button clicked"
         setContentArea builder Gtk.Grid "wallpaper-container"
+        setButtonState builder "wallpapers" "resources/icons/wallpaper-icon-d.png" True
+        setButtonState builder "settings" "resources/icons/settings-icon-l.png" False 
       return ()
+
     "settings" -> do
       _ <- Gtk.on btn #clicked $ do
         logMsg DEBUG "Settings button clicked"
         setContentArea builder Gtk.Box "settings-container"
+        setButtonState builder "settings" "resources/icons/settings-icon-d.png" True 
+        setButtonState builder "wallpapers" "resources/icons/wallpaper-icon-l.png" False 
       return ()
     _ -> do
       logMsg ERROR $ "Unknown action: " ++ action
