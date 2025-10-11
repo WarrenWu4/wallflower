@@ -5,20 +5,60 @@
     <property name="spacing">12</property>
     <property name="hexpand">true</property>
     <property name="vexpand">true</property>
+    <property name="halign">start</property>
+    <property name="valign">start</property>
+
     <child>
       <object class="GtkBox">
+        <property name="halign">start</property>
+        <property name="valign">start</property>
         <property name="orientation">vertical</property>
         <property name="spacing">12</property>
         <property name="margin-start">20</property>
         <property name="margin-end">20</property>
         <property name="margin-top">20</property>
         <property name="margin-bottom">10</property>
+
         <child>
-          <object class="GtkLabel">
-            <property name="label">This content is now inside a modal GtkDialog!</property>
-            <property name="wrap">true</property>
+          <object class="GtkBox">
+            <property name="orientation">vertical</property>
+            <property name="spacing">4</property>
+            <property name="halign">start</property>
+            <property name="valign">start</property>
+
+            <child>
+              <object class="GtkLabel">
+                <property name="label">Directories</property>
+                <property name="css-classes">settings-directory-title</property>
+                <property name="halign">start</property>
+                <property name="valign">start</property>
+
+              </object>
+            </child>
+
+            <child>
+              <object class="GtkLabel">
+                <property name="label">Wallflower searches the following directories for images. You can add more directories to search from by adding the path.</property>
+                <property name="css-classes">settings-directory-description</property>
+                <property name="halign">start</property>
+                <property name="valign">start</property>
+              </object>
+            </child>
+
           </object>
         </child>
+
+        <child>
+          <object class="GtkBox" id="settings-directory-container">
+            <property name="orientation">vertical</property>
+            <property name="spacing">4</property>
+            <property name="margin-start">20</property>
+            <property name="margin-end">20</property>
+            <property name="margin-top">20</property>
+            <property name="margin-bottom">10</property>
+          </object>
+        </child>
+
       </object>
     </child>
   </object>

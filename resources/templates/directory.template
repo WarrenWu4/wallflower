@@ -1,0 +1,18 @@
+              <object class="GtkBox" id="settings-directory-{id}">
+                <property name="orientation">horizontal</property>
+                <property name="spacing">8</property>
+
+                <child>
+                  <object class="GtkImage" id="settings-directory-icon-{id}">
+                    <property name="file">{icon-path}</property>
+                  </object>
+                </child>
+
+                <child>
+                  <object class="GtkLabel" id="settings-directory-label-{id}">
+                    <property name="label">{dir-label}</property>
+                    <property name="css-classes">directory-label</property>
+                  </object>
+                </child>
+
+              </object>
