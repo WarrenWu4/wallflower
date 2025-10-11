@@ -17,6 +17,7 @@ import DirectoryManager
 import FontBindings
 import qualified GI.Gdk as Gdk
 import qualified GI.Gtk as Gtk
+import qualified GI.Gio as Gio
 import LoggerGe
 import MarkupInjector
 import UiData
@@ -99,6 +100,17 @@ loadSettings builder = do
   directoryList <- mapM (getObjectSafe builder Gtk.Box . pack) ["settings-directory-" ++ show n | n <- [1 .. length searchDirectories]]
   directoryContainer <- Gtk.unsafeCastTo Gtk.Box =<< getObjectSafe builder Gtk.Box "settings-directory-container"
   forM_ directoryList $ \container -> do Gtk.boxAppend directoryContainer container
+
+  -- add onclick event to add directory button
+  logMsg DEBUG "Setting up add directory button"
+  browseBtn <- getObjectSafe builder Gtk.Button "settings-browse-btn"
+  _ <- Gtk.on browseBtn #clicked $ do
+    logMsg DEBUG "Browse button clicked"
+    fileDialog <- Gtk.fileDialogNew
+    Gtk.fileDialogSetTitle fileDialog "Select Folder"
+
+    Gtk.fileDialogOpen fileDialog (Nothing :: Maybe Gtk.Window) (Nothing :: Maybe Gio.Cancellable) Nothing
+    return ()
 
   logMsg OK "Settings loaded"
 

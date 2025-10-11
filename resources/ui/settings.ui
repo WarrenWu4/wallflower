@@ -16,6 +16,15 @@
         <property name="spacing">24</property>
 
         <child>
+          <object class="GtkButton" id="settings-browse-btn">
+            <property name="label">Browse</property>
+            <property name="css-classes">settings-browse-btn</property>
+            <property name="halign">start</property>
+            <property name="valign">start</property>
+          </object>
+        </child>
+
+        <child>
           <object class="GtkBox">
             <property name="orientation">vertical</property>
             <property name="spacing">8</property>

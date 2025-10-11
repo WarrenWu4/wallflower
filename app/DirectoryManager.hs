@@ -95,5 +95,3 @@ isCurrentWallpaper path = do
   case currentWallpaper of
     Just p  -> return (p == path)
     Nothing -> return False 
-
-
