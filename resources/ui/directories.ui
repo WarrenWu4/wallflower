@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+	<requires lib="gtk" version="4.0"/>
+  <object class="GtkBox" id="settings-directory-1">
+    <property name="orientation">horizontal</property>
+    <property name="spacing">16</property>
+
+    <child>
+      <object class="GtkImage" id="settings-directory-icon-1">
+        <property name="file">/home/warrenwu/projects/wallflower/././resources/icons/folder-icon.png</property>
+        <property name="icon-size">1</property>
+      </object>
+    </child>
+
+    <child>
+      <object class="GtkLabel" id="settings-directory-label-1">
+        <property name="label">/home/warrenwu/backgrounds</property>
+        <property name="css-classes">directory-label</property>
+      </object>
+    </child>
+
+  </object>
+  <object class="GtkBox" id="settings-directory-2">
+    <property name="orientation">horizontal</property>
+    <property name="spacing">16</property>
+
+    <child>
+      <object class="GtkImage" id="settings-directory-icon-2">
+        <property name="file">/home/warrenwu/projects/wallflower/././resources/icons/folder-icon.png</property>
+        <property name="icon-size">1</property>
+      </object>
+    </child>
+
+    <child>
+      <object class="GtkLabel" id="settings-directory-label-2">
+        <property name="label">/home/warrenwu/screenshots</property>
+        <property name="css-classes">directory-label</property>
+      </object>
+    </child>
+
+  </object>
+
+</interface>

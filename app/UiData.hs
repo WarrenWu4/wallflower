@@ -7,6 +7,7 @@ module UiData
     getActionButtonIds,
     getActionIconIds,
     getActionIcons,
+    getFolderIcon
   )
 where
 
@@ -33,3 +34,6 @@ getActionIconIds = [getActionIconId a | a <- getActionIds]
 
 getActionIcons :: [String]
 getActionIcons = ["resources/icons/wallpaper-icon-d.png", "resources/icons/settings-icon-l.png"]
+
+getFolderIcon :: String
+getFolderIcon = "resources/icons/folder-icon.png"

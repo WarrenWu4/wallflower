@@ -7,6 +7,7 @@ module MarkupInjector
     buildImageTemplate,
     applyBackgroundAction,
     insertActionTemplate,
+    insertDirectoryTemplate,
     buildTemplate
   )
 where
@@ -27,6 +28,16 @@ insertActionTemplate (btnId, iconPath, btnLabel) = do
   let withBtnId = T.replace (T.pack "{id}") (T.pack btnId) (T.pack template)
   let withBtnLabel = T.replace (T.pack "{btn-label}") (T.pack btnLabel) withBtnId
   let final = T.replace (T.pack "{icon-path}") (T.pack absIconPath) withBtnLabel 
+  return (T.unpack final) 
+
+insertDirectoryTemplate :: (String, String, String) -> IO String
+insertDirectoryTemplate (dirId, iconPath, dirLabel) = do
+  templatePath <- getResourcePath "resources/templates/directory.template"
+  absIconPath <- getResourcePath iconPath
+  template <- readFile templatePath
+  let withDirId = T.replace (T.pack "{id}") (T.pack dirId) (T.pack template)
+  let withDirLabel = T.replace (T.pack "{dir-label}") (T.pack dirLabel) withDirId 
+  let final = T.replace (T.pack "{icon-path}") (T.pack absIconPath) withDirLabel 
   return (T.unpack final) 
 
 

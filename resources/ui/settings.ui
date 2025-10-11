@@ -13,16 +13,12 @@
         <property name="halign">start</property>
         <property name="valign">start</property>
         <property name="orientation">vertical</property>
-        <property name="spacing">12</property>
-        <property name="margin-start">20</property>
-        <property name="margin-end">20</property>
-        <property name="margin-top">20</property>
-        <property name="margin-bottom">10</property>
+        <property name="spacing">24</property>
 
         <child>
           <object class="GtkBox">
             <property name="orientation">vertical</property>
-            <property name="spacing">4</property>
+            <property name="spacing">8</property>
             <property name="halign">start</property>
             <property name="valign">start</property>
 
@@ -52,10 +48,6 @@
           <object class="GtkBox" id="settings-directory-container">
             <property name="orientation">vertical</property>
             <property name="spacing">4</property>
-            <property name="margin-start">20</property>
-            <property name="margin-end">20</property>
-            <property name="margin-top">20</property>
-            <property name="margin-bottom">10</property>
           </object>
         </child>
 

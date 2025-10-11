@@ -63,7 +63,7 @@ loadActionBar builder = do
 loadWallpapers :: Gtk.Builder -> IO ()
 loadWallpapers builder = do
   logMsg INFO "Loading wallpapers"
-  let searchDirectories = getDirectoriesFromSetting ""
+  searchDirectories <- getDirectoriesFromSetting
   imagePaths <- getImagesInDirectories searchDirectories
   imageMarkups <- zipWithM buildImageTemplate imagePaths [1 .. (length imagePaths)]
   createTempFile $ concat imageMarkups
@@ -82,8 +82,24 @@ loadWallpapers builder = do
 loadSettings :: Gtk.Builder -> IO ()
 loadSettings builder = do
   logMsg INFO "Loading settings"
+  -- load settings ui file and append to main window
   settingsFile <- getResourcePath "resources/ui/settings.ui"
   Gtk.builderAddFromFile builder settingsFile
+
+  -- generate directory template
+  searchDirectories <- getDirectoriesFromSetting
+  let dirIds = [show a | a <- [1 .. length searchDirectories]]
+  let dirIcons = [getFolderIcon | _ <- searchDirectories]
+  directoryRaw <- mapM insertDirectoryTemplate $ zip3 dirIds dirIcons searchDirectories
+  buildTemplate (concat directoryRaw) "resources/ui/directories.ui"
+
+  -- add template to settings ui
+  directoryPath <- getResourcePath "resources/ui/directories.ui"
+  Gtk.builderAddFromFile builder directoryPath 
+  directoryList <- mapM (getObjectSafe builder Gtk.Box . pack) ["settings-directory-" ++ show n | n <- [1 .. length searchDirectories]]
+  directoryContainer <- Gtk.unsafeCastTo Gtk.Box =<< getObjectSafe builder Gtk.Box "settings-directory-container"
+  forM_ directoryList $ \container -> do Gtk.boxAppend directoryContainer container
+
   logMsg OK "Settings loaded"
 
 loadUI :: Gtk.Application -> IO ()

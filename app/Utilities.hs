@@ -25,3 +25,4 @@ getObjectSafe builder constructor objectId = do
 getResourcePath :: FilePath -> IO FilePath
 getResourcePath path = do
   getDataFileName path
+

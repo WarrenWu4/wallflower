@@ -13,6 +13,8 @@ import System.Directory
 import System.FilePath
 import Control.Monad
 import Data.List.Split (splitOn)
+import LoggerGe
+import Utilities
 
 -- | checks if file path is a supported image
 -- supported image types: jpg, jpeg, png
@@ -43,10 +45,27 @@ getImagesInDirectories dirs = do
   imagesList <- mapM getImagesInDirectory dirs
   return $ concat imagesList
 
--- FIX: hardcode for now
 -- | get directories from setting file
-getDirectoriesFromSetting _ = ["/home/warrenwu/backgrounds"]
--- getDirectoriesFromSetting :: FilePath -> IO [FilePath]
+-- if the settings file doesn't exist create a default one
+getDirectoriesFromSetting :: IO [FilePath]
+getDirectoriesFromSetting = do
+  logMsg INFO "Fetching directories from settings"
+  directoriesPath <- getResourcePath "resources/data/directories.txt"
+  exists <- doesFileExist directoriesPath
+  if not exists
+    then do
+      logMsg WARNING "Settings file not found... Please report this error to the GitHub...\n" 
+      -- TODO: set fallback by creating dfeualt settings file
+      -- logMsg DEBUG "Creating default settings file"
+      logMsg DEBUG "Creating default background directory"
+      homeDirectory <- getHomeDirectory
+      let defaultDir = homeDirectory </> "backgrounds"
+      createDirectoryIfMissing True defaultDir
+      return [defaultDir]
+    else do
+      contents <- readFile directoriesPath
+      let dirs = filter (not . null) $ lines contents
+      return dirs
 
 -- TODO: implement once settings file is figured out
 -- | save directories to setting file

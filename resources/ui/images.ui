@@ -65,5 +65,37 @@
       </object>
     </child>
   </object>
+  <object class="GtkButton" id="btn-background-image-9">
+    <child>
+      <object class="GtkPicture" id="background-image-9">
+        <property name="file">/home/warrenwu/screenshots/2025-10-02_21-10.png</property>
+        <property name="css-classes">wallpaper</property>
+      </object>
+    </child>
+  </object>
+  <object class="GtkButton" id="btn-background-image-10">
+    <child>
+      <object class="GtkPicture" id="background-image-10">
+        <property name="file">/home/warrenwu/screenshots/2025-10-04_21-39.png</property>
+        <property name="css-classes">wallpaper</property>
+      </object>
+    </child>
+  </object>
+  <object class="GtkButton" id="btn-background-image-11">
+    <child>
+      <object class="GtkPicture" id="background-image-11">
+        <property name="file">/home/warrenwu/screenshots/2025-10-04_21-45.png</property>
+        <property name="css-classes">wallpaper</property>
+      </object>
+    </child>
+  </object>
+  <object class="GtkButton" id="btn-background-image-12">
+    <child>
+      <object class="GtkPicture" id="background-image-12">
+        <property name="file">/home/warrenwu/screenshots/2025-10-04_21-46.png</property>
+        <property name="css-classes">wallpaper</property>
+      </object>
+    </child>
+  </object>
 
 </interface>

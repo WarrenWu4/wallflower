@@ -28,4 +28,4 @@ dist-newstyle/
 .ghci
 
 # special build files/folders
-resources/images.ui
+resources/data/directories.txt
