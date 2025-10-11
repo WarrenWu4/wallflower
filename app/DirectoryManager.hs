@@ -3,7 +3,7 @@ module DirectoryManager (
   getImagesInDirectory,
   getImagesInDirectories,
   getDirectoriesFromSetting,
-  saveDirectoriesToSetting,
+  saveDirectoryToSetting,
   getHyprpaperConfigPath,
   getCurrentWallpaperPath,
   isCurrentWallpaper
@@ -67,10 +67,19 @@ getDirectoriesFromSetting = do
       let dirs = filter (not . null) $ lines contents
       return dirs
 
--- TODO: implement once settings file is figured out
+-- implement once settings file is figured out
 -- | save directories to setting file
-saveDirectoriesToSetting :: FilePath -> [FilePath] -> IO ()
-saveDirectoriesToSetting settingPath dirs = return ()
+saveDirectoryToSetting :: String -> IO ()
+saveDirectoryToSetting dir = do
+  directoriesPath <- getResourcePath "resources/data/directories.txt"
+  exists <- doesFileExist directoriesPath
+  if not exists
+    then logMsg ERROR "Settings file not found... Please report this error to the GitHub...\n" >> error ""
+    else do
+      dirExists <- doesDirectoryExist dir
+      if not dirExists
+        then logMsg ERROR "Directory does not exist" >> error ""
+        else appendFile directoriesPath (dir ++ "\n")
 
 getHyprpaperConfigPath :: IO FilePath
 getHyprpaperConfigPath = do
@@ -95,3 +104,4 @@ isCurrentWallpaper path = do
   case currentWallpaper of
     Just p  -> return (p == path)
     Nothing -> return False 
+
