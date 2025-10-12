@@ -7,14 +7,11 @@ import Control.Monad (void)
 import Data.GI.Base
 import qualified GI.Gtk as Gtk
 import ResourceLoader
-import Validator (checkHyprland, checkHyprpaper)
-import LoggerGe
+import Validator (checkAllDependencies)
 
 main :: IO ()
 main = void $ do
-  logMsg INFO "Starting application"
-  checkHyprland
-  checkHyprpaper
+  checkAllDependencies
 
   app <- new Gtk.Application [#applicationId := "com.warrenwu.wallflower"]
 
