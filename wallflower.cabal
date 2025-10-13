@@ -35,14 +35,15 @@ executable wallflower
   other-modules:       DirectoryManager, 
                        ResourceLoader, 
                        Paths_wallflower, 
-                       MarkupInjector, 
                        Validator,
                        LoggerGe,
                        ContentAreaManager,
                        Utilities,
                        HyprpaperManager,
                        FontBindings,
-                       UiData
+                       UiData,
+                       TemplateBuilder,
+                       FileParser
   c-sources:           cbits/font_loader.c
   extra-libraries:     fontconfig
   autogen-modules:     Paths_wallflower

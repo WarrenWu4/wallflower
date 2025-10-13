@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
 	<requires lib="gtk" version="4.0"/>
-  <object class="GtkButton" id="btn-wallpapers">
-    <property name="css-classes">action-btn</property>
+  <object class="GtkButton" id="tab-wallpapers">
+    <property name="css-classes">action-tab</property>
 
     <child>
       <object class="GtkBox">
@@ -14,14 +14,14 @@
         <property name="spacing">8</property>
 
         <child>
-          <object class="GtkImage" id="btn-icon-wallpapers">
-            <property name="file">/home/warrenwu/projects/wallflower/././resources/icons/wallpaper-icon-d.png</property>
+          <object class="GtkImage" id="tab-icon-wallpapers">
+            <property name="file">/home/warrenwu/projects/wallflower/resources/icons/wallpaper-icon-d.png</property>
             <property name="icon-size">1</property>
           </object>
         </child>
 
         <child>
-          <object class="GtkLabel" id="btn-label-wallpapers">
+          <object class="GtkLabel" id="tab-label-wallpapers">
             <property name="label">Wallpapers</property>
             <property name="halign">start</property>
             <property name="css-classes">action-label</property>
@@ -31,8 +31,8 @@
       </object>
     </child>
   </object>
-  <object class="GtkButton" id="btn-settings">
-    <property name="css-classes">action-btn</property>
+  <object class="GtkButton" id="tab-settings">
+    <property name="css-classes">action-tab</property>
 
     <child>
       <object class="GtkBox">
@@ -44,14 +44,14 @@
         <property name="spacing">8</property>
 
         <child>
-          <object class="GtkImage" id="btn-icon-settings">
-            <property name="file">/home/warrenwu/projects/wallflower/././resources/icons/settings-icon-l.png</property>
+          <object class="GtkImage" id="tab-icon-settings">
+            <property name="file">/home/warrenwu/projects/wallflower/resources/icons/settings-icon-l.png</property>
             <property name="icon-size">1</property>
           </object>
         </child>
 
         <child>
-          <object class="GtkLabel" id="btn-label-settings">
+          <object class="GtkLabel" id="tab-label-settings">
             <property name="label">Settings</property>
             <property name="halign">start</property>
             <property name="css-classes">action-label</property>

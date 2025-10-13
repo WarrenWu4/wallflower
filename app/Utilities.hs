@@ -4,18 +4,21 @@ module Utilities
   ( getObjectSafe,
     getResourcePath,
     isProgramRunning,
-    doesResourceExist
+    doesResourceExist,
+    moveToFront,
   )
 where
 
 import Control.Exception (IOException, try)
+import Control.Monad (forM_, unless)
+import Data.List (delete, find)
 import Data.Text (Text)
 import qualified GI.Gtk as Gtk
 import LoggerGe
 import Paths_wallflower (getDataFileName)
-import System.Process (readProcess)
-import Control.Monad (forM_, unless)
 import System.Directory (doesFileExist)
+import System.FilePath (normalise)
+import System.Process (readProcess)
 
 -- | safely gets object from builder and casts it to the desired type
 -- crashes if object is not found or cannot be casted
@@ -33,8 +36,8 @@ getObjectSafe builder constructor objectId = do
 -- | returns absolute path of resource
 getResourcePath :: FilePath -> IO FilePath
 getResourcePath path = do
-  getDataFileName path
-
+  absPath <- getDataFileName path
+  return $ normalise absPath
 
 -- | checks if a program is running using pgrep
 isProgramRunning :: String -> IO Bool
@@ -55,3 +58,8 @@ doesResourceExist resources resourceCheck = do
     unless exists $ logMsg ERROR (resourceCheck ++ " check failed") >> error (resPath ++ " does not exist")
   logMsg OK (resourceCheck ++ " check passed")
 
+moveToFront :: (FilePath -> Bool) -> [FilePath] -> [FilePath]
+moveToFront p xs =
+  case find p xs of
+    Nothing -> xs
+    Just target -> target : delete target xs

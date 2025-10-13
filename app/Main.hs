@@ -15,11 +15,8 @@ main = void $ do
 
   app <- new Gtk.Application [#applicationId := "com.warrenwu.wallflower"]
 
-
   _ <- on app #activate $ do
-    loadFont
-    loadCSS
-    loadUI app
+    loadResources app
 
   _ <- #run app Nothing
   return ()

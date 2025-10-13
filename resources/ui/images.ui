@@ -1,98 +1,66 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
 	<requires lib="gtk" version="4.0"/>
-  <object class="GtkButton" id="btn-background-image-1">
+  <object class="GtkButton" id="image-btn-1">
     <child>
-      <object class="GtkPicture" id="background-image-1">
-        <property name="file">/home/warrenwu/backgrounds/gamer-girl.png</property>
-        <property name="css-classes">wallpaper</property>
-      </object>
-    </child>
-  </object>
-  <object class="GtkButton" id="btn-background-image-2">
-    <child>
-      <object class="GtkPicture" id="background-image-2">
-        <property name="file">/home/warrenwu/backgrounds/sunflower-girl.jpg</property>
-        <property name="css-classes">wallpaper</property>
-      </object>
-    </child>
-  </object>
-  <object class="GtkButton" id="btn-background-image-3">
-    <child>
-      <object class="GtkPicture" id="background-image-3">
-        <property name="file">/home/warrenwu/backgrounds/priest-girl.jpg</property>
-        <property name="css-classes">wallpaper</property>
-      </object>
-    </child>
-  </object>
-  <object class="GtkButton" id="btn-background-image-4">
-    <child>
-      <object class="GtkPicture" id="background-image-4">
-        <property name="file">/home/warrenwu/backgrounds/holy-shit.jpg</property>
-        <property name="css-classes">wallpaper</property>
-      </object>
-    </child>
-  </object>
-  <object class="GtkButton" id="btn-background-image-5">
-    <child>
-      <object class="GtkPicture" id="background-image-5">
-        <property name="file">/home/warrenwu/backgrounds/beach-girl.png</property>
-        <property name="css-classes">wallpaper</property>
-      </object>
-    </child>
-  </object>
-  <object class="GtkButton" id="btn-background-image-6">
-    <child>
-      <object class="GtkPicture" id="background-image-6">
-        <property name="file">/home/warrenwu/backgrounds/chinatown.png</property>
-        <property name="css-classes">wallpaper</property>
-      </object>
-    </child>
-  </object>
-  <object class="GtkButton" id="btn-background-image-7">
-    <child>
-      <object class="GtkPicture" id="background-image-7">
+      <object class="GtkPicture" id="image-1">
         <property name="file">/home/warrenwu/backgrounds/depresso.png</property>
         <property name="css-classes">wallpaper</property>
       </object>
     </child>
   </object>
-  <object class="GtkButton" id="btn-background-image-8">
+  <object class="GtkButton" id="image-btn-2">
     <child>
-      <object class="GtkPicture" id="background-image-8">
+      <object class="GtkPicture" id="image-2">
+        <property name="file">/home/warrenwu/backgrounds/gamer-girl.png</property>
+        <property name="css-classes">wallpaper</property>
+      </object>
+    </child>
+  </object>
+  <object class="GtkButton" id="image-btn-3">
+    <child>
+      <object class="GtkPicture" id="image-3">
+        <property name="file">/home/warrenwu/backgrounds/sunflower-girl.jpg</property>
+        <property name="css-classes">wallpaper</property>
+      </object>
+    </child>
+  </object>
+  <object class="GtkButton" id="image-btn-4">
+    <child>
+      <object class="GtkPicture" id="image-4">
+        <property name="file">/home/warrenwu/backgrounds/priest-girl.jpg</property>
+        <property name="css-classes">wallpaper</property>
+      </object>
+    </child>
+  </object>
+  <object class="GtkButton" id="image-btn-5">
+    <child>
+      <object class="GtkPicture" id="image-5">
+        <property name="file">/home/warrenwu/backgrounds/holy-shit.jpg</property>
+        <property name="css-classes">wallpaper</property>
+      </object>
+    </child>
+  </object>
+  <object class="GtkButton" id="image-btn-6">
+    <child>
+      <object class="GtkPicture" id="image-6">
+        <property name="file">/home/warrenwu/backgrounds/beach-girl.png</property>
+        <property name="css-classes">wallpaper</property>
+      </object>
+    </child>
+  </object>
+  <object class="GtkButton" id="image-btn-7">
+    <child>
+      <object class="GtkPicture" id="image-7">
+        <property name="file">/home/warrenwu/backgrounds/chinatown.png</property>
+        <property name="css-classes">wallpaper</property>
+      </object>
+    </child>
+  </object>
+  <object class="GtkButton" id="image-btn-8">
+    <child>
+      <object class="GtkPicture" id="image-8">
         <property name="file">/home/warrenwu/backgrounds/san-francisco.png</property>
-        <property name="css-classes">wallpaper</property>
-      </object>
-    </child>
-  </object>
-  <object class="GtkButton" id="btn-background-image-9">
-    <child>
-      <object class="GtkPicture" id="background-image-9">
-        <property name="file">/home/warrenwu/screenshots/2025-10-02_21-10.png</property>
-        <property name="css-classes">wallpaper</property>
-      </object>
-    </child>
-  </object>
-  <object class="GtkButton" id="btn-background-image-10">
-    <child>
-      <object class="GtkPicture" id="background-image-10">
-        <property name="file">/home/warrenwu/screenshots/2025-10-04_21-39.png</property>
-        <property name="css-classes">wallpaper</property>
-      </object>
-    </child>
-  </object>
-  <object class="GtkButton" id="btn-background-image-11">
-    <child>
-      <object class="GtkPicture" id="background-image-11">
-        <property name="file">/home/warrenwu/screenshots/2025-10-04_21-45.png</property>
-        <property name="css-classes">wallpaper</property>
-      </object>
-    </child>
-  </object>
-  <object class="GtkButton" id="btn-background-image-12">
-    <child>
-      <object class="GtkPicture" id="background-image-12">
-        <property name="file">/home/warrenwu/screenshots/2025-10-04_21-46.png</property>
         <property name="css-classes">wallpaper</property>
       </object>
     </child>

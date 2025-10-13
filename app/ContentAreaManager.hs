@@ -13,41 +13,40 @@ import Data.Text (pack, Text)
 import qualified GI.Gtk as Gtk
 import LoggerGe
 import Utilities
-import UiData
 
-setButtonState :: Gtk.Builder -> String -> String -> Bool -> IO ()
-setButtonState builder actionId btnIconPath active = do
-  let btnId = getActionButtonId actionId
-  let btnLabel = getActionLabelId actionId
-  let btnIcon = getActionIconId actionId
+setButtonState :: Gtk.Builder -> String -> FilePath -> String -> String -> Bool -> IO ()
+setButtonState builder btnId btnIconPath btnIconId btnLabelId active = do
   let (addedClass, removedClass) = if active then ("", "-inactive") else ("-inactive", "")
   btnObj <- getObjectSafe builder Gtk.Button (pack btnId) 
-  btnLabelObj <- getObjectSafe builder Gtk.Label (pack btnLabel) 
-  btnIconObj <- getObjectSafe builder Gtk.Image (pack btnIcon) 
+  btnLabelObj <- getObjectSafe builder Gtk.Label (pack btnLabelId) 
+  btnIconObj <- getObjectSafe builder Gtk.Image (pack btnIconId) 
   Gtk.widgetRemoveCssClass btnObj $ pack ("action-btn" ++ removedClass)
   Gtk.widgetRemoveCssClass btnLabelObj $ pack ("action-label" ++ removedClass)
   Gtk.widgetAddCssClass btnObj $ pack ("action-btn" ++ addedClass)
   Gtk.widgetAddCssClass btnLabelObj $ pack ("action-label" ++ addedClass)
-  absBtnIconPath <- getResourcePath btnIconPath
-  Gtk.imageSetFromFile btnIconObj (Just absBtnIconPath)
+  Gtk.imageSetFromFile btnIconObj (Just btnIconPath)
 
 applyActions:: Gtk.Builder -> Gtk.Button -> String -> IO ()
 applyActions builder btn action = do
   case action of 
-    "wallpapers" -> do
+    "tab-wallpapers" -> do
       _ <- Gtk.on btn #clicked $ do
         logMsg DEBUG "Wallpapers button clicked"
         setContentArea builder Gtk.Grid "wallpaper-container"
-        setButtonState builder "wallpapers" "resources/icons/wallpaper-icon-d.png" True
-        setButtonState builder "settings" "resources/icons/settings-icon-l.png" False 
+        iconPath <- getResourcePath "resources/icons/wallpaper-icon-d.png"
+        setButtonState builder "tab-wallpapers" iconPath "tab-icon-wallpapers" "tab-label-wallpapers" True
+        iconPath2 <- getResourcePath "resources/icons/settings-icon-l.png"
+        setButtonState builder "tab-settings" iconPath2 "tab-icon-settings" "tab-label-settings" False 
       return ()
 
-    "settings" -> do
+    "tab-settings" -> do
       _ <- Gtk.on btn #clicked $ do
         logMsg DEBUG "Settings button clicked"
         setContentArea builder Gtk.Box "settings-container"
-        setButtonState builder "settings" "resources/icons/settings-icon-d.png" True 
-        setButtonState builder "wallpapers" "resources/icons/wallpaper-icon-l.png" False 
+        iconPath <- getResourcePath "resources/icons/wallpaper-icon-l.png"
+        setButtonState builder "tab-wallpapers" iconPath "tab-icon-wallpapers" "tab-label-wallpapers" False 
+        iconPath2 <- getResourcePath "resources/icons/settings-icon-d.png"
+        setButtonState builder "tab-settings" iconPath2 "tab-icon-settings" "tab-label-settings" True 
       return ()
     _ -> do
       logMsg ERROR $ "Unknown action: " ++ action

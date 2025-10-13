@@ -99,7 +99,7 @@ doAllCssFilesExist = do
 
 doAllTemplateFilesExist :: IO ()
 doAllTemplateFilesExist = do
-  let templateFiles = ["action.template", "directory.template", "image.template"]
+  let templateFiles = ["tab.template", "directory.template", "image.template"]
   let templateResPath = ["resources/templates/" ++ templateFile | templateFile <- templateFiles]
   doesResourceExist templateResPath "doAllTemplateFilesExist"
 

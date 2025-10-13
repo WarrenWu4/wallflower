@@ -1,5 +1,5 @@
-  <object class="GtkButton" id="btn-{id}">
-    <property name="css-classes">action-btn</property>
+  <object class="GtkButton" id="{tab-id}">
+    <property name="css-classes">action-tab</property>
 
     <child>
       <object class="GtkBox">
@@ -11,15 +11,15 @@
         <property name="spacing">8</property>
 
         <child>
-          <object class="GtkImage" id="btn-icon-{id}">
+          <object class="GtkImage" id="{tab-icon-id}">
             <property name="file">{icon-path}</property>
             <property name="icon-size">1</property>
           </object>
         </child>
 
         <child>
-          <object class="GtkLabel" id="btn-label-{id}">
-            <property name="label">{btn-label}</property>
+          <object class="GtkLabel" id="{tab-label-id}">
+            <property name="label">{tab-label}</property>
             <property name="halign">start</property>
             <property name="css-classes">action-label</property>
           </object>

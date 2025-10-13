@@ -3,9 +3,11 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module ResourceLoader
-  ( loadUI,
-    loadCSS,
+  ( loadResources,
     loadFont,
+    loadCSS,
+    loadWindow,
+    displayWindow,
   )
 where
 
@@ -13,15 +15,15 @@ import ContentAreaManager
 import Control.Monad
 import Data.Int
 import Data.Text.Internal
-import DirectoryManager
 import FontBindings
 import qualified GI.Gdk as Gdk
 import qualified GI.Gio as Gio
 import qualified GI.Gtk as Gtk
 import LoggerGe
-import MarkupInjector
+import TemplateBuilder
 import UiData
 import Utilities
+import DirectoryManager (saveDirectoryToSetting)
 
 placeImages :: Gtk.Grid -> [Gtk.Button] -> IO ()
 placeImages container imgs = do
@@ -32,76 +34,119 @@ placeImages container imgs = do
     let row = num `div` 3 :: Int32
     Gtk.gridAttach container img col row 1 1
 
-loadActionBar :: Gtk.Builder -> IO ()
-loadActionBar builder = do
-  logMsg INFO "Loading action bar"
+-- loadWallpapers :: Gtk.Builder -> IO ()
+-- loadWallpapers builder = do
+--   logMsg INFO "Loading wallpapers"
+--   searchDirectories <- getDirectoriesFromSetting
+--   imagePaths <- getImagesInDirectories searchDirectories
+--   imageMarkups <- zipWithM buildImageTemplate imagePaths [1 .. (length imagePaths)]
+--   createTempFile $ concat imageMarkups
+--   imageFiles <- getResourcePath "resources/ui/images.ui"
+--   wallpaperFile <- getResourcePath "resources/ui/wallpapers.ui"
+--   Gtk.builderAddFromFile builder imageFiles
+--   Gtk.builderAddFromFile builder wallpaperFile
+--   let imageIds = ["btn-background-image-" ++ show n | n <- [1 .. length imageMarkups]]
+--   imgs <- mapM (getObjectSafe builder Gtk.Button . pack) imageIds
+--   Just imgContainerObj <- Gtk.builderGetObject builder "wallpaper-container"
+--   imgContainer <- Gtk.unsafeCastTo Gtk.Grid imgContainerObj
+--   zipWithM_ (applyBackgroundAction builder) [1 .. length imageMarkups] imagePaths
+--   placeImages imgContainer imgs
+--   logMsg OK "Wallpapers loaded"
 
-  -- generate action template & build ui file
-  actionsRaw <- mapM insertActionTemplate $ zip3 getActionIds getActionIcons getActionLabels
-  buildTemplate (concat actionsRaw) "resources/ui/actions.ui"
+-- | wrapper function that loads, builds, and applies all resources
+loadResources :: Gtk.Application -> IO ()
+loadResources app = do
+  loadFont
+  loadCSS
+  builder <- Gtk.builderNew
+  loadWindow builder
+  loadUiFiles builder
+  displayWindow app builder
 
-  -- load action ui file & append to main window
-  actionsPath <- getResourcePath "resources/ui/actions.ui"
-  Gtk.builderAddFromFile builder actionsPath
-  actionButtons <- mapM (getObjectSafe builder Gtk.Button . pack) getActionButtonIds
-  actionBar <- Gtk.unsafeCastTo Gtk.Box =<< getObjectSafe builder Gtk.Box "action-bar"
-  forM_ actionButtons $ \container -> do Gtk.boxAppend actionBar container
+loadFont :: IO ()
+loadFont = do
+  fontPath <- getResourcePath "resources/fonts/Montserrat-VariableFont_wght.ttf"
+  success <- addFontFile (pack fontPath)
+  if success
+    then
+      logMsg OK $ "Font loaded from: " ++ fontPath
+    else logMsg ERROR $ "Failed to load font from: " ++ fontPath
 
-  -- set onclick event handler for each button
-  zipWithM_ (applyActions builder) actionButtons getActionIds
+loadCSS :: IO ()
+loadCSS = do
+  cssPath <- getResourcePath "resources/css/style.css"
+  provider <- Gtk.cssProviderNew
+  Gtk.cssProviderLoadFromPath provider cssPath
+  display <- Gdk.displayGetDefault
+  case display of
+    Nothing -> putStrLn "Failed to get default display"
+    Just d -> do
+      Gtk.styleContextAddProviderForDisplay
+        d
+        provider
+        (fromIntegral Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
 
+loadWindow :: Gtk.Builder -> IO ()
+loadWindow builder = do
+  uiFile <- getResourcePath "resources/ui/window.ui"
+  _ <- Gtk.builderAddFromFile builder uiFile
+  return ()
+
+loadUiFiles:: Gtk.Builder -> IO ()
+loadUiFiles builder = do
+  -- load tab ui files 
+  tabFile <- getResourcePath "resources/ui/tab.ui"
+  tabContent <- generateTabMarkup
+  buildTemplate tabContent tabFile 
+  _ <- Gtk.builderAddFromFile builder tabFile
+  -- additional processing for states and event handlers
   -- set pointer cursor on hover
-  fallback <- Gtk.widgetGetCursor actionBar
+  -- add tabs to main window
+  tabParent <- getObjectSafe builder Gtk.Box "action-bar"
+  fallback <- Gtk.widgetGetCursor tabParent 
   pointerCursor <- Gdk.cursorNewFromName "pointer" fallback
-  forM_ actionButtons $ \btn -> Gtk.widgetSetCursor btn pointerCursor
+  forM_ getTabData $ \(tabId, tabIcon, tabIconId, _, tabLabelId) -> do
+    iconPath <- getResourcePath $ "resources/icons/" ++ tabIcon
+    if tabId == "tab-wallpapers"
+      then do
+        setButtonState builder tabId iconPath tabIconId tabLabelId True
+      else do
+        setButtonState builder tabId iconPath tabIconId tabLabelId False
+    tabObj <- getObjectSafe builder Gtk.Button (pack tabId)
+    applyActions builder tabObj tabId
+    Gtk.widgetSetCursor tabObj pointerCursor
+    Gtk.boxAppend tabParent tabObj
 
-  -- set default ui button states
-  setButtonState builder "wallpapers" "resources/icons/wallpaper-icon-d.png" True
-  setButtonState builder "settings" "resources/icons/settings-icon-l.png" False
+  -- load wallpapers ui file
+  wallpaperFile <- getResourcePath "resources/ui/images.ui"
+  wallpaperContent <- generateWallpaperMarkup 
+  buildTemplate wallpaperContent wallpaperFile 
+  _ <- Gtk.builderAddFromFile builder wallpaperFile 
+  wallpaperParentFile <- getResourcePath "resources/ui/wallpapers.ui"
+  _ <- Gtk.builderAddFromFile builder wallpaperParentFile 
+  -- add wallpapers to parent container 
+  -- TODO: add event handler and active styling
+  wallpaperData <- getWallpaperData
+  wallpaperParent <- getObjectSafe builder Gtk.Grid "wallpaper-container"
+  imgs <- mapM (getObjectSafe builder Gtk.Button . pack) ["image-btn-" ++ show n | n <- [1 .. length wallpaperData]]
+  placeImages wallpaperParent imgs
+  -- add parent container to main window
+  contentArea <- getObjectSafe builder Gtk.Box "content-area"
+  Gtk.boxAppend contentArea wallpaperParent
 
-  logMsg OK "Action bar loaded"
-
-loadWallpapers :: Gtk.Builder -> IO ()
-loadWallpapers builder = do
-  logMsg INFO "Loading wallpapers"
-  searchDirectories <- getDirectoriesFromSetting
-  imagePaths <- getImagesInDirectories searchDirectories
-  imageMarkups <- zipWithM buildImageTemplate imagePaths [1 .. (length imagePaths)]
-  createTempFile $ concat imageMarkups
-  imageFiles <- getResourcePath "resources/ui/images.ui"
-  wallpaperFile <- getResourcePath "resources/ui/wallpapers.ui"
-  Gtk.builderAddFromFile builder imageFiles
-  Gtk.builderAddFromFile builder wallpaperFile
-  let imageIds = ["btn-background-image-" ++ show n | n <- [1 .. length imageMarkups]]
-  imgs <- mapM (getObjectSafe builder Gtk.Button . pack) imageIds
-  Just imgContainerObj <- Gtk.builderGetObject builder "wallpaper-container"
-  imgContainer <- Gtk.unsafeCastTo Gtk.Grid imgContainerObj
-  zipWithM_ (applyBackgroundAction builder) [1 .. length imageMarkups] imagePaths
-  placeImages imgContainer imgs
-  logMsg OK "Wallpapers loaded"
-
-loadSettings :: Gtk.Builder -> IO ()
-loadSettings builder = do
-  logMsg INFO "Loading settings"
-  -- load settings ui file and append to main window
-  settingsFile <- getResourcePath "resources/ui/settings.ui"
-  Gtk.builderAddFromFile builder settingsFile
-
-  -- generate directory template
-  searchDirectories <- getDirectoriesFromSetting
-  let dirIds = [show a | a <- [1 .. length searchDirectories]]
-  let dirIcons = [getFolderIcon | _ <- searchDirectories]
-  directoryRaw <- mapM insertDirectoryTemplate $ zip3 dirIds dirIcons searchDirectories
-  buildTemplate (concat directoryRaw) "resources/ui/directories.ui"
-
-  -- add template to settings ui
-  directoryPath <- getResourcePath "resources/ui/directories.ui"
-  Gtk.builderAddFromFile builder directoryPath
-  directoryList <- mapM (getObjectSafe builder Gtk.Box . pack) ["settings-directory-" ++ show n | n <- [1 .. length searchDirectories]]
-  directoryContainer <- Gtk.unsafeCastTo Gtk.Box =<< getObjectSafe builder Gtk.Box "settings-directory-container"
-  forM_ directoryList $ \container -> do Gtk.boxAppend directoryContainer container
-
-  -- add onclick event to add directory button
+  -- load settings ui file
+  dirFile <- getResourcePath "resources/ui/directories.ui"
+  dirContent <- generateDirectoryListMarkup
+  buildTemplate dirContent dirFile
+  _ <- Gtk.builderAddFromFile builder dirFile
+  dirParentFile <- getResourcePath "resources/ui/settings.ui"
+  _ <- Gtk.builderAddFromFile builder dirParentFile 
+  -- add directory list to parent container
+  dirData <- getDirectoryData
+  dirParent <- getObjectSafe builder Gtk.Box "settings-directory-container"
+  dirs <- mapM (getObjectSafe builder Gtk.Box . pack) ["directory-" ++ show n | n <- [1 .. length dirData]]
+  forM_ dirs (\dir -> do Gtk.boxAppend dirParent dir)
+  -- add onclick event handler
   logMsg DEBUG "Setting up add directory button"
   browseBtn <- getObjectSafe builder Gtk.Button "settings-browse-btn"
   _ <- Gtk.on browseBtn #clicked $ do
@@ -118,48 +163,10 @@ loadSettings builder = do
             Just folder <- Gio.fileGetPath result
             saveDirectoryToSetting folder
         )
+  return ()
 
-  logMsg OK "Settings loaded"
-
-loadUI :: Gtk.Application -> IO ()
-loadUI app = do
-  -- tab ids: wallpaper-container, settings-container
-  uiFile <- getResourcePath "resources/ui/window.ui"
-  builder <- Gtk.builderNew
-  _ <- Gtk.builderAddFromFile builder uiFile
-
-  loadActionBar builder
-
-  loadWallpapers builder
-  loadSettings builder
-
-  setContentArea builder Gtk.Grid "wallpaper-container"
-
-  Just winObj <- Gtk.builderGetObject builder "main_window"
-  window <- Gtk.unsafeCastTo Gtk.ApplicationWindow winObj
-
-  #setApplication window (Just app)
-  Gtk.setWidgetVisible window True
-
-loadCSS :: IO ()
-loadCSS = do
-  cssPath <- getResourcePath "resources/css/style.css"
-  provider <- Gtk.cssProviderNew
-  Gtk.cssProviderLoadFromPath provider cssPath
-  display <- Gdk.displayGetDefault
-  case display of
-    Nothing -> putStrLn "Failed to get default display"
-    Just d -> do
-      Gtk.styleContextAddProviderForDisplay
-        d
-        provider
-        (fromIntegral Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
-
-loadFont :: IO ()
-loadFont = do
-  fontPath <- getResourcePath "resources/fonts/Montserrat-VariableFont_wght.ttf"
-  success <- addFontFile (pack fontPath)
-  if success
-    then
-      logMsg OK $ "Font loaded from: " ++ fontPath
-    else logMsg ERROR $ "Failed to load font from: " ++ fontPath
+displayWindow :: Gtk.Application -> Gtk.Builder -> IO ()
+displayWindow app builder = do
+  windowObj <- getObjectSafe builder Gtk.ApplicationWindow "main_window"
+  #setApplication windowObj (Just app)
+  Gtk.setWidgetVisible windowObj True
