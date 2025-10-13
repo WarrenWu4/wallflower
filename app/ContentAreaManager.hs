@@ -32,7 +32,7 @@ applyActions builder btn action = do
     "tab-wallpapers" -> do
       _ <- Gtk.on btn #clicked $ do
         logMsg DEBUG "Wallpapers button clicked"
-        setContentArea builder Gtk.Grid "wallpaper-container"
+        setContentArea builder Gtk.Box "wallpaper-container"
         iconPath <- getResourcePath "resources/icons/wallpaper-icon-d.png"
         setButtonState builder "tab-wallpapers" iconPath "tab-icon-wallpapers" "tab-label-wallpapers" True
         iconPath2 <- getResourcePath "resources/icons/settings-icon-l.png"

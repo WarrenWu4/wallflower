@@ -1,4 +1,5 @@
   <object class="GtkButton" id="{image-btn-id}">
+    <property name="css-classes">image-button</property>
     <child>
       <object class="GtkPicture" id="{image-id}">
         <property name="file">{image-path}</property>

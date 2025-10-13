@@ -30,6 +30,13 @@
   color: #BDAE93;
 }
 
+.image-button {
+  background-image: none;
+  background-color: transparent;
+  border: none;
+  border-radius: 12px;
+}
+
 .settings-directory-title {
   font-family: "Montserrat", sans-serif;
   font-weight: 600;

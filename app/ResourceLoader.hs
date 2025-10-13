@@ -24,6 +24,7 @@ import TemplateBuilder
 import UiData
 import Utilities
 import DirectoryManager (saveDirectoryToSetting)
+import Data.Char (ord)
 
 placeImages :: Gtk.Grid -> [Gtk.Button] -> IO ()
 placeImages container imgs = do
@@ -127,9 +128,18 @@ loadUiFiles builder = do
   -- add wallpapers to parent container 
   -- TODO: add event handler and active styling
   wallpaperData <- getWallpaperData
-  wallpaperParent <- getObjectSafe builder Gtk.Grid "wallpaper-container"
-  imgs <- mapM (getObjectSafe builder Gtk.Button . pack) ["image-btn-" ++ show n | n <- [1 .. length wallpaperData]]
-  placeImages wallpaperParent imgs
+  wallpaperParent <- getObjectSafe builder Gtk.Box "wallpaper-container"
+  wallpaperCol1 <- getObjectSafe builder Gtk.Box "wallpaper-col-1"
+  wallpaperCol2 <- getObjectSafe builder Gtk.Box "wallpaper-col-2"
+  wallpaperCol3 <- getObjectSafe builder Gtk.Box "wallpaper-col-3"
+  forM_ wallpaperData $ \(imgId, imgBtnId, _) -> do
+    let number = ord $ last imgId 
+    btnObj <- getObjectSafe builder Gtk.Button (pack imgBtnId)
+    if number `mod` 3 == 1
+      then Gtk.boxAppend wallpaperCol1 btnObj
+      else if number `mod` 3 == 2
+        then Gtk.boxAppend wallpaperCol2 btnObj
+        else Gtk.boxAppend wallpaperCol3 btnObj
   -- add parent container to main window
   contentArea <- getObjectSafe builder Gtk.Box "content-area"
   Gtk.boxAppend contentArea wallpaperParent

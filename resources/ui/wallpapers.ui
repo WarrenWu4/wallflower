@@ -1,10 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
 	<requires lib="gtk" version="4.0"/>
-  <object class="GtkGrid" id="wallpaper-container">
-    <property name="css-classes">background-grid</property>
-    <property name="row-spacing">12</property>
-    <property name="column-spacing">12</property>
+  <object class="GtkBox" id="wallpaper-container">
+    <property name="orientation">horizontal</property>
+    <property name="vexpand">true</property>
     <property name="hexpand">true</property>
+    <property name="spacing">16</property>
+
+    <child>
+      <object class="GtkBox" id="wallpaper-col-1">
+        <property name="orientation">vertical</property>
+        <property name="vexpand">true</property>
+        <property name="hexpand">true</property>
+        <property name="spacing">16</property>
+      </object>
+    </child>
+
+    <child>
+      <object class="GtkBox" id="wallpaper-col-2">
+        <property name="orientation">vertical</property>
+        <property name="vexpand">true</property>
+        <property name="hexpand">true</property>
+        <property name="spacing">16</property>
+      </object>
+    </child>
+
+    <child>
+      <object class="GtkBox" id="wallpaper-col-3">
+        <property name="orientation">vertical</property>
+        <property name="vexpand">true</property>
+        <property name="hexpand">true</property>
+        <property name="spacing">16</property>
+      </object>
+    </child>
   </object>
 </interface>
