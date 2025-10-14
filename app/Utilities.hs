@@ -6,13 +6,14 @@ module Utilities
     isProgramRunning,
     doesResourceExist,
     moveToFront,
+    setWallpaperStyle
   )
 where
 
 import Control.Exception (IOException, try)
 import Control.Monad (forM_, unless)
 import Data.List (delete, find)
-import Data.Text (Text)
+import Data.Text (Text, pack)
 import qualified GI.Gtk as Gtk
 import LoggerGe
 import Paths_wallflower (getDataFileName)
@@ -63,3 +64,13 @@ moveToFront p xs =
   case find p xs of
     Nothing -> xs
     Just target -> target : delete target xs
+
+setWallpaperStyle :: Gtk.Builder -> String -> Bool -> IO ()
+setWallpaperStyle builder imgId active = do
+  imgObj <- getObjectSafe builder Gtk.Picture (pack imgId)
+  if active
+    then do
+      Gtk.widgetAddCssClass imgObj $ pack "wallpaper-active"
+    else do
+      Gtk.widgetRemoveCssClass imgObj $ pack "wallpaper-active"
+

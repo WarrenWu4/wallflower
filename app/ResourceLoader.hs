@@ -13,7 +13,6 @@ where
 
 import ContentAreaManager
 import Control.Monad
-import Data.Int
 import Data.Text.Internal
 import FontBindings
 import qualified GI.Gdk as Gdk
@@ -24,35 +23,8 @@ import TemplateBuilder
 import UiData
 import Utilities
 import DirectoryManager (saveDirectoryToSetting)
-import Data.Char (ord)
-
-placeImages :: Gtk.Grid -> [Gtk.Button] -> IO ()
-placeImages container imgs = do
-  let indexedImgs = zip [0 .. (length imgs - 1)] imgs
-  forM_ indexedImgs $ \(i, img) -> do
-    let num = fromIntegral i :: Int32
-    let col = num `mod` 3 :: Int32
-    let row = num `div` 3 :: Int32
-    Gtk.gridAttach container img col row 1 1
-
--- loadWallpapers :: Gtk.Builder -> IO ()
--- loadWallpapers builder = do
---   logMsg INFO "Loading wallpapers"
---   searchDirectories <- getDirectoriesFromSetting
---   imagePaths <- getImagesInDirectories searchDirectories
---   imageMarkups <- zipWithM buildImageTemplate imagePaths [1 .. (length imagePaths)]
---   createTempFile $ concat imageMarkups
---   imageFiles <- getResourcePath "resources/ui/images.ui"
---   wallpaperFile <- getResourcePath "resources/ui/wallpapers.ui"
---   Gtk.builderAddFromFile builder imageFiles
---   Gtk.builderAddFromFile builder wallpaperFile
---   let imageIds = ["btn-background-image-" ++ show n | n <- [1 .. length imageMarkups]]
---   imgs <- mapM (getObjectSafe builder Gtk.Button . pack) imageIds
---   Just imgContainerObj <- Gtk.builderGetObject builder "wallpaper-container"
---   imgContainer <- Gtk.unsafeCastTo Gtk.Grid imgContainerObj
---   zipWithM_ (applyBackgroundAction builder) [1 .. length imageMarkups] imagePaths
---   placeImages imgContainer imgs
---   logMsg OK "Wallpapers loaded"
+import Data.List.Split (splitOn)
+import EventHandlers (switchWallpaper)
 
 -- | wrapper function that loads, builds, and applies all resources
 loadResources :: Gtk.Application -> IO ()
@@ -132,9 +104,14 @@ loadUiFiles builder = do
   wallpaperCol1 <- getObjectSafe builder Gtk.Box "wallpaper-col-1"
   wallpaperCol2 <- getObjectSafe builder Gtk.Box "wallpaper-col-2"
   wallpaperCol3 <- getObjectSafe builder Gtk.Box "wallpaper-col-3"
-  forM_ wallpaperData $ \(imgId, imgBtnId, _) -> do
-    let number = ord $ last imgId 
+  forM_ wallpaperData $ \(imgId, imgBtnId, imgPath) -> do
+    let number = read $ last $ splitOn "-" imgId :: Int
     btnObj <- getObjectSafe builder Gtk.Button (pack imgBtnId)
+    _ <- Gtk.on btnObj #clicked $ do
+      switchWallpaper builder imgPath 
+    if number == 1
+      then setWallpaperStyle builder imgId True
+      else setWallpaperStyle builder imgId False
     if number `mod` 3 == 1
       then Gtk.boxAppend wallpaperCol1 btnObj
       else if number `mod` 3 == 2

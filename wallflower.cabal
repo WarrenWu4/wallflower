@@ -43,7 +43,8 @@ executable wallflower
                        FontBindings,
                        UiData,
                        TemplateBuilder,
-                       FileParser
+                       FileParser,
+                       EventHandlers
   c-sources:           cbits/font_loader.c
   extra-libraries:     fontconfig
   autogen-modules:     Paths_wallflower

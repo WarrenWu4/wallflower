@@ -4,10 +4,8 @@ module HyprpaperManager
   )
 where
 
-import Data.Functor ((<&>))
 import LoggerGe
 import System.Directory (getHomeDirectory)
-import System.IO (writeFile)
 import System.Process (callCommand)
 
 -- | runs hyprpaper command to set wallpaper
@@ -19,7 +17,6 @@ applyWallpaper wallpaperPath = do
   logMsg INFO $ "applying wallpaper using command: " ++ command
   callCommand command
 
--- TODO: implement with parser for safety
 -- | updates hyrppaper config file with new wallpaper
 -- @wallpaperPath (FilePath): path to wallpaper image
 saveWallpaper :: FilePath -> IO ()
@@ -41,13 +38,3 @@ saveWallpaper wallpaperPath = do
   putStrLn $ "Writing persistent configuration to: " ++ configPath
   writeFile configPath configContent
   putStrLn "Configuration saved. The new wallpaper will persist after reboot."
-
--- TODO: implement
--- | parses hyprpaper config into (key, value) pairs
--- use this function for easier & safer manipulation
--- hyprpaperParser :: FilePath -> IO ()
--- hyprpaperParser configPath = do
---     content <- readFile configPath
---     let linesOfConfig = lines content
---     let keyValuePairs = map (break (== '=')) linesOfConfig
---     return keyValuePairs
