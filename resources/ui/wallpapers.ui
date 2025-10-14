@@ -5,14 +5,14 @@
     <property name="orientation">horizontal</property>
     <property name="vexpand">true</property>
     <property name="hexpand">true</property>
-    <property name="spacing">16</property>
+    <property name="spacing">8</property>
 
     <child>
       <object class="GtkBox" id="wallpaper-col-1">
         <property name="orientation">vertical</property>
         <property name="vexpand">true</property>
         <property name="hexpand">true</property>
-        <property name="spacing">16</property>
+        <property name="spacing">8</property>
       </object>
     </child>
 
@@ -21,7 +21,7 @@
         <property name="orientation">vertical</property>
         <property name="vexpand">true</property>
         <property name="hexpand">true</property>
-        <property name="spacing">16</property>
+        <property name="spacing">8</property>
       </object>
     </child>
 
@@ -30,7 +30,7 @@
         <property name="orientation">vertical</property>
         <property name="vexpand">true</property>
         <property name="hexpand">true</property>
-        <property name="spacing">16</property>
+        <property name="spacing">8</property>
       </object>
     </child>
   </object>
