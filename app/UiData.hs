@@ -53,5 +53,3 @@ getWallpaperData = do
 
 
 
-
-

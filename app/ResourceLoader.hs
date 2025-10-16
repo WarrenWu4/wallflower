@@ -27,13 +27,16 @@ import Data.List.Split (splitOn)
 import EventHandlers (switchWallpaper)
 
 -- | wrapper function that loads, builds, and applies all resources
+-- order is VERY important, do not change it unless you know what you're doing
 loadResources :: Gtk.Application -> IO ()
 loadResources app = do
   loadFont
   loadCSS
   builder <- Gtk.builderNew
   loadWindow builder
-  loadUiFiles builder
+  loadTabs builder
+  loadWallpapers builder
+  loadSettings builder
   displayWindow app builder
 
 loadFont :: IO ()
@@ -65,8 +68,8 @@ loadWindow builder = do
   _ <- Gtk.builderAddFromFile builder uiFile
   return ()
 
-loadUiFiles:: Gtk.Builder -> IO ()
-loadUiFiles builder = do
+loadTabs :: Gtk.Builder -> IO ()
+loadTabs builder = do
   -- load tab ui files 
   tabFile <- getResourcePath "resources/ui/tab.ui"
   tabContent <- generateTabMarkup
@@ -90,6 +93,8 @@ loadUiFiles builder = do
     Gtk.widgetSetCursor tabObj pointerCursor
     Gtk.boxAppend tabParent tabObj
 
+loadWallpapers :: Gtk.Builder -> IO ()
+loadWallpapers builder = do
   -- load wallpapers ui file
   wallpaperFile <- getResourcePath "resources/ui/images.ui"
   wallpaperContent <- generateWallpaperMarkup 
@@ -98,7 +103,6 @@ loadUiFiles builder = do
   wallpaperParentFile <- getResourcePath "resources/ui/wallpapers.ui"
   _ <- Gtk.builderAddFromFile builder wallpaperParentFile 
   -- add wallpapers to parent container 
-  -- TODO: add event handler and active styling
   wallpaperData <- getWallpaperData
   wallpaperParent <- getObjectSafe builder Gtk.Box "wallpaper-container"
   wallpaperCol1 <- getObjectSafe builder Gtk.Box "wallpaper-col-1"
@@ -121,6 +125,8 @@ loadUiFiles builder = do
   contentArea <- getObjectSafe builder Gtk.Box "content-area"
   Gtk.boxAppend contentArea wallpaperParent
 
+loadSettings :: Gtk.Builder -> IO ()
+loadSettings builder = do
   -- load settings ui file
   dirFile <- getResourcePath "resources/ui/directories.ui"
   dirContent <- generateDirectoryListMarkup
