@@ -31,7 +31,9 @@ executable wallflower
                        split, 
                        text, 
                        time,
-                       process
+                       process,
+                       monomer,
+                       lens
   other-modules:       DirectoryManager, 
                        ResourceLoader, 
                        Paths_wallflower, 
@@ -44,7 +46,9 @@ executable wallflower
                        UiData,
                        TemplateBuilder,
                        FileParser,
-                       EventHandlers
+                       EventHandlers,
+                       Tabs,
+                       Colors
   c-sources:           cbits/font_loader.c
   extra-libraries:     fontconfig
   autogen-modules:     Paths_wallflower
