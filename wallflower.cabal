@@ -35,19 +35,15 @@ executable wallflower
                        monomer,
                        lens
   other-modules:       DirectoryManager, 
-                       ResourceLoader, 
                        Paths_wallflower, 
                        Validator,
                        LoggerGe,
-                       ContentAreaManager,
                        Utilities,
                        HyprpaperManager,
-                       FontBindings,
                        UiData,
-                       TemplateBuilder,
                        FileParser,
-                       EventHandlers,
                        Tabs,
+                       Wallpapers,
                        Colors
   c-sources:           cbits/font_loader.c
   extra-libraries:     fontconfig

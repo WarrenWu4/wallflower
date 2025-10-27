@@ -1,52 +1,63 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TemplateHaskell #-}
 
 module Main where
 
-import LoggerGe 
-import Control.Lens
-import Monomer
-import Validator (checkAllDependencies)
-import Tabs 
-import Data.Text (pack)
 import Colors
+import Control.Exception (IOException)
+import Control.Lens
+import LoggerGe
+import Monomer
+import Tabs
+import UiData (getWallpaperData)
+import Validator (checkAllDependencies)
+import Wallpapers
 
 data AppModel = AppModel
-  { _title :: String,
-    _activeTab :: String
+  { _tabModel :: TabModel,
+    _wallpaperModel :: WallpaperModel
   }
   deriving (Eq, Show)
 
 data AppEvent
   = AppInit
+  | WallpaperEvt WallpaperEvent
   deriving (Eq, Show)
+
+type AppEnv = WidgetEnv AppModel AppEvent
+
+type AppNode = WidgetNode AppModel AppEvent
 
 makeLenses 'AppModel
 
-buildUI ::
-  WidgetEnv AppModel AppEvent -> AppModel -> WidgetNode AppModel AppEvent
+wallpaperInit :: IO AppEvent
+wallpaperInit = do
+  logMsg DEBUG "Loading wallpapers"
+  wallpaperData <- getWallpaperData
+  let state = LoadWallpapers $ map (\(_, _, path) -> path) wallpaperData
+  return (WallpaperEvt state)
+  where
+    handler :: IOException -> IO [String]
+    handler e = do
+      logMsg ERROR $ "Failed to load wallpapers: " ++ show e
+      return []
+
+buildUI :: AppEnv -> AppModel -> AppNode
 buildUI wenv model = widgetTree
   where
     widgetTree =
       vstack_
         [childSpacing_ 20]
-        [ 
-          hstack_ [childSpacing_ 16] tabUIs
+        [ composite "tabs" tabModel buildUITab handleEventTab,
+          composite "wallpaper" wallpaperModel buildUIWallpaper handleEventWallpaper
         ]
         `styleBasic` [padding 24, bgColor (rgbHex bg1)]
 
-    tabUIs = map (\(tabName, tabIcon) -> 
-      -- let tabIsActive = tabName == (model ^. activeTab) 
-      hstack_ [childSpacing_ 8] [ 
-        label (pack tabName) 
-        `styleBasic` [textFont "SemiBold", textSize 16, textColor (rgbHex fg1)]
-      ] 
-      `styleBasic` [paddingH 12, paddingV 8, border 2 (rgbHex fg1)]
-      ) getAllTabs
-
-handleEvent :: WidgetEnv AppModel AppEvent -> WidgetNode AppModel AppEvent -> AppModel -> AppEvent -> [AppEventResponse AppModel AppEvent]
+handleEvent :: AppEnv -> AppNode -> AppModel -> AppEvent -> [AppEventResponse AppModel AppEvent]
 handleEvent wenv node model evt = case evt of
-  AppInit -> []
+  AppInit -> [Task wallpaperInit]
+  _ -> []
 
 main :: IO ()
 main = do
@@ -61,10 +72,10 @@ main = do
         appFontDef "Regular" "./assets/Montserrat-Regular.ttf",
         appFontDef "SemiBold" "./assets/Montserrat-SemiBold.ttf",
         appFontDef "Bold" "./assets/Montserrat-Bold.ttf",
-        appInitEvent AppInit
-      ]
+        appInitEvent AppInit ]
+
     model =
       AppModel
-        { _title = "Wallflower",
-          _activeTab = "Wallpaper" 
+        { _tabModel = defaultTabModel,
+          _wallpaperModel = defaultWallpaperModel
         }
