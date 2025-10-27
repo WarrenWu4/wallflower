@@ -2,10 +2,9 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TemplateHaskell #-}
 
-module Main where
+module Main (main) where
 
 import Colors
-import Control.Exception (IOException)
 import Control.Lens
 import LoggerGe
 import Monomer
@@ -37,11 +36,6 @@ wallpaperInit = do
   wallpaperData <- getWallpaperData
   let state = LoadWallpapers $ map (\(_, _, path) -> path) wallpaperData
   return (WallpaperEvt state)
-  where
-    handler :: IOException -> IO [String]
-    handler e = do
-      logMsg ERROR $ "Failed to load wallpapers: " ++ show e
-      return []
 
 buildUI :: AppEnv -> AppModel -> AppNode
 buildUI wenv model = widgetTree
@@ -50,14 +44,14 @@ buildUI wenv model = widgetTree
       vstack_
         [childSpacing_ 20]
         [ composite "tabs" tabModel buildUITab handleEventTab,
-          composite "wallpaper" wallpaperModel buildUIWallpaper handleEventWallpaper
+          composite "wallpaper" wallpaperModel buildUIWallpaper handleEventWallpaper `nodeKey` "wallpaperWidget"
         ]
         `styleBasic` [padding 24, bgColor (rgbHex bg1)]
 
 handleEvent :: AppEnv -> AppNode -> AppModel -> AppEvent -> [AppEventResponse AppModel AppEvent]
 handleEvent wenv node model evt = case evt of
   AppInit -> [Task wallpaperInit]
-  _ -> []
+  WallpaperEvt wallpaperEvt -> [Message "wallpaperWidget" wallpaperEvt]
 
 main :: IO ()
 main = do
@@ -72,8 +66,8 @@ main = do
         appFontDef "Regular" "./assets/Montserrat-Regular.ttf",
         appFontDef "SemiBold" "./assets/Montserrat-SemiBold.ttf",
         appFontDef "Bold" "./assets/Montserrat-Bold.ttf",
-        appInitEvent AppInit ]
-
+        appInitEvent AppInit
+      ]
     model =
       AppModel
         { _tabModel = defaultTabModel,

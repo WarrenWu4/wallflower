@@ -27,11 +27,6 @@ data WallpaperEvent
 
 makeLenses 'WallpaperModel
 
-loadTest :: IO WallpaperEvent
-loadTest = do
-  logMsg DEBUG "testing"
-  return (SetWallpaper "hi")
-
 buildUIWallpaper :: WidgetEnv WallpaperModel WallpaperEvent -> WallpaperModel -> WidgetNode WallpaperModel WallpaperEvent
 buildUIWallpaper wenv model = widgetTree
   where
@@ -40,7 +35,6 @@ buildUIWallpaper wenv model = widgetTree
 
 handleEventWallpaper :: WidgetEnv WallpaperModel WallpaperEvent -> WidgetNode WallpaperModel WallpaperEvent -> WallpaperModel -> WallpaperEvent -> [EventResponse WallpaperModel WallpaperEvent sp ep]
 handleEventWallpaper wenv node model evt = case evt of
-  -- LoadWallpapers paths -> [Model $ model & wallpaperPaths .~ paths]
-  LoadWallpapers paths -> [Task loadTest]
+  LoadWallpapers paths -> [Model $ model & wallpaperPaths .~ paths]
   SetWallpaper path -> []
   ResizeWallpaper (w, h) -> []
