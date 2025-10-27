@@ -66,7 +66,6 @@ handleEventTab wenv node model evt = case evt of
   TabOnClick tab -> [] 
   TabSetActive tab -> [] 
   
-
 iconsPath :: String
 iconsPath = "./resources/icons/"
 

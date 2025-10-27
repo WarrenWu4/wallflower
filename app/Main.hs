@@ -21,6 +21,7 @@ data AppModel = AppModel
 
 data AppEvent
   = AppInit
+  | TabEvt TabEvent
   | WallpaperEvt WallpaperEvent
   deriving (Eq, Show)
 
@@ -43,7 +44,7 @@ buildUI wenv model = widgetTree
     widgetTree =
       vstack_
         [childSpacing_ 20]
-        [ composite "tabs" tabModel buildUITab handleEventTab,
+        [ composite "tab" tabModel buildUITab handleEventTab `nodeKey` "tabWidget",
           composite "wallpaper" wallpaperModel buildUIWallpaper handleEventWallpaper `nodeKey` "wallpaperWidget"
         ]
         `styleBasic` [padding 24, bgColor (rgbHex bg1)]
@@ -51,6 +52,7 @@ buildUI wenv model = widgetTree
 handleEvent :: AppEnv -> AppNode -> AppModel -> AppEvent -> [AppEventResponse AppModel AppEvent]
 handleEvent wenv node model evt = case evt of
   AppInit -> [Task wallpaperInit]
+  TabEvt tabEvt -> [Message "tabWidget" tabEvt]
   WallpaperEvt wallpaperEvt -> [Message "wallpaperWidget" wallpaperEvt]
 
 main :: IO ()
