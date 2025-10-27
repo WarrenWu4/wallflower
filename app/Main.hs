@@ -12,10 +12,12 @@ import Tabs
 import UiData (getWallpaperData)
 import Validator (checkAllDependencies)
 import Wallpapers
+import Settings
 
 data AppModel = AppModel
   { _tabModel :: TabModel,
-    _wallpaperModel :: WallpaperModel
+    _wallpaperModel :: WallpaperModel,
+    _settingsModel :: SettingsModel
   }
   deriving (Eq, Show)
 
@@ -45,10 +47,13 @@ buildUI wenv model = widgetTree
       vstack_
         [childSpacing_ 20]
         [ composite "tab" tabModel buildUITab handleEventTab `nodeKey` "tabWidget",
-          composite "wallpaper" wallpaperModel buildUIWallpaper handleEventWallpaper `nodeKey` "wallpaperWidget"
+          if (model ^. (tabModel . tabActive)) == "Wallpapers"
+            then wallpaperWidget
+            else settingWidget 
         ]
         `styleBasic` [padding 24, bgColor (rgbHex bg1)]
-
+    wallpaperWidget :: AppNode = composite "wallpapers" wallpaperModel buildUIWallpaper handleEventWallpaper `nodeKey` "wallpaperWidget"
+    settingWidget :: AppNode = composite "settings" settingsModel buildUISettings handleEventSettings `nodeKey` "settingWidget" 
 handleEvent :: AppEnv -> AppNode -> AppModel -> AppEvent -> [AppEventResponse AppModel AppEvent]
 handleEvent wenv node model evt = case evt of
   AppInit -> [Task wallpaperInit]
@@ -73,5 +78,6 @@ main = do
     model =
       AppModel
         { _tabModel = defaultTabModel,
-          _wallpaperModel = defaultWallpaperModel
+          _wallpaperModel = defaultWallpaperModel,
+          _settingsModel = defaultSettingsModel
         }
