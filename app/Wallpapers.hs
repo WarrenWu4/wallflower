@@ -30,7 +30,10 @@ makeLenses 'WallpaperModel
 buildUIWallpaper :: WidgetEnv WallpaperModel WallpaperEvent -> WallpaperModel -> WidgetNode WallpaperModel WallpaperEvent
 buildUIWallpaper wenv model = widgetTree
   where
-    widgetTree = hstack_ [childSpacing_ 12] $ [label "Wallpaper Module"] ++ testItems
+    widgetTree = vscroll (
+      hstack_ [childSpacing_ 12] $
+      [label "Wallpaper Module"] ++ testItems
+      )
     testItems = map (\paths -> label "Testing") (model ^. wallpaperPaths)
 
 handleEventWallpaper :: WidgetEnv WallpaperModel WallpaperEvent -> WidgetNode WallpaperModel WallpaperEvent -> WallpaperModel -> WallpaperEvent -> [EventResponse WallpaperModel WallpaperEvent sp ep]
