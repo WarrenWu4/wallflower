@@ -10,12 +10,14 @@ import Monomer
 import qualified Monomer.Lens as L
 
 data WallpaperModel = WallpaperModel
-  { _wallpaperPaths :: [String]
+  { _wallpaperPaths :: [String],
+    _wallpaperAspectRatios :: [Double]
   }
   deriving (Eq, Show)
 
 data WallpaperEvent
   = LoadWallpapers [String]
+  | LoadWallpaperDimensions [Double]
   | SetWallpaper String
   | ResizeWallpaper (Int, Int)
   deriving (Eq, Show)
@@ -29,7 +31,8 @@ makeLenses 'WallpaperModel
 defaultWallpaperModel :: WallpaperModel
 defaultWallpaperModel =
   WallpaperModel
-    { _wallpaperPaths = []
+    { _wallpaperPaths = [],
+      _wallpaperAspectRatios = []
     }
 
 -- TODO: figure some better way to do this dynamic sizing crap
@@ -41,28 +44,11 @@ getWallpaperColumnSize windowWidth = do
   let numColumns = 3
   (windowWidth - windowPadding * 2 - columnGap * (numColumns - 1)) / numColumns
 
--- getWallpaperDimensions :: String -> IO (Maybe (Int, Int))
--- getWallpaperDimensions path = do
---   -- readImageRGB loads the image data in a common format.
---   imgE <- readImageRGB path
---   case imgE of
---     -- If successful (Right), extract dimensions.
---     -- Note: 'rows' is height, and 'cols' is width.
---     Right img -> do
---       let w = cols (img :: Image VU PixelRGB Double)
---       let h = rows (img :: Image VU PixelRGB Double)
---       return $ Just (w, h)
---     -- If reading fails (Left), return Nothing and print the error.
---     Left err  -> do
---       putStrLn $ "Error reading image: " ++ err
---       return Nothing
-
 buildUIWallpaper :: WallpaperEnv -> WallpaperModel -> WallpaperNode
 buildUIWallpaper wenv model = widgetTree
   where
     windowWidth = wenv ^. (L.windowSize . L.w)
-    columnWidth = getWallpaperColumnSize windowWidth 
-  
+    columnWidth = getWallpaperColumnSize windowWidth
 
     widgetTree =
       vscroll
@@ -74,10 +60,11 @@ buildUIWallpaper wenv model = widgetTree
             ]
         )
 
-    testItems = map (\path -> label $ pack path) (model ^. wallpaperPaths)
+    testItems = map (\path -> image_ (pack path) [fitEither] `styleBasic` [width columnWidth]) (model ^. wallpaperPaths)
 
 handleEventWallpaper :: WallpaperEnv -> WallpaperNode -> WallpaperModel -> WallpaperEvent -> [EventResponse WallpaperModel WallpaperEvent sp ep]
 handleEventWallpaper wenv node model evt = case evt of
   LoadWallpapers paths -> [Model $ model & wallpaperPaths .~ paths]
+  LoadWallpaperDimensions dims -> [Model $ model & wallpaperAspectRatios .~ dims]
   SetWallpaper path -> []
   ResizeWallpaper (w, h) -> []

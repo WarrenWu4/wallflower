@@ -15,9 +15,10 @@ module Validator
 where
 
 import Control.Monad (unless)
-import System.Directory (doesFileExist, getHomeDirectory, findExecutable, doesDirectoryExist)
 import Data.Maybe (isJust)
+import ImageDimension
 import LoggerGe
+import System.Directory (doesDirectoryExist, doesFileExist, findExecutable, getHomeDirectory)
 import Utilities
 
 -- all program depedency checks
@@ -37,13 +38,24 @@ checkAllDependencies = do
   doAllUiFilesExist
   doesSettingsFileExist
 
+-- quickImageCheck
+
+-- quickImageCheck :: IO ()
+-- quickImageCheck = do
+--   let testImagePath = "/home/warrenwu/backgrounds/holy-shit.jpg"
+--   dim <- getImageDimension testImagePath "jpg"
+--   case dim of
+--     Just (w, h) -> logMsg DEBUG $ "Width: " ++ show w ++ "\nHeight: " ++ show h
+--     Nothing -> logMsg ERROR "Uh oh jpg don't work"
+--   logMsg DEBUG "Done..."
+
 doesHyprlandExist :: IO ()
-doesHyprlandExist = do 
+doesHyprlandExist = do
   hyprPath <- findExecutable "hyprland"
   unless (isJust hyprPath) $ logMsg ERROR "doesHyprlandExist check failed" >> error "Hyprland not found in PATH"
   homeDir <- getHomeDirectory
   let temp = homeDir <> "/.config/hypr/hyprland.conf"
-  configExists <- doesFileExist temp 
+  configExists <- doesFileExist temp
   unless configExists $ logMsg ERROR "doesHyprlandExist check failed" >> error "Hyprland config not found"
   logMsg OK "doesHyprlandExist check passed"
 
@@ -60,7 +72,7 @@ doesHyprpaperExist = do
   unless (isJust hyprPaperPath) $ logMsg ERROR "doesHyprpaperExist check failed" >> error "Hyprpaper not found in PATH"
   homeDir <- getHomeDirectory
   let temp = homeDir <> "/.config/hypr/hyprpaper.conf"
-  configExists <- doesFileExist temp 
+  configExists <- doesFileExist temp
   unless configExists $ logMsg ERROR "doesHyprpaperExist check failed" >> error "Hyprpaper config not found"
   logMsg OK "doesHyprpaperExist check passed"
 
@@ -86,7 +98,7 @@ doAllIconsExist = do
   doesResourceExist iconsResPath "doAllIconsExist"
 
 doAllFontsExist :: IO ()
-doAllFontsExist = do 
+doAllFontsExist = do
   let fonts = ["Montserrat-VariableFont_wght.ttf"]
   let fontsResPath = ["resources/fonts/" ++ font | font <- fonts]
   doesResourceExist fontsResPath "doAllFontsExist"
@@ -95,7 +107,7 @@ doAllCssFilesExist :: IO ()
 doAllCssFilesExist = do
   let cssFiles = ["style.css"]
   let cssResPath = ["resources/css/" ++ cssFile | cssFile <- cssFiles]
-  doesResourceExist cssResPath "doAllCssFilesExist" 
+  doesResourceExist cssResPath "doAllCssFilesExist"
 
 doAllTemplateFilesExist :: IO ()
 doAllTemplateFilesExist = do

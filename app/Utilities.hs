@@ -1,38 +1,21 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Utilities
-  ( getObjectSafe,
-    getResourcePath,
+  ( getResourcePath,
     isProgramRunning,
     doesResourceExist,
     moveToFront,
-    setWallpaperStyle
   )
 where
 
 import Control.Exception (IOException, try)
 import Control.Monad (forM_, unless)
 import Data.List (delete, find)
-import Data.Text (Text, pack)
-import qualified GI.Gtk as Gtk
 import LoggerGe
 import Paths_wallflower (getDataFileName)
 import System.Directory (doesFileExist)
 import System.FilePath (normalise)
 import System.Process (readProcess)
-
--- | safely gets object from builder and casts it to the desired type
--- crashes if object is not found or cannot be casted
-getObjectSafe :: (Gtk.GObject o) => Gtk.Builder -> (Gtk.ManagedPtr o -> o) -> Text -> IO o
-getObjectSafe builder constructor objectId = do
-  obj <- Gtk.builderGetObject builder objectId
-  case obj of
-    Nothing -> logMsg ERROR "Unable to get object" >> error ""
-    Just o -> do
-      res <- Gtk.castTo constructor o
-      case res of
-        Nothing -> logMsg ERROR "Cannot cast object safely" >> error ""
-        Just r -> return r
 
 -- | returns absolute path of resource
 getResourcePath :: FilePath -> IO FilePath
@@ -64,13 +47,3 @@ moveToFront p xs =
   case find p xs of
     Nothing -> xs
     Just target -> target : delete target xs
-
-setWallpaperStyle :: Gtk.Builder -> String -> Bool -> IO ()
-setWallpaperStyle builder imgId active = do
-  imgObj <- getObjectSafe builder Gtk.Picture (pack imgId)
-  if active
-    then do
-      Gtk.widgetAddCssClass imgObj $ pack "wallpaper-active"
-    else do
-      Gtk.widgetRemoveCssClass imgObj $ pack "wallpaper-active"
-
