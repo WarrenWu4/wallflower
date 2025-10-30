@@ -54,13 +54,13 @@ buildUIWallpaper wenv model = widgetTree
       vscroll
         ( hstack_
             [childSpacing_ 12]
-            [ vstack testItems `styleBasic` [width columnWidth, border 2 (rgbHex "#ff0000")],
+            [ vstack_ [childSpacing_ 12] testItems2 `styleBasic` [width columnWidth, border 2 (rgbHex "#ff0000")],
               vstack [label $ pack $ show windowWidth] `styleBasic` [width columnWidth, border 2 (rgbHex "#ff0000")],
               vstack [label $ pack $ show (getWallpaperColumnSize windowWidth)] `styleBasic` [width columnWidth, border 2 (rgbHex "#ff0000")]
             ]
         )
 
-    testItems = map (\path -> image_ (pack path) [fitEither] `styleBasic` [width columnWidth]) (model ^. wallpaperPaths)
+    testItems2 :: [WallpaperNode] = map (\(path, aspectRatio) -> image_ (pack path) [fitWidth] `styleBasic` [width columnWidth, height (aspectRatio * columnWidth)]) $ zip (model ^. wallpaperPaths) (model ^. wallpaperAspectRatios)
 
 handleEventWallpaper :: WallpaperEnv -> WallpaperNode -> WallpaperModel -> WallpaperEvent -> [EventResponse WallpaperModel WallpaperEvent sp ep]
 handleEventWallpaper wenv node model evt = case evt of

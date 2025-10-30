@@ -51,7 +51,8 @@ wallpaperDimInit = do
   let fileExtensions = map getImageFormat filePaths
   results <- zipWithM getImageDimension filePaths fileExtensions 
   let validResults :: [(Int, Int)] = catMaybes results
-  let aspectRatios = [(\num den -> fromIntegral num / fromIntegral den) w h | (w, h)<-validResults]
+  -- INFO: reverse h/w because future sizing is dependent on width thus making dynamic resizing easier to calculate
+  let aspectRatios = [(\num den -> fromIntegral num / fromIntegral den) h w | (w, h)<-validResults]
   logMsg DEBUG $ "Dim Values: " ++ show aspectRatios 
   let state = LoadWallpaperDimensions aspectRatios 
   return (WallpaperEvt state)
