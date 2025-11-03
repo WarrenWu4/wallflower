@@ -4,6 +4,7 @@
 
 module Settings where
 
+import Colors
 import Control.Lens
 import Data.Text (pack, unpack)
 import Graphics.UI.TinyFileDialogs (selectFolderDialog)
@@ -47,15 +48,23 @@ buildUISettings wenv model = widgetTree
     widgetTree =
       vscroll
         ( vstack_
-            [childSpacing_ 12]
-            [ box_ [onClick SettingsBrowseFolders] (label "folder"),
+            [childSpacing_ 24]
+            [ box_
+                [alignLeft, onClick SettingsBrowseFolders]
+                ( label
+                    "Add Search Folders"
+                    `styleBasic` [paddingH 12, paddingV 8, textColor (rgbHex bg0), bgColor (rgbHex fg1), textFont "SemiBold", textSize 16]
+                ),
               vstack_
                 [childSpacing_ 4]
                 directories
             ]
         )
 
-    directories :: [SettingsNode] = map (\directory -> label (pack directory)) (model ^. searchDirectories)
+    directoryText :: String -> SettingsNode
+    directoryText dir = label (pack dir) `styleBasic` [textFont "SemiBold", textSize 16, textColor (rgbHex fg1)]
+
+    directories :: [SettingsNode] = map directoryText (model ^. searchDirectories)
 
 handleEventSettings :: SettingsEnv -> SettingsNode -> SettingsModel -> SettingsEvent -> [EventResponse SettingsModel SettingsEvent sp ep]
 handleEventSettings wenv node model evt = case evt of

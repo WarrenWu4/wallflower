@@ -38,14 +38,14 @@ makeLenses 'AppModel
 
 wallpaperInit :: IO AppEvent
 wallpaperInit = do
-  logMsg DEBUG "Loading wallpapers"
+  -- logMsg DEBUG "Loading wallpapers"
   wallpaperData <- getWallpaperData
   let state = LoadWallpapers $ map (\(_, _, path) -> path) wallpaperData
   return (WallpaperEvt state)
 
 wallpaperDimInit :: IO AppEvent
 wallpaperDimInit = do
-  logMsg DEBUG "Loading wallpaper dimensions"
+  -- logMsg DEBUG "Loading wallpaper dimensions"
   wallpaperData <- getWallpaperData
   let filePaths = map (\(_, _, path) -> path) wallpaperData
   let fileExtensions = map getImageFormat filePaths
@@ -53,7 +53,7 @@ wallpaperDimInit = do
   let validResults :: [(Int, Int)] = catMaybes results
   -- INFO: reverse h/w because future sizing is dependent on width thus making dynamic resizing easier to calculate
   let aspectRatios = [(\num den -> fromIntegral num / fromIntegral den) h w | (w, h)<-validResults]
-  logMsg DEBUG $ "Dim Values: " ++ show aspectRatios 
+  -- logMsg DEBUG $ "Dim Values: " ++ show aspectRatios 
   let state = LoadWallpaperDimensions aspectRatios 
   return (WallpaperEvt state)
 
