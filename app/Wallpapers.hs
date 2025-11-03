@@ -8,6 +8,7 @@ import Control.Lens
 import Data.Text (pack)
 import Monomer
 import qualified Monomer.Lens as L
+import LoggerGe
 
 data WallpaperModel = WallpaperModel
   { _wallpaperPaths :: [String],
@@ -44,6 +45,11 @@ getWallpaperColumnSize windowWidth = do
   let numColumns = 3
   (windowWidth - windowPadding * 2 - columnGap * (numColumns - 1)) / numColumns
 
+testSet :: String -> IO WallpaperEvent 
+testSet path = do
+  logMsg DEBUG $ "Setting wallpaper to: " ++ path
+  return (ResizeWallpaper (0, 0))
+
 buildUIWallpaper :: WallpaperEnv -> WallpaperModel -> WallpaperNode
 buildUIWallpaper wenv model = widgetTree
   where
@@ -60,14 +66,17 @@ buildUIWallpaper wenv model = widgetTree
             ]
         )
 
+    imageButton :: String -> Double -> WallpaperNode
+    imageButton p ar = box_ [onClick (SetWallpaper p)] (image_ (pack p) [fitWidth] `styleBasic` [width columnWidth, height (ar * columnWidth)])
+
     indexedList = zip3 [0..] (model ^. wallpaperPaths) (model ^. wallpaperAspectRatios)
-    col1 :: [WallpaperNode] = map (\(path, aspectRatio) -> image_ (pack path) [fitWidth] `styleBasic` [width columnWidth, height (aspectRatio * columnWidth)]) $ [(p, ar) | (i, p, ar) <- indexedList, i `mod` 3 == 0] 
-    col2 :: [WallpaperNode] = map (\(path, aspectRatio) -> image_ (pack path) [fitWidth] `styleBasic` [width columnWidth, height (aspectRatio * columnWidth)]) $ [(p, ar) | (i, p, ar) <- indexedList, i `mod` 3 == 1] 
-    col3 :: [WallpaperNode] = map (\(path, aspectRatio) -> image_ (pack path) [fitWidth] `styleBasic` [width columnWidth, height (aspectRatio * columnWidth)]) $ [(p, ar) | (i, p, ar) <- indexedList, i `mod` 3 == 2] 
+    col1 :: [WallpaperNode] = map (uncurry imageButton) $ [(p, ar) | (i, p, ar) <- indexedList, i `mod` 3 == 0] 
+    col2 :: [WallpaperNode] = map (uncurry imageButton) $ [(p, ar) | (i, p, ar) <- indexedList, i `mod` 3 == 1] 
+    col3 :: [WallpaperNode] = map (uncurry imageButton) $ [(p, ar) | (i, p, ar) <- indexedList, i `mod` 3 == 2] 
 
 handleEventWallpaper :: WallpaperEnv -> WallpaperNode -> WallpaperModel -> WallpaperEvent -> [EventResponse WallpaperModel WallpaperEvent sp ep]
 handleEventWallpaper wenv node model evt = case evt of
   LoadWallpapers paths -> [Model $ model & wallpaperPaths .~ paths]
   LoadWallpaperDimensions dims -> [Model $ model & wallpaperAspectRatios .~ dims]
-  SetWallpaper path -> []
+  SetWallpaper path -> [Task $ testSet path]
   ResizeWallpaper (w, h) -> []
