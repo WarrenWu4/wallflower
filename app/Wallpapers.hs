@@ -9,6 +9,7 @@ import Data.Text (pack)
 import Monomer
 import qualified Monomer.Lens as L
 import LoggerGe
+import HyprpaperManager (applyWallpaper)
 
 data WallpaperModel = WallpaperModel
   { _wallpaperPaths :: [String],
@@ -20,7 +21,7 @@ data WallpaperEvent
   = LoadWallpapers [String]
   | LoadWallpaperDimensions [Double]
   | SetWallpaper String
-  | ResizeWallpaper (Int, Int)
+  | WallpaperNone
   deriving (Eq, Show)
 
 type WallpaperEnv = WidgetEnv WallpaperModel WallpaperEvent
@@ -45,10 +46,11 @@ getWallpaperColumnSize windowWidth = do
   let numColumns = 3
   (windowWidth - windowPadding * 2 - columnGap * (numColumns - 1)) / numColumns
 
-testSet :: String -> IO WallpaperEvent 
-testSet path = do
+setWallpaperHandler :: String -> IO WallpaperEvent 
+setWallpaperHandler path = do
   logMsg DEBUG $ "Setting wallpaper to: " ++ path
-  return (ResizeWallpaper (0, 0))
+  applyWallpaper path
+  return WallpaperNone 
 
 buildUIWallpaper :: WallpaperEnv -> WallpaperModel -> WallpaperNode
 buildUIWallpaper wenv model = widgetTree
@@ -78,5 +80,5 @@ handleEventWallpaper :: WallpaperEnv -> WallpaperNode -> WallpaperModel -> Wallp
 handleEventWallpaper wenv node model evt = case evt of
   LoadWallpapers paths -> [Model $ model & wallpaperPaths .~ paths]
   LoadWallpaperDimensions dims -> [Model $ model & wallpaperAspectRatios .~ dims]
-  SetWallpaper path -> [Task $ testSet path]
-  ResizeWallpaper (w, h) -> []
+  SetWallpaper path -> [Task $ setWallpaperHandler path]
+  WallpaperNone -> []
