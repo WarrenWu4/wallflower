@@ -54,13 +54,16 @@ buildUIWallpaper wenv model = widgetTree
       vscroll
         ( hstack_
             [childSpacing_ 12]
-            [ vstack_ [childSpacing_ 12] testItems2 `styleBasic` [width columnWidth, border 2 (rgbHex "#ff0000")],
-              vstack [label $ pack $ show windowWidth] `styleBasic` [width columnWidth, border 2 (rgbHex "#ff0000")],
-              vstack [label $ pack $ show (getWallpaperColumnSize windowWidth)] `styleBasic` [width columnWidth, border 2 (rgbHex "#ff0000")]
+            [ vstack_ [childSpacing_ 12] col1 `styleBasic` [],
+              vstack_ [childSpacing_ 12] col2 `styleBasic` [],
+              vstack_ [childSpacing_ 12] col3 `styleBasic` []
             ]
         )
 
-    testItems2 :: [WallpaperNode] = map (\(path, aspectRatio) -> image_ (pack path) [fitWidth] `styleBasic` [width columnWidth, height (aspectRatio * columnWidth)]) $ zip (model ^. wallpaperPaths) (model ^. wallpaperAspectRatios)
+    indexedList = zip3 [0..] (model ^. wallpaperPaths) (model ^. wallpaperAspectRatios)
+    col1 :: [WallpaperNode] = map (\(path, aspectRatio) -> image_ (pack path) [fitWidth] `styleBasic` [width columnWidth, height (aspectRatio * columnWidth)]) $ [(p, ar) | (i, p, ar) <- indexedList, i `mod` 3 == 0] 
+    col2 :: [WallpaperNode] = map (\(path, aspectRatio) -> image_ (pack path) [fitWidth] `styleBasic` [width columnWidth, height (aspectRatio * columnWidth)]) $ [(p, ar) | (i, p, ar) <- indexedList, i `mod` 3 == 1] 
+    col3 :: [WallpaperNode] = map (\(path, aspectRatio) -> image_ (pack path) [fitWidth] `styleBasic` [width columnWidth, height (aspectRatio * columnWidth)]) $ [(p, ar) | (i, p, ar) <- indexedList, i `mod` 3 == 2] 
 
 handleEventWallpaper :: WallpaperEnv -> WallpaperNode -> WallpaperModel -> WallpaperEvent -> [EventResponse WallpaperModel WallpaperEvent sp ep]
 handleEventWallpaper wenv node model evt = case evt of
