@@ -32,7 +32,8 @@ executable wallflower
                        monomer,
                        lens,
                        bytestring,
-                       binary
+                       binary,
+                       tinyfiledialogs
   other-modules:       DirectoryManager, 
                        Paths_wallflower, 
                        Validator,
