@@ -8,9 +8,9 @@ import Colors
 import Control.Lens
 import Data.List (nub)
 import Data.Text (pack, unpack)
+import FileParser (parseSettingsFile)
 import Graphics.UI.TinyFileDialogs (selectFolderDialog)
 import Monomer
-import FileParser (parseSettingsFile)
 
 data SettingsModel = SettingsModel
   { _searchDirectories :: [String]
@@ -40,7 +40,7 @@ defaultSettingsModel =
 
 fetchInitialFolders :: IO SettingsEvent
 fetchInitialFolders = do
-  dirData <- parseSettingsFile 
+  dirData <- parseSettingsFile
   return $ SettingsAddFolders (map (\path -> path) dirData)
 
 browseFoldersHandler :: IO SettingsEvent
@@ -65,13 +65,24 @@ buildUISettings wenv model = widgetTree
                     `styleBasic` [paddingH 12, paddingV 8, textColor (rgbHex bg0), bgColor (rgbHex fg1), textFont "SemiBold", textSize 16]
                 ),
               vstack_
-                [childSpacing_ 4]
+                [childSpacing_ 12]
                 directories
             ]
-        ) 
+        )
 
     directoryText :: String -> SettingsNode
-    directoryText dir = label (pack dir) `styleBasic` [textFont "SemiBold", textSize 16, textColor (rgbHex fg1)]
+    directoryText dir =
+      box_
+        [alignLeft, onClick $ SettingsDeleteFolder dir]
+        ( hstack_
+            [childSpacing_ 8]
+            [ image_
+                (pack "./resources/icons/folder-icon.png")
+                [fitWidth]
+                `styleBasic` [width 16, height 16],
+              label (pack dir) `styleBasic` [textFont "SemiBold", textSize 16, textColor (rgbHex fg1)]
+            ]
+        )
 
     directories :: [SettingsNode] = map directoryText (model ^. searchDirectories)
 
@@ -87,5 +98,5 @@ handleEventSettings wenv node model evt = case evt of
             let appendedDirs = snoc dirs path
              in nub appendedDirs
     ]
-  SettingsDeleteFolder path -> []
+  SettingsDeleteFolder path -> [Model $ model & searchDirectories %~ \dirs -> filter (/= path) dirs]
   SettingsNone -> []
