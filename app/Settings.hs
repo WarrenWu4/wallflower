@@ -10,7 +10,7 @@ import Data.List (nub)
 import Data.Text (pack, unpack)
 import Graphics.UI.TinyFileDialogs (selectFolderDialog)
 import Monomer
-import LoggerGe 
+import FileParser (parseSettingsFile)
 
 data SettingsModel = SettingsModel
   { _searchDirectories :: [String]
@@ -40,11 +40,8 @@ defaultSettingsModel =
 
 fetchInitialFolders :: IO SettingsEvent
 fetchInitialFolders = do
-  logMsg DEBUG "yues"
-  -- wallpaperData <- getWallpaperData
-  -- let state = SettingsNone $ map (\(_, _, path) -> path) wallpaperData
-  -- return (SettingsEvt state)
-  return SettingsNone
+  dirData <- parseSettingsFile 
+  return $ SettingsAddFolders (map (\path -> path) dirData)
 
 browseFoldersHandler :: IO SettingsEvent
 browseFoldersHandler = do
