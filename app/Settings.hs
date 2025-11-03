@@ -16,9 +16,10 @@ data SettingsModel = SettingsModel
   deriving (Eq, Show)
 
 data SettingsEvent
-  = SettingsInit
+  = SettingsInit [String]
   | SettingsBrowseFolders
   | SettingsAddFolder String
+  | SettingsDeleteFolder String
   | SettingsNone
   deriving (Eq, Show)
 
@@ -33,6 +34,10 @@ defaultSettingsModel =
   SettingsModel
     { _searchDirectories = []
     }
+
+fetchInitialFolders :: IO SettingsEvent
+fetchInitialFolders = do
+  return SettingsNone
 
 browseFoldersHandler :: IO SettingsEvent
 browseFoldersHandler = do
@@ -68,7 +73,8 @@ buildUISettings wenv model = widgetTree
 
 handleEventSettings :: SettingsEnv -> SettingsNode -> SettingsModel -> SettingsEvent -> [EventResponse SettingsModel SettingsEvent sp ep]
 handleEventSettings wenv node model evt = case evt of
-  SettingsInit -> []
+  SettingsInit paths -> [Model $ model & searchDirectories .~ paths]
   SettingsBrowseFolders -> [Task browseFoldersHandler]
   SettingsAddFolder path -> [Model $ model & searchDirectories .~ snoc (model ^. searchDirectories) path]
+  SettingsDeleteFolder path -> []
   SettingsNone -> []

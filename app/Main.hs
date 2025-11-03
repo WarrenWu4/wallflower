@@ -6,16 +6,15 @@ module Main (main) where
 
 import Colors
 import Control.Lens
-import LoggerGe
+import Control.Monad (zipWithM)
+import Data.Maybe (catMaybes)
+import ImageDimension
 import Monomer
+import Settings
 import Tabs
 import UiData (getWallpaperData)
 import Validator (checkAllDependencies)
 import Wallpapers
-import Settings
-import ImageDimension
-import Control.Monad (zipWithM)
-import Data.Maybe (catMaybes)
 
 data AppModel = AppModel
   { _tabModel :: TabModel,
@@ -28,6 +27,7 @@ data AppEvent
   = AppInit
   | TabEvt TabEvent
   | WallpaperEvt WallpaperEvent
+  | SettingsEvt SettingsEvent
   deriving (Eq, Show)
 
 type AppEnv = WidgetEnv AppModel AppEvent
@@ -38,24 +38,27 @@ makeLenses 'AppModel
 
 wallpaperInit :: IO AppEvent
 wallpaperInit = do
-  -- logMsg DEBUG "Loading wallpapers"
   wallpaperData <- getWallpaperData
   let state = LoadWallpapers $ map (\(_, _, path) -> path) wallpaperData
   return (WallpaperEvt state)
 
 wallpaperDimInit :: IO AppEvent
 wallpaperDimInit = do
-  -- logMsg DEBUG "Loading wallpaper dimensions"
   wallpaperData <- getWallpaperData
   let filePaths = map (\(_, _, path) -> path) wallpaperData
   let fileExtensions = map getImageFormat filePaths
-  results <- zipWithM getImageDimension filePaths fileExtensions 
+  results <- zipWithM getImageDimension filePaths fileExtensions
   let validResults :: [(Int, Int)] = catMaybes results
   -- INFO: reverse h/w because future sizing is dependent on width thus making dynamic resizing easier to calculate
-  let aspectRatios = [(\num den -> fromIntegral num / fromIntegral den) h w | (w, h)<-validResults]
-  -- logMsg DEBUG $ "Dim Values: " ++ show aspectRatios 
-  let state = LoadWallpaperDimensions aspectRatios 
+  let aspectRatios = [(\num den -> fromIntegral num / fromIntegral den) h w | (w, h) <- validResults]
+  let state = LoadWallpaperDimensions aspectRatios
   return (WallpaperEvt state)
+
+settingsInit :: IO AppEvent
+settingsInit = do
+  wallpaperData <- getWallpaperData
+  let state = SettingsInit $ map (\(_, _, path) -> path) wallpaperData
+  return (SettingsEvt state)
 
 buildUI :: AppEnv -> AppModel -> AppNode
 buildUI wenv model = widgetTree
@@ -66,16 +69,18 @@ buildUI wenv model = widgetTree
         [ composite "tab" tabModel buildUITab handleEventTab `nodeKey` "tabWidget",
           if (model ^. (tabModel . tabActive)) == "Wallpapers"
             then wallpaperWidget
-            else settingWidget 
+            else settingWidget
         ]
         `styleBasic` [padding 24, bgColor (rgbHex bg1)]
     wallpaperWidget :: AppNode = composite "wallpapers" wallpaperModel buildUIWallpaper handleEventWallpaper `nodeKey` "wallpaperWidget"
     settingWidget :: AppNode = composite "settings" settingsModel buildUISettings handleEventSettings `nodeKey` "settingWidget" 
+
 handleEvent :: AppEnv -> AppNode -> AppModel -> AppEvent -> [AppEventResponse AppModel AppEvent]
 handleEvent wenv node model evt = case evt of
   AppInit -> [Task wallpaperInit, Task wallpaperDimInit]
   TabEvt tabEvt -> [Message "tabWidget" tabEvt]
   WallpaperEvt wallpaperEvt -> [Message "wallpaperWidget" wallpaperEvt]
+  SettingsEvt settingsEvt -> [Message "settingWidget" settingsEvt]
 
 main :: IO ()
 main = do
