@@ -6,6 +6,7 @@ module Settings where
 
 import Colors
 import Control.Lens
+import Data.List (nub)
 import Data.Text (pack, unpack)
 import Graphics.UI.TinyFileDialogs (selectFolderDialog)
 import Monomer
@@ -75,6 +76,12 @@ handleEventSettings :: SettingsEnv -> SettingsNode -> SettingsModel -> SettingsE
 handleEventSettings wenv node model evt = case evt of
   SettingsInit paths -> [Model $ model & searchDirectories .~ paths]
   SettingsBrowseFolders -> [Task browseFoldersHandler]
-  SettingsAddFolder path -> [Model $ model & searchDirectories .~ snoc (model ^. searchDirectories) path]
+  SettingsAddFolder path ->
+    [ Model $
+        model
+          & searchDirectories %~ \dirs ->
+            let appendedDirs = snoc dirs path
+             in nub appendedDirs
+    ]
   SettingsDeleteFolder path -> []
   SettingsNone -> []
