@@ -10,6 +10,7 @@ import Data.List (nub)
 import Data.Text (pack, unpack)
 import Graphics.UI.TinyFileDialogs (selectFolderDialog)
 import Monomer
+import LoggerGe 
 
 data SettingsModel = SettingsModel
   { _searchDirectories :: [String]
@@ -17,8 +18,9 @@ data SettingsModel = SettingsModel
   deriving (Eq, Show)
 
 data SettingsEvent
-  = SettingsInit [String]
+  = SettingsInit
   | SettingsBrowseFolders
+  | SettingsAddFolders [String]
   | SettingsAddFolder String
   | SettingsDeleteFolder String
   | SettingsNone
@@ -38,6 +40,10 @@ defaultSettingsModel =
 
 fetchInitialFolders :: IO SettingsEvent
 fetchInitialFolders = do
+  logMsg DEBUG "yues"
+  -- wallpaperData <- getWallpaperData
+  -- let state = SettingsNone $ map (\(_, _, path) -> path) wallpaperData
+  -- return (SettingsEvt state)
   return SettingsNone
 
 browseFoldersHandler :: IO SettingsEvent
@@ -65,7 +71,7 @@ buildUISettings wenv model = widgetTree
                 [childSpacing_ 4]
                 directories
             ]
-        )
+        ) 
 
     directoryText :: String -> SettingsNode
     directoryText dir = label (pack dir) `styleBasic` [textFont "SemiBold", textSize 16, textColor (rgbHex fg1)]
@@ -74,8 +80,9 @@ buildUISettings wenv model = widgetTree
 
 handleEventSettings :: SettingsEnv -> SettingsNode -> SettingsModel -> SettingsEvent -> [EventResponse SettingsModel SettingsEvent sp ep]
 handleEventSettings wenv node model evt = case evt of
-  SettingsInit paths -> [Model $ model & searchDirectories .~ paths]
+  SettingsInit -> [Task fetchInitialFolders]
   SettingsBrowseFolders -> [Task browseFoldersHandler]
+  SettingsAddFolders paths -> [Model $ model & searchDirectories .~ paths]
   SettingsAddFolder path ->
     [ Model $
         model

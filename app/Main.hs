@@ -54,12 +54,6 @@ wallpaperDimInit = do
   let state = LoadWallpaperDimensions aspectRatios
   return (WallpaperEvt state)
 
-settingsInit :: IO AppEvent
-settingsInit = do
-  wallpaperData <- getWallpaperData
-  let state = SettingsInit $ map (\(_, _, path) -> path) wallpaperData
-  return (SettingsEvt state)
-
 buildUI :: AppEnv -> AppModel -> AppNode
 buildUI wenv model = widgetTree
   where
@@ -73,7 +67,8 @@ buildUI wenv model = widgetTree
         ]
         `styleBasic` [padding 24, bgColor (rgbHex bg1)]
     wallpaperWidget :: AppNode = composite "wallpapers" wallpaperModel buildUIWallpaper handleEventWallpaper `nodeKey` "wallpaperWidget"
-    settingWidget :: AppNode = composite "settings" settingsModel buildUISettings handleEventSettings `nodeKey` "settingWidget" 
+    -- settingWidget :: AppNode = composite "settings" settingsModel buildUISettings handleEventSettings `nodeKey` "settingWidget" 
+    settingWidget :: AppNode = composite_ "settings" settingsModel buildUISettings handleEventSettings [onInit SettingsInit] 
 
 handleEvent :: AppEnv -> AppNode -> AppModel -> AppEvent -> [AppEventResponse AppModel AppEvent]
 handleEvent wenv node model evt = case evt of
