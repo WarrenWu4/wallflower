@@ -8,12 +8,13 @@ import Colors
 import Control.Lens
 import Data.List (nub)
 import Data.Text (pack, unpack)
+import DirectoryManager
 import FileParser (parseSettingsFile)
 import Graphics.UI.TinyFileDialogs (selectFolderDialog)
 import Monomer
 
 data SettingsModel = SettingsModel
-  { _searchDirectories :: [String]
+  { _directoryModel :: DirectoryModel
   }
   deriving (Eq, Show)
 
@@ -35,7 +36,7 @@ makeLenses 'SettingsModel
 defaultSettingsModel :: SettingsModel
 defaultSettingsModel =
   SettingsModel
-    { _searchDirectories = []
+    { _directoryModel = defaultDirectoryModel
     }
 
 fetchInitialFolders :: IO SettingsEvent
@@ -66,7 +67,7 @@ buildUISettings wenv model = widgetTree
                 ),
               vstack_
                 [childSpacing_ 12]
-                directories
+                directoryItems
             ]
         )
 
@@ -84,19 +85,23 @@ buildUISettings wenv model = widgetTree
             ]
         )
 
-    directories :: [SettingsNode] = map directoryText (model ^. searchDirectories)
+    directoryItems :: [SettingsNode] = map directoryText (model ^. (directoryModel . directories))
 
 handleEventSettings :: SettingsEnv -> SettingsNode -> SettingsModel -> SettingsEvent -> [EventResponse SettingsModel SettingsEvent sp ep]
 handleEventSettings wenv node model evt = case evt of
   SettingsInit -> [Task fetchInitialFolders]
   SettingsBrowseFolders -> [Task browseFoldersHandler]
-  SettingsAddFolders paths -> [Model $ model & searchDirectories .~ paths]
+  SettingsAddFolders paths -> [Model $ model & (directoryModel . directories) .~ paths]
   SettingsAddFolder path ->
     [ Model $
         model
-          & searchDirectories %~ \dirs ->
+          & (directoryModel . directories) %~ \dirs ->
             let appendedDirs = snoc dirs path
              in nub appendedDirs
     ]
-  SettingsDeleteFolder path -> [Model $ model & searchDirectories %~ \dirs -> filter (/= path) dirs]
+  SettingsDeleteFolder path ->
+    [ Model $
+        model
+          & (directoryModel . directories) %~ \dirs -> filter (/= path) dirs
+    ]
   SettingsNone -> []

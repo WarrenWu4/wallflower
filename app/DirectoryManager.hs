@@ -1,35 +1,71 @@
-module DirectoryManager (
-  isImage,
-  getImagesInDirectory,
-  getImagesInDirectories,
-  getDirectoriesFromSetting,
-  saveDirectoryToSetting,
-  getHyprpaperConfigPath,
-  getCurrentWallpaperPath,
-  isCurrentWallpaper
-) where
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TemplateHaskell #-}
 
-import System.Directory
-import System.FilePath
+module DirectoryManager where
+
+import Control.Lens
 import Control.Monad
+import Data.List (nub)
 import Data.List.Split (splitOn)
 import LoggerGe
+import Monomer
+import System.Directory
+import System.FilePath
 import Utilities
+
+data DirectoryModel = DirectoryModel
+  { _directories :: [String]
+  }
+  deriving (Eq, Show)
+
+data DirectoryEvent
+  = DirectoryLoad [String]
+  | DirectoryAdd String
+  | DirectoryRemove String
+  | DirectoryNothing
+  deriving (Eq, Show)
+
+type DirectoryEnv = WidgetEnv DirectoryModel DirectoryEvent
+
+type DirectoryNode = WidgetNode DirectoryModel DirectoryEvent
+
+makeLenses 'DirectoryModel
+
+defaultDirectoryModel :: DirectoryModel
+defaultDirectoryModel = DirectoryModel {_directories = []}
+
+handleEventDirectory :: DirectoryEnv -> DirectoryNode -> DirectoryModel -> DirectoryEvent -> [EventResponse DirectoryModel DirectoryEvent sp ep]
+handleEventDirectory wenv node model evt = case evt of
+  DirectoryLoad paths -> [Model $ model & directories .~ paths]
+  DirectoryAdd path ->
+    [ Model $
+        model
+          & directories %~ \dirs ->
+            let appendedDirs = snoc dirs path
+             in nub appendedDirs
+    ]
+  DirectoryRemove path ->
+    [ Model $
+        model
+          & directories %~ \dirs -> filter (/= path) dirs
+    ]
+  DirectoryNothing -> []
 
 -- | checks if file path is a supported image
 -- supported image types: jpg, jpeg, png
 isImage :: FilePath -> Bool
 isImage f = do
-  let ext = last $ splitOn "." f  
+  let ext = last $ splitOn "." f
   case map toLower (ext) of
-    "jpg"  -> True
+    "jpg" -> True
     "jpeg" -> True
-    "png"  -> True
-    _       -> False
+    "png" -> True
+    _ -> False
   where
     toLower c
       | 'A' <= c && c <= 'Z' = toEnum (fromEnum c + 32)
-      | otherwise            = c
+      | otherwise = c
 
 -- | list all images in a directory
 -- absolute paths only
@@ -37,9 +73,9 @@ getImagesInDirectory :: FilePath -> IO [FilePath]
 getImagesInDirectory d = do
   contents <- listDirectory d
   let fullPaths = filter isImage $ map (d </>) contents
-  filterM doesFileExist fullPaths 
+  filterM doesFileExist fullPaths
 
--- |list all images in a list of directories
+-- | list all images in a list of directories
 getImagesInDirectories :: [FilePath] -> IO [FilePath]
 getImagesInDirectories dirs = do
   imagesList <- mapM getImagesInDirectory dirs
@@ -54,7 +90,7 @@ getDirectoriesFromSetting = do
   exists <- doesFileExist directoriesPath
   if not exists
     then do
-      logMsg WARNING "Settings file not found... Please report this error to the GitHub...\n" 
+      logMsg WARNING "Settings file not found... Please report this error to the GitHub...\n"
       -- TODO: set fallback by creating dfeualt settings file
       -- logMsg DEBUG "Creating default settings file"
       logMsg DEBUG "Creating default background directory"
@@ -68,6 +104,7 @@ getDirectoriesFromSetting = do
       return dirs
 
 -- implement once settings file is figured out
+
 -- | save directories to setting file
 saveDirectoryToSetting :: String -> IO ()
 saveDirectoryToSetting dir = do
@@ -83,7 +120,7 @@ saveDirectoryToSetting dir = do
 
 getHyprpaperConfigPath :: IO FilePath
 getHyprpaperConfigPath = do
-  homeDir <- getHomeDirectory 
+  homeDir <- getHomeDirectory
   return (homeDir </> ".config" </> "hypr" </> "hyprpaper.conf")
 
 getCurrentWallpaperPath :: IO (Maybe FilePath)
@@ -92,16 +129,15 @@ getCurrentWallpaperPath = do
   exists <- doesFileExist configPath
   if not exists
     then return Nothing
-  else do 
-    contents <- readFile configPath
-    let strPath = last $ splitOn " " contents
-    let parsedPath = filter (\c -> c /= '"' && c /= '\n') strPath
-    return (Just parsedPath)
+    else do
+      contents <- readFile configPath
+      let strPath = last $ splitOn " " contents
+      let parsedPath = filter (\c -> c /= '"' && c /= '\n') strPath
+      return (Just parsedPath)
 
 isCurrentWallpaper :: FilePath -> IO Bool
 isCurrentWallpaper path = do
   currentWallpaper <- getCurrentWallpaperPath
   case currentWallpaper of
-    Just p  -> return (p == path)
-    Nothing -> return False 
-
+    Just p -> return (p == path)
+    Nothing -> return False
