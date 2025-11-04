@@ -1,19 +1,13 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Utilities
-  ( getResourcePath,
-    isProgramRunning,
-    doesResourceExist,
-    moveToFront,
-  )
-where
+module Utilities where
 
 import Control.Exception (IOException, try)
 import Control.Monad (forM_, unless)
 import Data.List (delete, find)
 import LoggerGe
 import Paths_wallflower (getDataFileName)
-import System.Directory (doesFileExist)
+import System.Directory (doesFileExist, doesDirectoryExist)
 import System.FilePath (normalise)
 import System.Process (readProcess)
 
@@ -47,3 +41,38 @@ moveToFront p xs =
   case find p xs of
     Nothing -> xs
     Just target -> target : delete target xs
+
+getSettingsFile :: IO String
+getSettingsFile = do
+  getResourcePath "resources/data/directories.txt"
+
+validateDirectory :: String -> IO Bool
+validateDirectory dir = do
+  exists <- doesDirectoryExist dir
+  if exists
+    then return True
+    else do
+      logMsg WARNING $ "Directory does not exist: " ++ dir ++ "\nSkipping..."
+      return False
+
+-- | gets all directories listed in the settings file
+-- skips iteration if directory doesn't exist or not valid
+-- @param FilePath settingsFilePath: path to settings file
+-- @return [String] directoriesList: list of valid directories
+readSettings :: FilePath -> IO [String]
+readSettings settingsFilePath = do
+  logMsg INFO $ "Reading from settings file: " ++ show settingsFilePath
+  content <- readFile settingsFilePath 
+  let dirs = filter (not . null) $ lines content
+  validDirs <- mapM validateDirectory dirs
+  let validDirList = map fst $ filter snd $ zip dirs validDirs
+  return validDirList
+
+-- | writes data to settings file 
+-- @param FilePath settingsFilePath: path to settings file
+-- @param [String] settingsData: data to write
+-- @return ()
+writeSettings:: FilePath -> [String] -> IO ()
+writeSettings settingsFilePath settingsData = do
+  logMsg INFO $ "Writing to settings file: " ++ show settingsFilePath
+  writeFile settingsFilePath $ unlines settingsData

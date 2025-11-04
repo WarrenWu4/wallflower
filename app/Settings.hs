@@ -8,9 +8,11 @@ import Colors
 import Control.Lens
 import Data.List (nub)
 import Data.Text (pack, unpack)
+import DirectoryManager (saveDirectoryToSetting)
 import FileParser (parseSettingsFile)
 import Graphics.UI.TinyFileDialogs (selectFolderDialog)
 import Monomer
+import Utilities
 
 data SettingsModel = SettingsModel
   { _directories :: [String]
@@ -23,7 +25,7 @@ data SettingsEvent
   | SettingsAddFolders [String]
   | SettingsAddFolder String
   | SettingsDeleteFolder String
-  | SettingsNone
+  | SettingsNothing
   deriving (Eq, Show)
 
 type SettingsEnv = WidgetEnv SettingsModel SettingsEvent
@@ -35,13 +37,31 @@ makeLenses 'SettingsModel
 defaultSettingsModel :: SettingsModel
 defaultSettingsModel =
   SettingsModel
-    { _directories = [] 
+    { _directories = []
     }
 
 fetchInitialFolders :: IO SettingsEvent
-fetchInitialFolders = do
-  dirData <- parseSettingsFile
-  return $ SettingsAddFolders (map (\path -> path) dirData)
+fetchInitialFolders = do 
+  settingsFile <- getSettingsFile
+  settingsDirectories <- readSettings settingsFile
+  return $ SettingsAddFolders settingsDirectories 
+
+addDirectoryToFile :: String -> IO SettingsEvent
+addDirectoryToFile dir = do
+  settingsFile <- getSettingsFile
+  settingsDirectories <- readSettings settingsFile
+  let appendedDirs = snoc settingsDirectories dir
+  let uniqueDirs = nub appendedDirs
+  writeSettings settingsFile uniqueDirs
+  return SettingsNothing
+
+removeDirectoryFromFile :: String -> IO SettingsEvent
+removeDirectoryFromFile dir = do
+  settingsFile <- getSettingsFile
+  settingsDirectories <- readSettings settingsFile
+  let updatedDirs = filter (/= dir) settingsDirectories
+  writeSettings settingsFile updatedDirs
+  return SettingsNothing
 
 browseFoldersHandler :: IO SettingsEvent
 browseFoldersHandler = do
@@ -49,7 +69,7 @@ browseFoldersHandler = do
   folder <- selectFolderDialog "Select Wallpaper Folders" "/home/warrenwu/backgrounds"
   case folder of
     Just f -> return $ SettingsAddFolder (unpack f)
-    Nothing -> return SettingsNone
+    Nothing -> return SettingsNothing
 
 buildUISettings :: SettingsEnv -> SettingsModel -> SettingsNode
 buildUISettings wenv model = widgetTree
@@ -92,15 +112,17 @@ handleEventSettings wenv node model evt = case evt of
   SettingsBrowseFolders -> [Task browseFoldersHandler]
   SettingsAddFolders paths -> [Model $ model & directories .~ paths]
   SettingsAddFolder path ->
-    [ Model $
+    [ Task $ addDirectoryToFile path,
+      Model $
         model
           & directories %~ \dirs ->
             let appendedDirs = snoc dirs path
              in nub appendedDirs
     ]
   SettingsDeleteFolder path ->
-    [ Model $
+    [ Task $ removeDirectoryFromFile path,
+      Model $
         model
           & directories %~ \dirs -> filter (/= path) dirs
     ]
-  SettingsNone -> []
+  SettingsNothing -> []

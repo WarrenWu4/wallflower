@@ -64,7 +64,8 @@ getDirectoriesFromSetting = do
 
 -- implement once settings file is figured out
 
--- | save directories to setting file
+-- | save directories to settings file
+-- TODO: check no duplicates
 saveDirectoryToSetting :: String -> IO ()
 saveDirectoryToSetting dir = do
   directoriesPath <- getResourcePath "resources/data/directories.txt"
