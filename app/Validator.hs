@@ -7,16 +7,12 @@ module Validator
     doesResourceFolderExist,
     doAllIconsExist,
     doAllFontsExist,
-    doAllCssFilesExist,
-    doAllTemplateFilesExist,
-    doAllUiFilesExist,
     doesSettingsFileExist,
   )
 where
 
 import Control.Monad (unless)
 import Data.Maybe (isJust)
-import ImageDimension
 import LoggerGe
 import System.Directory (doesDirectoryExist, doesFileExist, findExecutable, getHomeDirectory)
 import Utilities
@@ -33,9 +29,6 @@ checkAllDependencies = do
   doesResourceFolderExist
   doAllIconsExist
   doAllFontsExist
-  doAllCssFilesExist
-  doAllTemplateFilesExist
-  doAllUiFilesExist
   doesSettingsFileExist
 
 -- quickImageCheck
@@ -102,24 +95,6 @@ doAllFontsExist = do
   let fonts = ["Montserrat-VariableFont_wght.ttf"]
   let fontsResPath = ["resources/fonts/" ++ font | font <- fonts]
   doesResourceExist fontsResPath "doAllFontsExist"
-
-doAllCssFilesExist :: IO ()
-doAllCssFilesExist = do
-  let cssFiles = ["style.css"]
-  let cssResPath = ["resources/css/" ++ cssFile | cssFile <- cssFiles]
-  doesResourceExist cssResPath "doAllCssFilesExist"
-
-doAllTemplateFilesExist :: IO ()
-doAllTemplateFilesExist = do
-  let templateFiles = ["tab.template", "directory.template", "image.template"]
-  let templateResPath = ["resources/templates/" ++ templateFile | templateFile <- templateFiles]
-  doesResourceExist templateResPath "doAllTemplateFilesExist"
-
-doAllUiFilesExist :: IO ()
-doAllUiFilesExist = do
-  let uiFiles = ["window.ui", "wallpapers.ui", "settings.ui"]
-  let uiResPath = ["resources/ui/" ++ uiFile | uiFile <- uiFiles]
-  doesResourceExist uiResPath "doAllUiFilesExist"
 
 doesSettingsFileExist :: IO ()
 doesSettingsFileExist = do

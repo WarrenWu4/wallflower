@@ -6,13 +6,9 @@ module Main (main) where
 
 import Colors
 import Control.Lens
-import Control.Monad (zipWithM)
-import Data.Maybe (catMaybes)
-import ImageDimension
 import Monomer
 import Settings
 import Tabs
-import UiData (getWallpaperData)
 import Validator (checkAllDependencies)
 import Wallpapers
 
@@ -36,24 +32,6 @@ type AppNode = WidgetNode AppModel AppEvent
 
 makeLenses 'AppModel
 
-wallpaperInit :: IO AppEvent
-wallpaperInit = do
-  wallpaperData <- getWallpaperData
-  let state = LoadWallpapers $ map (\(_, _, path) -> path) wallpaperData
-  return (WallpaperEvt state)
-
-wallpaperDimInit :: IO AppEvent
-wallpaperDimInit = do
-  wallpaperData <- getWallpaperData
-  let filePaths = map (\(_, _, path) -> path) wallpaperData
-  let fileExtensions = map getImageFormat filePaths
-  results <- zipWithM getImageDimension filePaths fileExtensions
-  let validResults :: [(Int, Int)] = catMaybes results
-  -- INFO: reverse h/w because future sizing is dependent on width thus making dynamic resizing easier to calculate
-  let aspectRatios = [(\num den -> fromIntegral num / fromIntegral den) h w | (w, h) <- validResults]
-  let state = LoadWallpaperDimensions aspectRatios
-  return (WallpaperEvt state)
-
 buildUI :: AppEnv -> AppModel -> AppNode
 buildUI wenv model = widgetTree
   where
@@ -66,13 +44,12 @@ buildUI wenv model = widgetTree
             else settingWidget
         ]
         `styleBasic` [padding 24, bgColor (rgbHex bg1)]
-    wallpaperWidget :: AppNode = composite "wallpapers" wallpaperModel buildUIWallpaper handleEventWallpaper `nodeKey` "wallpaperWidget"
-    -- settingWidget :: AppNode = composite "settings" settingsModel buildUISettings handleEventSettings `nodeKey` "settingWidget" 
+    wallpaperWidget :: AppNode = composite_ "wallpapers" wallpaperModel buildUIWallpaper handleEventWallpaper [onInit WallpaperInit] 
     settingWidget :: AppNode = composite_ "settings" settingsModel buildUISettings handleEventSettings [onInit SettingsInit] 
 
 handleEvent :: AppEnv -> AppNode -> AppModel -> AppEvent -> [AppEventResponse AppModel AppEvent]
 handleEvent wenv node model evt = case evt of
-  AppInit -> [Task wallpaperInit, Task wallpaperDimInit]
+  AppInit -> []
   TabEvt tabEvt -> [Message "tabWidget" tabEvt]
   WallpaperEvt wallpaperEvt -> [Message "wallpaperWidget" wallpaperEvt]
   SettingsEvt settingsEvt -> [Message "settingWidget" settingsEvt]
@@ -86,9 +63,9 @@ main = do
       [ appWindowTitle "Wallflower",
         appWindowIcon "./resources/icons/logo.png",
         appTheme darkTheme,
-        appFontDef "Regular" "./assets/Montserrat-Regular.ttf",
-        appFontDef "SemiBold" "./assets/Montserrat-SemiBold.ttf",
-        appFontDef "Bold" "./assets/Montserrat-Bold.ttf",
+        appFontDef "Regular" "./resources/fonts/Montserrat-Regular.ttf",
+        appFontDef "SemiBold" "./resources/fonts/Montserrat-SemiBold.ttf",
+        appFontDef "Bold" "./resources/fonts/Montserrat-Bold.ttf",
         appInitEvent AppInit
       ]
     model =

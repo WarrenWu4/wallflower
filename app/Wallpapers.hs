@@ -10,6 +10,10 @@ import Monomer
 import qualified Monomer.Lens as L
 import LoggerGe
 import HyprpaperManager (applyWallpaper)
+import UiData (getWallpaperData)
+import ImageDimension (getImageFormat, getImageDimension)
+import Control.Monad (zipWithM)
+import Data.Maybe (catMaybes)
 
 data WallpaperModel = WallpaperModel
   { _wallpaperPaths :: [String],
@@ -18,7 +22,8 @@ data WallpaperModel = WallpaperModel
   deriving (Eq, Show)
 
 data WallpaperEvent
-  = LoadWallpapers [String]
+  = WallpaperInit
+  | LoadWallpapers [String]
   | LoadWallpaperDimensions [Double]
   | SetWallpaper String
   | WallpaperNone
@@ -36,6 +41,23 @@ defaultWallpaperModel =
     { _wallpaperPaths = [],
       _wallpaperAspectRatios = []
     }
+
+wallpaperInit :: IO WallpaperEvent
+wallpaperInit = do
+  wallpaperData <- getWallpaperData
+  return (LoadWallpapers $ map (\(_, _, path) -> path) wallpaperData)
+
+wallpaperDimInit :: IO WallpaperEvent
+wallpaperDimInit = do
+  wallpaperData <- getWallpaperData
+  let filePaths = map (\(_, _, path) -> path) wallpaperData
+  let fileExtensions = map getImageFormat filePaths
+  results <- zipWithM getImageDimension filePaths fileExtensions
+  -- INFO: reverse h/w because future sizing is dependent on width thus making dynamic resizing easier to calculate
+  let validResults :: [(Int, Int)] = catMaybes results
+  let aspectRatios = [(\num den -> fromIntegral num / fromIntegral den) h w | (w, h) <- validResults]
+  return $ LoadWallpaperDimensions aspectRatios
+
 
 -- TODO: figure some better way to do this dynamic sizing crap
 getWallpaperColumnSize :: Double -> Double
@@ -78,6 +100,7 @@ buildUIWallpaper wenv model = widgetTree
 
 handleEventWallpaper :: WallpaperEnv -> WallpaperNode -> WallpaperModel -> WallpaperEvent -> [EventResponse WallpaperModel WallpaperEvent sp ep]
 handleEventWallpaper wenv node model evt = case evt of
+  WallpaperInit -> [Task wallpaperInit, Task wallpaperDimInit]
   LoadWallpapers paths -> [Model $ model & wallpaperPaths .~ paths]
   LoadWallpaperDimensions dims -> [Model $ model & wallpaperAspectRatios .~ dims]
   SetWallpaper path -> [Task $ setWallpaperHandler path]
