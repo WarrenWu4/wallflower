@@ -8,13 +8,12 @@ import Colors
 import Control.Lens
 import Data.List (nub)
 import Data.Text (pack, unpack)
-import DirectoryManager
 import FileParser (parseSettingsFile)
 import Graphics.UI.TinyFileDialogs (selectFolderDialog)
 import Monomer
 
 data SettingsModel = SettingsModel
-  { _directoryModel :: DirectoryModel
+  { _directories :: [String]
   }
   deriving (Eq, Show)
 
@@ -36,7 +35,7 @@ makeLenses 'SettingsModel
 defaultSettingsModel :: SettingsModel
 defaultSettingsModel =
   SettingsModel
-    { _directoryModel = defaultDirectoryModel
+    { _directories = [] 
     }
 
 fetchInitialFolders :: IO SettingsEvent
@@ -85,23 +84,23 @@ buildUISettings wenv model = widgetTree
             ]
         )
 
-    directoryItems :: [SettingsNode] = map directoryText (model ^. (directoryModel . directories))
+    directoryItems :: [SettingsNode] = map directoryText (model ^. directories)
 
 handleEventSettings :: SettingsEnv -> SettingsNode -> SettingsModel -> SettingsEvent -> [EventResponse SettingsModel SettingsEvent sp ep]
 handleEventSettings wenv node model evt = case evt of
   SettingsInit -> [Task fetchInitialFolders]
   SettingsBrowseFolders -> [Task browseFoldersHandler]
-  SettingsAddFolders paths -> [Model $ model & (directoryModel . directories) .~ paths]
+  SettingsAddFolders paths -> [Model $ model & directories .~ paths]
   SettingsAddFolder path ->
     [ Model $
         model
-          & (directoryModel . directories) %~ \dirs ->
+          & directories %~ \dirs ->
             let appendedDirs = snoc dirs path
              in nub appendedDirs
     ]
   SettingsDeleteFolder path ->
     [ Model $
         model
-          & (directoryModel . directories) %~ \dirs -> filter (/= path) dirs
+          & directories %~ \dirs -> filter (/= path) dirs
     ]
   SettingsNone -> []

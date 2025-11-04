@@ -4,53 +4,12 @@
 
 module DirectoryManager where
 
-import Control.Lens
 import Control.Monad
-import Data.List (nub)
 import Data.List.Split (splitOn)
 import LoggerGe
-import Monomer
 import System.Directory
 import System.FilePath
 import Utilities
-
-data DirectoryModel = DirectoryModel
-  { _directories :: [String]
-  }
-  deriving (Eq, Show)
-
-data DirectoryEvent
-  = DirectoryLoad [String]
-  | DirectoryAdd String
-  | DirectoryRemove String
-  | DirectoryNothing
-  deriving (Eq, Show)
-
-type DirectoryEnv = WidgetEnv DirectoryModel DirectoryEvent
-
-type DirectoryNode = WidgetNode DirectoryModel DirectoryEvent
-
-makeLenses 'DirectoryModel
-
-defaultDirectoryModel :: DirectoryModel
-defaultDirectoryModel = DirectoryModel {_directories = []}
-
-handleEventDirectory :: DirectoryEnv -> DirectoryNode -> DirectoryModel -> DirectoryEvent -> [EventResponse DirectoryModel DirectoryEvent sp ep]
-handleEventDirectory wenv node model evt = case evt of
-  DirectoryLoad paths -> [Model $ model & directories .~ paths]
-  DirectoryAdd path ->
-    [ Model $
-        model
-          & directories %~ \dirs ->
-            let appendedDirs = snoc dirs path
-             in nub appendedDirs
-    ]
-  DirectoryRemove path ->
-    [ Model $
-        model
-          & directories %~ \dirs -> filter (/= path) dirs
-    ]
-  DirectoryNothing -> []
 
 -- | checks if file path is a supported image
 -- supported image types: jpg, jpeg, png
