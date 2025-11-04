@@ -44,6 +44,7 @@ defaultWallpaperModel =
 
 wallpaperInit :: IO WallpaperEvent
 wallpaperInit = do
+  logMsg DEBUG "Wallpaper Init Ran"
   wallpaperData <- getWallpaperData
   return (LoadWallpapers $ map (\(_, _, path) -> path) wallpaperData)
 
