@@ -77,6 +77,7 @@ main = do
   where
     config =
       [ appWindowTitle "Wallflower",
+        appWindowState $ MainWindowNormal (1280, 720),
         appWindowIcon "./resources/icons/logo.png",
         appTheme darkTheme,
         appFontDef "Regular" "./resources/fonts/Montserrat-Regular.ttf",
