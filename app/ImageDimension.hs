@@ -52,8 +52,8 @@ getJPEGDimensionsRecursive = do
         then do
           -- skip 3 bytes (length, precision)
           skip 3
-          width <- getWord16be
           height <- getWord16be
+          width <- getWord16be
           return (fromIntegral width, fromIntegral height)
         else do
           getJPEGDimensionsRecursive
@@ -67,5 +67,5 @@ getJPEGDimensions :: FilePath -> IO (Maybe (Int, Int))
 getJPEGDimensions path = do
   fileContent <- L.readFile path 
   case runGet getJPEGDimensionsRecursive fileContent of
-    (width, height) ->
+    (width, height) -> 
       return $ Just (width, height)
