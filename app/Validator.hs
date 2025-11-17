@@ -31,17 +31,6 @@ checkAllDependencies = do
   doAllFontsExist
   doesSettingsFileExist
 
--- quickImageCheck
-
--- quickImageCheck :: IO ()
--- quickImageCheck = do
---   let testImagePath = "/home/warrenwu/backgrounds/holy-shit.jpg"
---   dim <- getImageDimension testImagePath "jpg"
---   case dim of
---     Just (w, h) -> logMsg DEBUG $ "Width: " ++ show w ++ "\nHeight: " ++ show h
---     Nothing -> logMsg ERROR "Uh oh jpg don't work"
---   logMsg DEBUG "Done..."
-
 doesHyprlandExist :: IO ()
 doesHyprlandExist = do
   hyprPath <- findExecutable "hyprland"
