@@ -182,6 +182,10 @@ public:
   }
 
   HyprpaperConfig getConfig() { return config; }
+
+  void setConfig(const HyprpaperConfig &newConfig) {
+    config = newConfig;
+  }
 };
 
 struct WallpaperParamsC {
@@ -244,6 +248,40 @@ HyprpaperConfigC getHyprpaperConfig() {
   } catch (const std::exception &e) {
     throw std::runtime_error(std::string("Error parsing hyprpaper config: ") +
                              e.what());
+  }
+}
+
+void writeHyprpaperConfig(HyprpaperConfigC configC) {
+  HyprpaperParser parser;
+  try {
+    HyprpaperConfig config = parser.getConfig();
+
+    // preloads
+    config.preload.clear();
+    for (int i = 0; i < configC.preload_count; i++)
+      config.preload.push_back(std::string(configC.preload[i]));
+
+    // wallpapers
+    config.wallpaper.clear();
+    for (int i = 0; i < configC.wallpaper_count; i++)
+    {
+      WallpaperParams wp;
+      wp.monitorName = std::string(configC.wallpaper[i].monitorName);
+      wp.imagePath = std::string(configC.wallpaper[i].imagePath);
+      wp.mode = static_cast<WallpaperMode>(configC.wallpaper[i].mode);
+      config.wallpaper.push_back(wp);
+    }
+
+    // other params
+    config.splash = configC.splash;
+    config.splash_offset = configC.splash_offset;
+    config.splash_color = std::string(configC.splash_color);
+    config.ipc = configC.ipc;
+
+    parser.setConfig(config);
+    parser.writeConfigToFile();
+  } catch (const std::exception &e) {
+    throw std::runtime_error(std::string("Error writign to hyprpaper config: ") + e.what());
   }
 }
 }
