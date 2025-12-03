@@ -10,7 +10,7 @@ import Data.ByteString (ByteString)
 import qualified Data.ByteString as BS
 import Data.Maybe (catMaybes)
 import Data.Text (pack)
-import HyprpaperManager (applyWallpaper)
+import HyprpaperManager (applyWallpaper, updateWallpaper)
 import ImageDimension (getImageDimension, getImageFormat)
 import LoggerGe
 import Monomer
@@ -88,6 +88,7 @@ setWallpaperHandler :: String -> IO WallpaperEvent
 setWallpaperHandler path = do
   logMsg DEBUG $ "Setting wallpaper to: " ++ path
   applyWallpaper path
+  updateWallpaper "" path 0
   return WallpaperNone
 
 buildUIWallpaper :: WallpaperEnv -> WallpaperModel -> WallpaperNode
