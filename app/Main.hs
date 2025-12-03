@@ -12,10 +12,6 @@ import Settings
 import Tabs
 import Validator (checkAllDependencies)
 import Wallpapers
-import Foreign.C.Types
-
-foreign import ccall "image_test"
-  imageTest :: CBool
 
 data AppModel = AppModel
   { _tabModel :: TabModel,

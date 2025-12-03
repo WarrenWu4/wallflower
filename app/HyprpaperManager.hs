@@ -1,12 +1,29 @@
 module HyprpaperManager
   ( applyWallpaper,
-    saveWallpaper,
+    updateWallpaper,
   )
 where
 
+import Foreign.C.String
+import Foreign.C.Types
 import LoggerGe
-import System.Directory (getHomeDirectory)
 import System.Process (callCommand)
+
+foreign import ccall "updateWallpapaer"
+  c_updateWallpapaer :: CString -> CString -> CInt -> IO ()
+
+-- | runs external C function to save wallpaper in hyprpaper config
+-- @monitorName (String): name of the monitor (can be empty string "")
+-- @imagePath (String): path to wallpaper image (must be absolute path or relative to home)
+-- @mode (Int): wallpaper mode (0: cover, 1: contain, 2: tile)
+updateWallpaper :: String -> String -> Int -> IO ()
+updateWallpaper monitorName imagePath mode = do
+  logMsg DEBUG $ "Updating wallpaper for monitor: " ++ monitorName ++ " with image: " ++ imagePath
+  withCString monitorName $ \c_monitorName ->
+    withCString imagePath $ \c_imagePath -> do
+      let c_mode = fromIntegral mode :: CInt
+      c_updateWallpapaer c_monitorName c_imagePath c_mode 
+      logMsg DEBUG "Wallpaper update call finished."
 
 -- | runs hyprpaper command to set wallpaper
 -- @wallpaperPath (FilePath): path to wallpaper image
@@ -16,25 +33,3 @@ applyWallpaper wallpaperPath = do
   let command = "hyprctl hyprpaper reload " ++ display ++ "\"" ++ wallpaperPath ++ "\""
   logMsg INFO $ "applying wallpaper using command: " ++ command
   callCommand command
-
--- | updates hyrppaper config file with new wallpaper
--- @wallpaperPath (FilePath): path to wallpaper image
-saveWallpaper :: FilePath -> IO ()
-saveWallpaper wallpaperPath = do
-  let monitorName = ","
-  homeDir <- getHomeDirectory
-  let configPath = homeDir ++ "/.config/hypr/hyprpaper.conf"
-  let monitorTarget = if null monitorName then "" else monitorName
-  let configContent =
-        "preload = "
-          ++ wallpaperPath
-          ++ "\n"
-          ++ "wallpaper = "
-          ++ monitorTarget
-          ++ ","
-          ++ wallpaperPath
-          ++ "\n"
-          ++ "ipc = true\n" -- Ensure IPC is enabled for runtime changes
-  putStrLn $ "Writing persistent configuration to: " ++ configPath
-  writeFile configPath configContent
-  putStrLn "Configuration saved. The new wallpaper will persist after reboot."

@@ -207,6 +207,34 @@ struct HyprpaperConfigC {
 };
 
 extern "C" {
+void updateWallpapaer(const char *monitorName, const char *imagePath, int mode) {
+  HyprpaperParser parser;
+  try {
+    parser.parseFile();
+    HyprpaperConfig config = parser.getConfig();
+    if (config.preload.empty()) {
+      config.preload.push_back(std::string(imagePath));
+    } else {
+      config.preload[0] = std::string(imagePath);
+    }
+    if (config.wallpaper.empty()) {
+      WallpaperParams wp;
+      wp.monitorName = std::string(monitorName);
+      wp.imagePath = std::string(imagePath);
+      wp.mode = static_cast<WallpaperMode>(mode);
+      config.wallpaper.push_back(wp);
+    } else {
+      config.wallpaper[0].monitorName = std::string(monitorName);
+      config.wallpaper[0].imagePath = std::string(imagePath);
+      config.wallpaper[0].mode = static_cast<WallpaperMode>(mode);
+    }
+    parser.setConfig(config);
+    parser.writeConfigToFile();
+  } catch (const std::exception &e) {
+    throw std::runtime_error(std::string("Error updating wallpaper: ") + e.what());
+  }
+}
+
 HyprpaperConfigC getHyprpaperConfig() {
   HyprpaperParser parser;
   HyprpaperConfigC configC;
