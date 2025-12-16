@@ -5,7 +5,7 @@
 
 void runHyprCommand(std::string display, std::string wallpaperPath);
 
-enum class WallpaperMode { COVER, CONTAIN, TILE };
+enum class WallpaperMode { COVER, CONTAIN, TILE, FILL };
 
 struct WallpaperParams {
   std::string monitorName;

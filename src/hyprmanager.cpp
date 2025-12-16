@@ -10,10 +10,11 @@
 #include <vector>
 
 void runHyprCommand(std::string display, std::string wallpaperPath) {
-  std::string command =
-      "hyprctl hyprpaper reload " + display + "\"" + wallpaperPath + "\"";
-  std::cout << command << "\n";
-  // std::system(command.c_str());
+  std::string preloadCmd = "hyprctl hyprpaper preload \"" + wallpaperPath + "\"";
+  std::string wallpaperCmd =
+      "hyprctl hyprpaper wallpaper " + display + "\"" + wallpaperPath + "\"";
+  std::system(preloadCmd.c_str());
+  std::system(wallpaperCmd.c_str());
 }
 
 std::vector<std::string> HyprpaperParser::split(const std::string &s,
@@ -159,6 +160,9 @@ void HyprpaperParser::writeConfigToFile() {
       break;
     case WallpaperMode::TILE:
       file << "tile:";
+      break;
+    case WallpaperMode::FILL:
+      file << "fill:";
       break;
     }
     file << wp.imagePath << "\n";

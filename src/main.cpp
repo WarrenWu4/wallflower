@@ -65,8 +65,7 @@ int main() {
       CLAY(CLAY_ID("ContentContainer"), {
         .layout = {
           .sizing = {CLAY_SIZING_GROW(0), CLAY_SIZING_GROW(0)},
-        },
-        .backgroundColor = COLOR_BACKGROUND_0_H
+        }
       }) {
         CLAY(CLAY_ID("ScrollContainer"), {
           .layout = { 

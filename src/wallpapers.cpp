@@ -55,7 +55,6 @@ void Wallpapers::wallpaperContainerEl() {
     .sizing = {CLAY_SIZING_GROW(0), CLAY_SIZING_GROW(0)},
     .childGap = 16,
     },
-    .backgroundColor = COLOR_BACKGROUND_4
   }) {
     wallpaperColEl(0);
     wallpaperColEl(1);
@@ -69,8 +68,7 @@ void Wallpapers::wallpaperColEl(int col) {
       .sizing = {CLAY_SIZING_GROW(0), CLAY_SIZING_GROW(0) }, 
       .childGap = 16,
       .layoutDirection = CLAY_TOP_TO_BOTTOM
-    },
-    .backgroundColor = (col == 0) ? COLOR_RED_DARK : (col == 1) ? COLOR_BLUE_DARK : COLOR_GREEN_DARK
+    }
   }) {
     int id = 0;
     for(auto it = wallpapers.begin(); it != wallpapers.end(); it++, id++) {
