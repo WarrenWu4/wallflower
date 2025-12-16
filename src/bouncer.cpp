@@ -1,6 +1,8 @@
 // perform these checks to ensure program can run smoothly
 // just like a bouncer at the club O-O
 
+#include "bouncer.hpp"
+
 bool doesHyprlandExist() {
   return false;
 }

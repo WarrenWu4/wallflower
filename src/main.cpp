@@ -3,7 +3,7 @@
 #include "clay.h"
 #include "clay_renderer_raylib.c"
 #include "colors.h"
-#include "wallpapers.cpp"
+#include "wallpapers.hpp"
 
 #include <memory>
 
