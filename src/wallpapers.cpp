@@ -1,5 +1,6 @@
 #include "clay.h"
 #include "raylib.h"
+#include "colors.h"
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -55,6 +56,48 @@ public:
     } else {
       std::cerr << "Path is not a directory or does not exist\n";
     }
+  }
+
+  void wallpaperContainerEl() {
+    CLAY(CLAY_ID("WallpaperContainer"), {
+      .layout = {
+      .sizing = {CLAY_SIZING_GROW(0), CLAY_SIZING_GROW(0)},
+      .childGap = 16,
+      },
+      .backgroundColor = COLOR_BACKGROUND_4
+    }) {
+      wallpaperColEl(0);
+      wallpaperColEl(1);
+      wallpaperColEl(2);
+    }
+  }
+  
+  void wallpaperColEl(int col) {
+    CLAY(CLAY_IDI("WallpaperCol", col), {
+      .layout = { 
+        .sizing = {CLAY_SIZING_GROW(0), CLAY_SIZING_GROW(0) }, 
+        .childGap = 16,
+        .layoutDirection = CLAY_TOP_TO_BOTTOM
+      },
+      .backgroundColor = (col == 0) ? COLOR_RED_DARK : (col == 1) ? COLOR_BLUE_DARK : COLOR_GREEN_DARK
+    }) {
+      int id = 0;
+      for(auto it = wallpapers.begin(); it != wallpapers.end(); it++, id++) {
+        if (id % 3 == col) {
+          wallpaperEl(id, &it->second.imageData, it->second.aspectRatio);
+        }
+      }
+    }
+  }
+  
+  void wallpaperEl(int id, Texture2D* imageData, float aspectRatio) {
+    CLAY(CLAY_IDI("Wallpaper", id), {
+      .layout = { 
+        .sizing = { .width = CLAY_SIZING_GROW() }
+      }, 
+      .aspectRatio = { aspectRatio },
+      .image = { .imageData = imageData} 
+    }) {}
   }
 };
 

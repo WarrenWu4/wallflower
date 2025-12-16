@@ -57,6 +57,7 @@ int main() {
                          IsMouseButtonDown(MOUSE_LEFT_BUTTON));
     Clay_SetLayoutDimensions(
         {(float)GetScreenWidth(), (float)GetScreenHeight()});
+    Clay_UpdateScrollContainers(true, (Clay_Vector2) {scrollDelta.x, scrollDelta.y}, 0.00016f);
 
     // build UI
     Clay_BeginLayout();
@@ -69,9 +70,20 @@ int main() {
         },
         .backgroundColor = COLOR_BACKGROUND_1,
     }) {
-      int id = 0;
-      for(auto it = wp.wallpapers.begin(); it != wp.wallpapers.end(); it++, id++) {
-        CLAY(CLAY_IDI("Wallpaper", id), {.layout = { .sizing = { .width = CLAY_SIZING_FIXED(100 * it->second.aspectRatio), .height = CLAY_SIZING_FIXED(100) }}, .image = { .imageData = &it->second.imageData} }) {}
+      CLAY(CLAY_ID("ContentContainer"), {
+        .layout = {
+          .sizing = {CLAY_SIZING_GROW(0), CLAY_SIZING_GROW(0)},
+        },
+        .backgroundColor = COLOR_BACKGROUND_0_H
+      }) {
+        CLAY(CLAY_ID("ScrollContainer"), {
+          .layout = { 
+            .sizing = {CLAY_SIZING_GROW(0), CLAY_SIZING_GROW(0)},
+          },
+          .clip = { .vertical = true, .childOffset = Clay_GetScrollOffset() }
+        }) {
+          wp.wallpaperContainerEl();
+        }
       }
     }
     Clay_RenderCommandArray renderCommands = Clay_EndLayout();
