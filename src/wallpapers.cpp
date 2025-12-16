@@ -1,6 +1,7 @@
 #include "clay.h"
 #include "raylib.h"
 #include "colors.h"
+#include "hyprmanager.cpp"
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -84,20 +85,24 @@ public:
       int id = 0;
       for(auto it = wallpapers.begin(); it != wallpapers.end(); it++, id++) {
         if (id % 3 == col) {
-          wallpaperEl(id, &it->second.imageData, it->second.aspectRatio);
+          wallpaperEl(id, it->first, &it->second.imageData, it->second.aspectRatio);
         }
       }
     }
   }
   
-  void wallpaperEl(int id, Texture2D* imageData, float aspectRatio) {
+  void wallpaperEl(int id, std::string path, Texture2D* imageData, float aspectRatio) {
     CLAY(CLAY_IDI("Wallpaper", id), {
       .layout = { 
         .sizing = { .width = CLAY_SIZING_GROW() }
       }, 
       .aspectRatio = { aspectRatio },
       .image = { .imageData = imageData} 
-    }) {}
+    }) {
+      if (Clay_Hovered() && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+        runHyprCommand(",", path);
+      }
+    }
   }
 };
 

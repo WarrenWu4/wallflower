@@ -5,14 +5,7 @@
 #include "colors.h"
 #include "wallpapers.cpp"
 
-#include <iostream>
 #include <memory>
-
-// Function to handle the button click logic
-void HandleButtonClick() {
-  std::cout << "[System]: Button Clicked!" << std::endl;
-  system("echo 'Hello from Clay + Raylib!'");
-}
 
 void HandleClayErrors(Clay_ErrorData errorData) {
   // See the Clay_ErrorData struct for more information
@@ -53,8 +46,7 @@ int main() {
     Vector2 mousePosition = GetMousePosition();
     Vector2 scrollDelta = GetMouseWheelMoveV();
 
-    Clay_SetPointerState({mousePosition.x, mousePosition.y},
-                         IsMouseButtonDown(MOUSE_LEFT_BUTTON));
+    Clay_SetPointerState({mousePosition.x, mousePosition.y}, IsMouseButtonDown(MOUSE_LEFT_BUTTON));
     Clay_SetLayoutDimensions(
         {(float)GetScreenWidth(), (float)GetScreenHeight()});
     Clay_UpdateScrollContainers(true, (Clay_Vector2) {scrollDelta.x, scrollDelta.y}, 0.00016f);

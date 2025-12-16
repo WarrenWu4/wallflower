@@ -1,5 +1,4 @@
 // hypr utility helper functions and classes
-
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
@@ -8,9 +7,10 @@
 #include <string>
 #include <vector>
 
-void runHyprCommand(std::string display, std::string wallpaperPath) {
+inline void runHyprCommand(std::string display, std::string wallpaperPath) {
   std::string command = "hyprctl hyprpaper reload " + display + "\"" + wallpaperPath + "\"";
-  std::system(command.c_str());
+  std::cout << command << "\n";
+  // std::system(command.c_str());
 }
 
 enum class WallpaperMode { COVER, CONTAIN, TILE };
