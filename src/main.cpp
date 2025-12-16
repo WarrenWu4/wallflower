@@ -3,6 +3,7 @@
 #include "clay.h"
 #include "clay_renderer_raylib.c"
 #include "colors.h"
+#include "wallpapers.cpp"
 
 #include <iostream>
 #include <memory>
@@ -41,6 +42,10 @@ int main() {
                   (Clay_ErrorHandler){HandleClayErrors});
 
   Clay_SetMeasureTextFunction(Raylib_MeasureText, &fontMontserrat);
+  
+  Wallpapers wp = Wallpapers(); 
+  wp.scanDirectory("/home/warrenwu/backgrounds/memes");
+  wp.addWallpaper("/home/warrenwu/backgrounds/depresso.png");
 
   // loop
   while (!WindowShouldClose()) {
@@ -59,29 +64,14 @@ int main() {
     CLAY(CLAY_ID("MainContainer"), {
         .layout = {
           .sizing = {CLAY_SIZING_GROW(0), CLAY_SIZING_GROW(0)},
-          .padding = {CLAY_PADDING_ALL(0)},
+          .padding = {CLAY_PADDING_ALL(16)},
           .childGap = 16
         },
         .backgroundColor = COLOR_BACKGROUND_1,
     }) {
-      CLAY(CLAY_ID("EchoButton"), {
-        .layout = {
-          .sizing = {
-            .width = CLAY_SIZING_FIXED(200),
-            .height = CLAY_SIZING_FIXED(40)
-          },
-          .padding = {20, 10}
-        },
-        .backgroundColor = COLOR_FOREGROUND_1 
-      }) {
-        if (Clay_PointerOver(Clay_GetElementId(CLAY_STRING("EchoButton"))) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-          HandleButtonClick();
-        }
-        CLAY_TEXT(CLAY_STRING("Test Button"), CLAY_TEXT_CONFIG(
-          { 
-            .textColor = {0, 0, 0, 255},
-            .fontSize = 24 
-          }));
+      int id = 0;
+      for(auto it = wp.wallpapers.begin(); it != wp.wallpapers.end(); it++, id++) {
+        CLAY(CLAY_IDI("Wallpaper", id), {.layout = { .sizing = { .width = CLAY_SIZING_FIXED(100 * it->second.aspectRatio), .height = CLAY_SIZING_FIXED(100) }}, .image = { .imageData = &it->second.imageData} }) {}
       }
     }
     Clay_RenderCommandArray renderCommands = Clay_EndLayout();
@@ -91,6 +81,8 @@ int main() {
     Clay_Raylib_Render(renderCommands, &fontMontserrat);
     EndDrawing();
   }
+
+  UnloadFont(fontMontserrat);
 
   return 0;
 }
