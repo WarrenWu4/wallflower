@@ -1,11 +1,13 @@
 #include "tabs.hpp"
 #include "clay.h"
 #include "colors.h"
+#include "raylib.h"
 #include <iostream>
 
-Tabs::Tabs(TabType initType, std::shared_ptr<Wallpapers> wp) {
+Tabs::Tabs(TabType initType, std::shared_ptr<Wallpapers> wp, std::shared_ptr<Settings> settingsPtr) {
   currentTab = initType;
   this->wp = wp;
+  this->settingsPtr = settingsPtr;
 }
 
 void Tabs::tabEl() {
@@ -24,6 +26,10 @@ void Tabs::tabEl() {
         },
         .backgroundColor = COLOR_FOREGROUND_1
       }) {
+        if (Clay_Hovered() && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+          this->currentTab = static_cast<TabType>(i);
+          std::cout << "Switched to: " << tabData.at(i) << "\n";
+        }
         CLAY_TEXT(
             Clay_String({
               .length = (int) tabData.at(i).size(),
@@ -56,7 +62,7 @@ void Tabs::bodyEl() {
           wp->wallpaperContainerEl();
           break;
         case TabType::Settings:
-          std::cout << "WIP\n";
+          settingsPtr->settingsContainerEl();
           break;
       }
     }

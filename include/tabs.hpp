@@ -1,5 +1,6 @@
 #pragma once
 
+#include "settings.hpp"
 #include "wallpapers.hpp"
 #include <memory>
 #include <vector>
@@ -16,8 +17,9 @@ const std::vector<std::string> tabData = {
 
 TabType currentTab;
 std::shared_ptr<Wallpapers> wp;
+std::shared_ptr<Settings> settingsPtr;
 
-Tabs(TabType initTab, std::shared_ptr<Wallpapers> wp);
+Tabs(TabType initTab, std::shared_ptr<Wallpapers> wp, std::shared_ptr<Settings> settingsPtr);
 
 void tabEl();
 

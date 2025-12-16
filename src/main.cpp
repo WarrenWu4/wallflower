@@ -44,7 +44,22 @@ int main() {
   wp->scanDirectory("/home/warrenwu/backgrounds/memes");
   wp->addWallpaper("/home/warrenwu/backgrounds/depresso.png");
 
-  std::shared_ptr<Tabs> tabs = std::make_shared<Tabs>(TabType::Gallery, wp);
+  std::shared_ptr<Settings> settingsPtr = std::make_shared<Settings>();
+  settingsPtr->addDirectory("/home/warrenwu/backgrounds");
+  settingsPtr->addDirectory("/home/warrenwu/backgrounds/a");
+  settingsPtr->addDirectory("/home/warrenwu/backgrounds/b");
+  settingsPtr->addDirectory("/home/warrenwu/backgrounds/c");
+  settingsPtr->addDirectory("/home/warrenwu/backgrounds/d");
+  settingsPtr->addDirectory("/home/warrenwu/backgrounds/e");
+  settingsPtr->addDirectory("/home/warrenwu/backgrounds/f");
+  settingsPtr->addDirectory("/home/warrenwu/backgrounds/g");
+  settingsPtr->addDirectory("/home/warrenwu/backgrounds/h");
+  settingsPtr->addDirectory("/home/warrenwu/backgrounds/i");
+  settingsPtr->addDirectory("/home/warrenwu/backgrounds/j");
+  settingsPtr->addDirectory("/home/warrenwu/backgrounds/k");
+  settingsPtr->addDirectory("/home/warrenwu/backgrounds/memes");
+
+  std::shared_ptr<Tabs> tabs = std::make_shared<Tabs>(TabType::Gallery, wp, settingsPtr);
 
   // loop
   while (!WindowShouldClose()) {
