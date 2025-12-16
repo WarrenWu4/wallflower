@@ -2,6 +2,7 @@
 #define CLAY_IMPLEMENTATION
 #include "clay.h"
 #include "clay_renderer_raylib.c"
+#include "colors.h"
 
 #include <iostream>
 #include <memory>
@@ -61,7 +62,7 @@ int main() {
           .padding = {CLAY_PADDING_ALL(0)},
           .childGap = 16
         },
-        .backgroundColor = {44, 52, 50, 255},
+        .backgroundColor = COLOR_BACKGROUND_1,
     }) {
       CLAY(CLAY_ID("EchoButton"), {
         .layout = {
@@ -71,7 +72,7 @@ int main() {
           },
           .padding = {20, 10}
         },
-        .backgroundColor = {255, 255, 255, 255}
+        .backgroundColor = COLOR_FOREGROUND_1 
       }) {
         if (Clay_PointerOver(Clay_GetElementId(CLAY_STRING("EchoButton"))) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
           HandleButtonClick();
