@@ -1,6 +1,5 @@
 #include "clay.h"
 #include "raylib.h"
-#include "colors.h"
 #include "hyprmanager.hpp"
 #include "wallpapers.hpp"
 #include <string>

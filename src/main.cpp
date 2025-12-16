@@ -4,8 +4,10 @@
 #include "clay_renderer_raylib.c"
 #include "colors.h"
 #include "wallpapers.hpp"
+#include "tabs.hpp"
 
 #include <memory>
+#include <iostream>
 
 void HandleClayErrors(Clay_ErrorData errorData) {
   // See the Clay_ErrorData struct for more information
@@ -23,8 +25,10 @@ int main() {
   SetTargetFPS(60);
 
   // init fonts
-  Font fontMontserrat =
-      LoadFontEx("resources/Montserrat-VariableFont_wght.ttf", 32, 0, 250);
+  Font fontMontserratBold = LoadFont("resources/fonts/Montserrat-Bold.ttf");
+  Font fontMontserratSemiBold = LoadFont("resources/fonts/Montserrat-SemiBold.ttf");
+  SetTextureFilter(fontMontserratSemiBold.texture, TEXTURE_FILTER_BILINEAR);
+  SetTextureFilter(fontMontserratBold.texture, TEXTURE_FILTER_BILINEAR);
 
   // init clay
   uint64_t clayMemorySize = Clay_MinMemorySize();
@@ -34,11 +38,13 @@ int main() {
   Clay_Initialize(arena, (Clay_Dimensions){screenWidth, screenHeight},
                   (Clay_ErrorHandler){HandleClayErrors});
 
-  Clay_SetMeasureTextFunction(Raylib_MeasureText, &fontMontserrat);
+  Clay_SetMeasureTextFunction(Raylib_MeasureText, &fontMontserratSemiBold);
   
-  Wallpapers wp = Wallpapers(); 
-  wp.scanDirectory("/home/warrenwu/backgrounds/memes");
-  wp.addWallpaper("/home/warrenwu/backgrounds/depresso.png");
+  std::shared_ptr<Wallpapers> wp = std::make_shared<Wallpapers>(); 
+  wp->scanDirectory("/home/warrenwu/backgrounds/memes");
+  wp->addWallpaper("/home/warrenwu/backgrounds/depresso.png");
+
+  std::shared_ptr<Tabs> tabs = std::make_shared<Tabs>(TabType::Gallery, wp);
 
   // loop
   while (!WindowShouldClose()) {
@@ -58,34 +64,24 @@ int main() {
         .layout = {
           .sizing = {CLAY_SIZING_GROW(0), CLAY_SIZING_GROW(0)},
           .padding = {CLAY_PADDING_ALL(16)},
-          .childGap = 16
+          .childGap = 16,
+          .layoutDirection = CLAY_TOP_TO_BOTTOM
         },
         .backgroundColor = COLOR_BACKGROUND_1,
     }) {
-      CLAY(CLAY_ID("ContentContainer"), {
-        .layout = {
-          .sizing = {CLAY_SIZING_GROW(0), CLAY_SIZING_GROW(0)},
-        }
-      }) {
-        CLAY(CLAY_ID("ScrollContainer"), {
-          .layout = { 
-            .sizing = {CLAY_SIZING_GROW(0), CLAY_SIZING_GROW(0)},
-          },
-          .clip = { .vertical = true, .childOffset = Clay_GetScrollOffset() }
-        }) {
-          wp.wallpaperContainerEl();
-        }
-      }
+      tabs->tabEl();
+      tabs->bodyEl();
     }
     Clay_RenderCommandArray renderCommands = Clay_EndLayout();
 
     // render
     BeginDrawing();
-    Clay_Raylib_Render(renderCommands, &fontMontserrat);
+    Clay_Raylib_Render(renderCommands, &fontMontserratSemiBold);
     EndDrawing();
   }
 
-  UnloadFont(fontMontserrat);
+  UnloadFont(fontMontserratSemiBold);
+  UnloadFont(fontMontserratBold);
 
   return 0;
 }
