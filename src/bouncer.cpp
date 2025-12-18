@@ -22,3 +22,7 @@ bool isHyprpaperRunning() {
 bool isHyprpaperIpcEnabled() {
   return false;
 }
+
+bool isHyprpaperVersionSupported() {
+  return false;
+}

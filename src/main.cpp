@@ -45,10 +45,7 @@ int main() {
 
   std::shared_ptr<Settings> settings = std::make_shared<Settings>(configuration);
   
-  std::shared_ptr<Wallpapers> wp = std::make_shared<Wallpapers>(settings); 
-  wp->scanDirectory("/home/warrenwu/backgrounds/memes");
-  wp->addWallpaper("/home/warrenwu/backgrounds/depresso.png");
-
+  std::shared_ptr<Wallpapers> wp = std::make_shared<Wallpapers>(configuration, settings); 
 
   std::shared_ptr<Tabs> tabs = std::make_shared<Tabs>(TabType::Gallery, wp, settings);
 

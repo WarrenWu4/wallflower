@@ -1,12 +1,13 @@
 #include "wallpapers.hpp"
 
-Wallpapers::Wallpapers(std::shared_ptr<Settings> settings) {
+Wallpapers::Wallpapers(std::shared_ptr<Configuration> configuration, std::shared_ptr<Settings> settings) {
+  this->configuration = configuration;
   this->settings = settings;
+  for (auto it = configuration->directories.begin(); it != configuration->directories.end(); it++) {
+    scanDirectory(*it);
+  }
   // TODO: implement active wallpaper to front
   activeWallpaper = "";
-  for (std::string directory : directories) {
-    scanDirectory(directory);
-  }
 }
 
 Wallpapers::~Wallpapers() {
@@ -29,7 +30,7 @@ void Wallpapers::removeWallpaper(std::string path) {
 void Wallpapers::scanDirectory(std::string path) {
   std::filesystem::path p(path);
   if (std::filesystem::exists(p) && std::filesystem::is_directory(p)) {
-    for (const auto& entry : std::filesystem::recursive_directory_iterator(p)) {
+    for (const auto& entry : std::filesystem::directory_iterator(p)) {
       if (entry.is_regular_file()) {
         std::string ext = entry.path().extension().string();
         std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
@@ -97,7 +98,7 @@ void Wallpapers::wallpaperEl(int id, std::string path, Texture2D* imageData, flo
       );
     }
     if (Clay_Hovered() && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-      runHyprCommand(",", path, settings->defaultMode);
+      runHyprCommand("", path, settings->defaultMode);
     }
   }
 }

@@ -17,12 +17,12 @@ struct Wallpaper {
 
 class Wallpapers {
 public:
+  std::shared_ptr<Configuration> configuration;
   std::shared_ptr<Settings> settings;
   std::unordered_map<std::string, Wallpaper> wallpapers;
-  std::vector<std::string> directories;
   std::string activeWallpaper;
 
-  Wallpapers(std::shared_ptr<Settings> settings);
+  Wallpapers(std::shared_ptr<Configuration> configuration, std::shared_ptr<Settings> settings);
   ~Wallpapers();
 
   void addWallpaper(std::string path);

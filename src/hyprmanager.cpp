@@ -3,9 +3,18 @@
 #include "hyprmanager.hpp"
 
 void runHyprCommand(std::string display, std::string wallpaperPath, WallpaperMode mode) {
+  // WARNING: version 0.7.6-4 on arch linux does not support fill and cover is default which must be omitted
+  // introduces slight problem where if fit mode is not cover, the new fit mode because the default
+  // and since cover is not a keyword that is parsed, it can never return to cover until it is unloaded
+  std::string fitMode = modeToString.at(static_cast<int>(mode)) + ":";
+  if (mode == WallpaperMode::COVER || mode == WallpaperMode::FILL) {
+    fitMode = "";
+  }
+  display += ",";
   std::string preloadCmd = "hyprctl hyprpaper preload \"" + wallpaperPath + "\"";
   std::string wallpaperCmd =
-      "hyprctl hyprpaper wallpaper " + display + "\"" + wallpaperPath + "\", " + modeToString.at(static_cast<int>(mode));
+      "hyprctl hyprpaper wallpaper \"" + display + fitMode + wallpaperPath + "\"";
+  // FIX: fix system commands since it's dependent on hyprpaper version BRUH
   std::system(preloadCmd.c_str());
   std::system(wallpaperCmd.c_str());
 }
