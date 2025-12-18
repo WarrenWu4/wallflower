@@ -2,7 +2,7 @@
 #pragma once
 
 #include "hyprmanager.hpp"
-#include <vector>
+#include <unordered_set>
 #include <string>
 #include <unordered_map>
 #include <iostream>
@@ -15,7 +15,7 @@ private:
 
 public:
   std::string configurationPath;
-  std::vector<std::string> directories;
+  std::unordered_set<std::string> directories;
   std::unordered_map<std::string, WallpaperMode> imageData;
 
   Configuration();

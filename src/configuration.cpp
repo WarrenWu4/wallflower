@@ -2,8 +2,8 @@
 
 void Configuration::printConfiguration() {
   std::cout << "----Printing Directories----\n";
-  for (std::string directory : this->directories) {
-    std::cout << directory << "\n";
+  for (auto it = this->directories.begin(); it != this->directories.end(); it++) {
+    std::cout << *it << "\n";
   }
   std::cout << "----Printing Image Data----\n";
   for (auto it = this->imageData.begin(); it != this->imageData.end(); it++) {
@@ -38,7 +38,7 @@ void Configuration::parseConfiguration() {
       continue;
     }
     if (!reachedSeparator) {
-      this->directories.push_back(line);
+      this->directories.insert(line);
     } else {
       std::stringstream ss(line);
       std::string key, value;
