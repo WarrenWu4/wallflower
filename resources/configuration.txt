@@ -1,0 +1,4 @@
+/home/warrenwu/backgrounds
+
+/home/warrenwu/backgrounds/depresso.png,contain
+/home/warrenwu/backgrounds/memes/gayman.jpeg,cover

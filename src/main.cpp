@@ -5,6 +5,7 @@
 #include "colors.h"
 #include "wallpapers.hpp"
 #include "tabs.hpp"
+#include "configuration.hpp"
 
 #include <memory>
 #include <iostream>
@@ -24,12 +25,6 @@ int main() {
   Clay_Raylib_Initialize((int)screenWidth, (int)screenHeight, "Wallflower", 0);
   SetTargetFPS(60);
 
-  // init fonts
-  Font fontMontserratBold = LoadFont("resources/fonts/Montserrat-Bold.ttf");
-  Font fontMontserratSemiBold = LoadFont("resources/fonts/Montserrat-SemiBold.ttf");
-  SetTextureFilter(fontMontserratSemiBold.texture, TEXTURE_FILTER_BILINEAR);
-  SetTextureFilter(fontMontserratBold.texture, TEXTURE_FILTER_BILINEAR);
-
   // init clay
   uint64_t clayMemorySize = Clay_MinMemorySize();
   std::unique_ptr<char[]> clayMemory(new char[clayMemorySize]);
@@ -38,28 +33,26 @@ int main() {
   Clay_Initialize(arena, (Clay_Dimensions){screenWidth, screenHeight},
                   (Clay_ErrorHandler){HandleClayErrors});
 
+  // init fonts
+  Font fontMontserratBold = LoadFont("resources/fonts/Montserrat-Bold.ttf");
+  Font fontMontserratSemiBold = LoadFont("resources/fonts/Montserrat-SemiBold.ttf");
+  SetTextureFilter(fontMontserratSemiBold.texture, TEXTURE_FILTER_BILINEAR);
+  SetTextureFilter(fontMontserratBold.texture, TEXTURE_FILTER_BILINEAR);
+
   Clay_SetMeasureTextFunction(Raylib_MeasureText, &fontMontserratSemiBold);
+
+  std::shared_ptr<Configuration> configuration = std::make_shared<Configuration>();
+
+  std::shared_ptr<Settings> settings = std::make_shared<Settings>();
+  settings->addDirectory("/home/warrenwu/backgrounds");
+  settings->addDirectory("/home/warrenwu/backgrounds/memes");
   
-  std::shared_ptr<Wallpapers> wp = std::make_shared<Wallpapers>(); 
+  std::shared_ptr<Wallpapers> wp = std::make_shared<Wallpapers>(settings); 
   wp->scanDirectory("/home/warrenwu/backgrounds/memes");
   wp->addWallpaper("/home/warrenwu/backgrounds/depresso.png");
 
-  std::shared_ptr<Settings> settingsPtr = std::make_shared<Settings>();
-  settingsPtr->addDirectory("/home/warrenwu/backgrounds");
-  settingsPtr->addDirectory("/home/warrenwu/backgrounds/a");
-  settingsPtr->addDirectory("/home/warrenwu/backgrounds/b");
-  settingsPtr->addDirectory("/home/warrenwu/backgrounds/c");
-  settingsPtr->addDirectory("/home/warrenwu/backgrounds/d");
-  settingsPtr->addDirectory("/home/warrenwu/backgrounds/e");
-  settingsPtr->addDirectory("/home/warrenwu/backgrounds/f");
-  settingsPtr->addDirectory("/home/warrenwu/backgrounds/g");
-  settingsPtr->addDirectory("/home/warrenwu/backgrounds/h");
-  settingsPtr->addDirectory("/home/warrenwu/backgrounds/i");
-  settingsPtr->addDirectory("/home/warrenwu/backgrounds/j");
-  settingsPtr->addDirectory("/home/warrenwu/backgrounds/k");
-  settingsPtr->addDirectory("/home/warrenwu/backgrounds/memes");
 
-  std::shared_ptr<Tabs> tabs = std::make_shared<Tabs>(TabType::Gallery, wp, settingsPtr);
+  std::shared_ptr<Tabs> tabs = std::make_shared<Tabs>(TabType::Gallery, wp, settings);
 
   // loop
   while (!WindowShouldClose()) {

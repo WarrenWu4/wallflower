@@ -1,9 +1,14 @@
 #pragma once
 
+#include "clay.h"
 #include "raylib.h"
+#include "settings.hpp"
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <filesystem>
+#include <algorithm>
+#include <iostream>
 
 struct Wallpaper {
   Texture2D imageData;
@@ -12,10 +17,12 @@ struct Wallpaper {
 
 class Wallpapers {
 public:
+  std::shared_ptr<Settings> settings;
   std::unordered_map<std::string, Wallpaper> wallpapers;
   std::vector<std::string> directories;
+  std::string activeWallpaper;
 
-  Wallpapers();
+  Wallpapers(std::shared_ptr<Settings> settings);
   ~Wallpapers();
 
   void addWallpaper(std::string path);

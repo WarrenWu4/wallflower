@@ -1,18 +1,11 @@
 // hypr utility helper functions and classes
 
 #include "hyprmanager.hpp"
-#include <cstdlib>
-#include <filesystem>
-#include <fstream>
-#include <iostream>
-#include <sstream>
-#include <string>
-#include <vector>
 
-void runHyprCommand(std::string display, std::string wallpaperPath) {
+void runHyprCommand(std::string display, std::string wallpaperPath, WallpaperMode mode) {
   std::string preloadCmd = "hyprctl hyprpaper preload \"" + wallpaperPath + "\"";
   std::string wallpaperCmd =
-      "hyprctl hyprpaper wallpaper " + display + "\"" + wallpaperPath + "\"";
+      "hyprctl hyprpaper wallpaper " + display + "\"" + wallpaperPath + "\", " + modeToString.at(static_cast<int>(mode));
   std::system(preloadCmd.c_str());
   std::system(wallpaperCmd.c_str());
 }

@@ -3,7 +3,8 @@
 
 Settings::Settings() {
   folderIcon = LoadTexture("resources/icons/folder-icon.png");
-  // scan settings folder
+  defaultMode = WallpaperMode::COVER;
+  // TODO: scan settings folder
 }
 
 Settings::~Settings() {

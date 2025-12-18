@@ -1,14 +1,9 @@
-#include "clay.h"
-#include "raylib.h"
-#include "hyprmanager.hpp"
 #include "wallpapers.hpp"
-#include <string>
-#include <unordered_map>
-#include <filesystem>
-#include <algorithm>
-#include <iostream>
 
-Wallpapers::Wallpapers() {
+Wallpapers::Wallpapers(std::shared_ptr<Settings> settings) {
+  this->settings = settings;
+  // TODO: implement active wallpaper to front
+  activeWallpaper = "";
   for (std::string directory : directories) {
     scanDirectory(directory);
   }
@@ -87,7 +82,7 @@ void Wallpapers::wallpaperEl(int id, std::string path, Texture2D* imageData, flo
     .image = { .imageData = imageData} 
   }) {
     if (Clay_Hovered() && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-      runHyprCommand(",", path);
+      runHyprCommand(",", path, settings->defaultMode);
     }
   }
 }

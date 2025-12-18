@@ -1,11 +1,29 @@
 #pragma once
 
 #include <string>
+#include <unordered_map>
 #include <vector>
-
-void runHyprCommand(std::string display, std::string wallpaperPath);
+#include <cstdlib>
+#include <filesystem>
+#include <fstream>
+#include <iostream>
+#include <sstream>
 
 enum class WallpaperMode { COVER, CONTAIN, TILE, FILL };
+
+const std::unordered_map<std::string, WallpaperMode> stringToMode = {
+  {"cover", WallpaperMode::COVER},
+  {"contain", WallpaperMode::CONTAIN},
+  {"tile", WallpaperMode::TILE},
+  {"fill", WallpaperMode::FILL}
+};
+
+const std::vector<std::string> modeToString({
+  "cover",
+  "contain",
+  "tile"
+  "fill"
+});
 
 struct WallpaperParams {
   std::string monitorName;
@@ -21,6 +39,8 @@ struct HyprpaperConfig {
   std::string splash_color;
   bool ipc;
 };
+
+void runHyprCommand(std::string display, std::string wallpaperPath, WallpaperMode mode);
 
 class HyprpaperParser {
 private:
