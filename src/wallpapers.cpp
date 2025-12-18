@@ -1,8 +1,9 @@
 #include "wallpapers.hpp"
 
-Wallpapers::Wallpapers(std::shared_ptr<Configuration> configuration, std::shared_ptr<Settings> settings) {
+Wallpapers::Wallpapers(std::shared_ptr<Configuration> configuration, std::shared_ptr<Settings> settings, std::shared_ptr<Dropdown> dropdown) {
   this->configuration = configuration;
   this->settings = settings;
+  this->dropdownFitMode = dropdown;
   for (auto it = configuration->directories.begin(); it != configuration->directories.end(); it++) {
     scanDirectory(*it);
   }
@@ -98,7 +99,10 @@ void Wallpapers::wallpaperEl(int id, std::string path, Texture2D* imageData, flo
       );
     }
     if (Clay_Hovered() && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-      runHyprCommand("", path, settings->defaultMode);
+      dropdownFitMode->show = true;
+      dropdownFitMode->parentName = "WallpaperMode";
+      dropdownFitMode->parentId = id;
+      // runHyprCommand("", path, settings->defaultMode);
     }
   }
 }

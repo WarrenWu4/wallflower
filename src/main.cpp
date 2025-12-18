@@ -6,6 +6,7 @@
 #include "wallpapers.hpp"
 #include "tabs.hpp"
 #include "configuration.hpp"
+#include "dropdown.hpp"
 
 #include <memory>
 #include <iostream>
@@ -44,8 +45,20 @@ int main() {
   std::shared_ptr<Configuration> configuration = std::make_shared<Configuration>();
 
   std::shared_ptr<Settings> settings = std::make_shared<Settings>(configuration);
+
+  std::shared_ptr<Dropdown> dropdownFitMode = std::make_shared<Dropdown>();
+  dropdownFitMode->items.insert(
+    {"CONTAIN", []() {
+      std::cout << "set fit mode to contain\n";
+    }}
+  );
+  dropdownFitMode->items.insert(
+    {"COVER", []() {
+      std::cout << "set fit mode to cover\n";
+    }}
+  );
   
-  std::shared_ptr<Wallpapers> wp = std::make_shared<Wallpapers>(configuration, settings); 
+  std::shared_ptr<Wallpapers> wp = std::make_shared<Wallpapers>(configuration, settings, dropdownFitMode); 
 
   std::shared_ptr<Tabs> tabs = std::make_shared<Tabs>(TabType::Gallery, wp, settings);
 
@@ -74,6 +87,7 @@ int main() {
     }) {
       tabs->tabEl();
       tabs->bodyEl();
+      dropdownFitMode->dropdownEl();
     }
     Clay_RenderCommandArray renderCommands = Clay_EndLayout();
 

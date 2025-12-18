@@ -1,5 +1,4 @@
 #include "dropdown.hpp"
-#include "raylib.h"
 
 Dropdown::Dropdown() {
   active = "";
@@ -26,22 +25,26 @@ void Dropdown::dropdownEl() {
     .layout {
       .sizing = { .width = CLAY_SIZING_FIT(), .height = CLAY_SIZING_FIT() },
       .padding = {16, 16, 16, 16},
-      .childGap = 8
+      .childGap = 8,
+      .layoutDirection = CLAY_TOP_TO_BOTTOM
     },
     .backgroundColor = COLOR_BACKGROUND_0,
-    .floating = { .parentId = id }
+    .floating = {
+      .parentId = id,
+      .attachTo = CLAY_ATTACH_TO_ELEMENT_WITH_ID
+    }
   }) {
     int id = 0;
-    for (const auto& [name, callback] : items) {
-      if (name == active) { continue; }
-      dropdownItemEl(id, name, callback);
+    for (auto it = items.begin(); it != items.end(); it++) {
+      if ((*it).first == active) { continue; }
+      dropdownItemEl(id, (*it).first, (*it).second);
       id++;
     }
   }
 }
 
-void Dropdown::dropdownItemEl(int id, std::string name, std::function<void()> callback) {
-  CLAY(CLAY_IDI("DropdownItem", 1), {
+void Dropdown::dropdownItemEl(int id, const std::string& name, const std::function<void()>& callback) {
+  CLAY(CLAY_IDI("DropdownItem", id), {
     .layout = {
       .sizing = { .width = CLAY_SIZING_GROW(), .height = CLAY_SIZING_GROW() }
     }
@@ -50,7 +53,10 @@ void Dropdown::dropdownItemEl(int id, std::string name, std::function<void()> ca
       callback();
     }
     CLAY_TEXT(
-      CLAY_STRING("testing"),
+      Clay_String({
+        .length = static_cast<int>(name.size()),
+        .chars = name.c_str()
+      }),
       CLAY_TEXT_CONFIG({
         .textColor = COLOR_FOREGROUND_1,
         .fontSize = 20

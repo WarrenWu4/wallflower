@@ -2,9 +2,11 @@
 
 #include "clay.h"
 #include "colors.h"
+#include "raylib.h"
 #include <string>
 #include <functional>
 #include <map>
+#include <iostream>
 
 class Dropdown {
 public:
@@ -14,10 +16,10 @@ public:
   bool show;
 
   std::string parentName;
-  uint32_t parentId;
+  int parentId;
 
   Dropdown();
 
   void dropdownEl();
-  void dropdownItemEl(int id, std::string name, std::function<void()> callback);
+  void dropdownItemEl(int id, const std::string& name, const std::function<void()>& callback);
 };
