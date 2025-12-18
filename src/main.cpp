@@ -43,9 +43,7 @@ int main() {
 
   std::shared_ptr<Configuration> configuration = std::make_shared<Configuration>();
 
-  std::shared_ptr<Settings> settings = std::make_shared<Settings>();
-  settings->addDirectory("/home/warrenwu/backgrounds");
-  settings->addDirectory("/home/warrenwu/backgrounds/memes");
+  std::shared_ptr<Settings> settings = std::make_shared<Settings>(configuration);
   
   std::shared_ptr<Wallpapers> wp = std::make_shared<Wallpapers>(settings); 
   wp->scanDirectory("/home/warrenwu/backgrounds/memes");

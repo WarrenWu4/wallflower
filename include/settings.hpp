@@ -2,6 +2,7 @@
 
 #include "clay.h"
 #include "colors.h"
+#include "configuration.hpp"
 #include "raylib.h"
 #include "hyprmanager.hpp"
 #include <string>
@@ -11,15 +12,12 @@
 
 class Settings {
 public:
-  std::unordered_set<std::string> directories;
+  std::shared_ptr<Configuration> configuration;
   Texture2D folderIcon;
   WallpaperMode defaultMode;
 
-  Settings();
+  Settings(std::shared_ptr<Configuration> configuration);
   ~Settings();
-
-  void addDirectory(std::string directory);
-  void removeDirectory(std::string directory);
 
   void settingsContainerEl();
   void addFolderButtonEl(); 

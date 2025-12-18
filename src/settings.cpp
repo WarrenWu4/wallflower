@@ -1,22 +1,13 @@
 #include "settings.hpp"
-#include "raylib.h"
 
-Settings::Settings() {
+Settings::Settings(std::shared_ptr<Configuration> configuration) {
+  this->configuration = configuration;
   folderIcon = LoadTexture("resources/icons/folder-icon.png");
   defaultMode = WallpaperMode::COVER;
-  // TODO: scan settings folder
 }
 
 Settings::~Settings() {
   UnloadTexture(folderIcon);
-}
-
-void Settings::addDirectory(std::string directory) {
-  directories.insert(directory);
-}
-
-void Settings::removeDirectory(std::string directory) {
-  directories.erase(directory);
 }
 
 void Settings::addFolderButtonEl() {
@@ -39,11 +30,11 @@ void Settings::settingsContainerEl() {
     }) {
       std::string dirToRemove = "";
       int id = 0;
-      for(auto it = directories.begin(); it != directories.end(); it++, id++) {
+      for(auto it = this->configuration->directories.begin(); it != this->configuration->directories.end(); it++, id++) {
         folderEl(id, *it, dirToRemove);
       }
       if (dirToRemove != "") {
-        this->removeDirectory(dirToRemove);
+        this->configuration->directories.erase(dirToRemove);
       }
     }
   }
