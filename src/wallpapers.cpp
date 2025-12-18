@@ -81,6 +81,21 @@ void Wallpapers::wallpaperEl(int id, std::string path, Texture2D* imageData, flo
     .aspectRatio = { aspectRatio },
     .image = { .imageData = imageData} 
   }) {
+    CLAY(CLAY_IDI("WallpaperMode", id), {
+      .layout = {
+        .sizing = { .width = CLAY_SIZING_FIT(), .height = CLAY_SIZING_FIT() },
+        .padding = {12, 12, 8, 8}
+      },
+      .backgroundColor = COLOR_BACKGROUND_0,
+    }) {
+      CLAY_TEXT(
+        CLAY_STRING("COVER"),
+        CLAY_TEXT_CONFIG({ 
+          .textColor = COLOR_FOREGROUND_1,
+          .fontSize = 20
+        })
+      );
+    }
     if (Clay_Hovered() && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
       runHyprCommand(",", path, settings->defaultMode);
     }
