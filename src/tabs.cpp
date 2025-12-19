@@ -1,46 +1,53 @@
 #include "tabs.hpp"
-#include "clay.h"
-#include "colors.h"
-#include "raylib.h"
-#include <iostream>
 
 Tabs::Tabs(TabType initType, std::shared_ptr<Wallpapers> wp, std::shared_ptr<Settings> settingsPtr) {
   currentTab = initType;
   this->wp = wp;
   this->settingsPtr = settingsPtr;
+  settingsIcon = LoadTexture("resources/icons/folder-icon.png");
+  closeIcon = LoadTexture("resources/icons/folder-icon.png");
+}
+
+Tabs::~Tabs() {
+  UnloadTexture(settingsIcon);
+  UnloadTexture(closeIcon);
 }
 
 void Tabs::tabEl() {
   CLAY(CLAY_ID("TabsContainer"), {
     .layout = {
       .sizing = {CLAY_SIZING_GROW(0), CLAY_SIZING_FIT()},
-      .childGap = 8
     }
   }) {
-    for (int i = 0; i < numTabs; i++) {
-      CLAY(CLAY_IDI("Tab", i), {
-        .layout = {
-          .sizing = { CLAY_SIZING_FIT(), CLAY_SIZING_FIT() },
-          .padding = {16, 16, 8, 8},
-          .childAlignment = { CLAY_ALIGN_X_CENTER, CLAY_ALIGN_Y_CENTER }
-        },
-        .backgroundColor = COLOR_FOREGROUND_1
-      }) {
-        if (Clay_Hovered() && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-          this->currentTab = static_cast<TabType>(i);
-          std::cout << "Switched to: " << tabData.at(i) << "\n";
-        }
-        CLAY_TEXT(
-            Clay_String({
-              .length = (int) tabData.at(i).size(),
-              .chars = tabData.at(i).c_str()
-            }),
-            CLAY_TEXT_CONFIG({ 
-              .textColor = COLOR_BACKGROUND_0,
-              .fontSize = 20
-            })
-        );
+    CLAY_TEXT(
+        Clay_String({
+          .length = static_cast<int32_t>(tabData.at(static_cast<int>(currentTab)).size()),
+          .chars = tabData.at(static_cast<int>(currentTab)).c_str()
+        }),
+        CLAY_TEXT_CONFIG({ 
+          .textColor = COLOR_FOREGROUND_1,
+          .fontSize = 32 
+        })
+    );
+    CLAY(CLAY_ID("TabsSpacer"), {
+      .layout = {
+        .sizing = {CLAY_SIZING_GROW(), CLAY_SIZING_GROW()},
       }
+    }) {}
+    CLAY(CLAY_ID("TabsButton"), {
+      .layout = {
+        .sizing = {CLAY_SIZING_FIT(), CLAY_SIZING_FIT()},
+        .padding = {12, 12, 12, 12}
+      },
+      .backgroundColor = COLOR_BLUE_DARK,
+      .cornerRadius = {80, 80, 80, 80},
+    }) {
+      CLAY(CLAY_ID("TabsButtonIcon"), {
+        .layout = { 
+          .sizing = { .width = CLAY_SIZING_FIXED(16), .height = CLAY_SIZING_FIXED(16) }
+        }, 
+        .image = { .imageData = &settingsIcon} 
+      }) {}
     }
   }
 }

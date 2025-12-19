@@ -2,8 +2,12 @@
 
 #include "settings.hpp"
 #include "wallpapers.hpp"
+#include "clay.h"
+#include "colors.h"
+#include "raylib.h"
 #include <memory>
 #include <vector>
+#include <iostream>
 
 enum class TabType { Gallery, Settings };
 
@@ -15,11 +19,15 @@ const std::vector<std::string> tabData = {
   "Settings"
 };
 
+Texture2D settingsIcon;
+Texture2D closeIcon;
+
 TabType currentTab;
 std::shared_ptr<Wallpapers> wp;
 std::shared_ptr<Settings> settingsPtr;
 
 Tabs(TabType initTab, std::shared_ptr<Wallpapers> wp, std::shared_ptr<Settings> settingsPtr);
+~Tabs();
 
 void tabEl();
 
