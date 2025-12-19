@@ -21,6 +21,7 @@ void HandleClayErrors(Clay_ErrorData errorData) {
 
 int main() {
   // init raylib
+  SetConfigFlags(FLAG_VSYNC_HINT | FLAG_MSAA_4X_HINT | FLAG_WINDOW_HIGHDPI);
   const float screenWidth = 800.0f;
   const float screenHeight = 600.0f;
   Clay_Raylib_Initialize((int)screenWidth, (int)screenHeight, "Wallflower", 0);

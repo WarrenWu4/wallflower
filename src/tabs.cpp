@@ -40,7 +40,7 @@ void Tabs::tabEl() {
         .padding = {12, 12, 12, 12}
       },
       .backgroundColor = COLOR_BLUE_DARK,
-      .cornerRadius = {80, 80, 80, 80},
+      .cornerRadius = {28, 28, 28, 28},
     }) {
       CLAY(CLAY_ID("TabsButtonIcon"), {
         .layout = { 
