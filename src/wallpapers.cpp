@@ -76,7 +76,7 @@ void Wallpapers::wallpaperColEl(int col) {
   }
 }
 
-void Wallpapers::wallpaperEl(int id, std::string path, Texture2D* imageData, float aspectRatio) {
+void Wallpapers::wallpaperEl(int id, const std::string& path, Texture2D* imageData, float aspectRatio) {
   CLAY(CLAY_IDI("Wallpaper", id), {
     .layout = { 
       .sizing = { .width = CLAY_SIZING_GROW() }
@@ -99,7 +99,10 @@ void Wallpapers::wallpaperEl(int id, std::string path, Texture2D* imageData, flo
       .backgroundColor = COLOR_BACKGROUND_0,
     }) {
       if (Clay_Hovered() && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-        std::cout << "Opening dropdown\n";
+        dropdownFitMode->show = true;
+        dropdownFitMode->parentName = "WallpaperMode";
+        dropdownFitMode->parentId = id;
+        dropdownFitMode->data = &const_cast<std::string&>(path);
       }
       CLAY_TEXT(
         CLAY_STRING("COVER"),

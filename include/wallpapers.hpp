@@ -29,10 +29,9 @@ public:
 
   void addWallpaper(std::string path);
   void removeWallpaper(std::string path);
-
   void scanDirectory(std::string path);
 
   void wallpaperContainerEl();
   void wallpaperColEl(int col);
-  void wallpaperEl(int id, std::string path, Texture2D* imageData, float aspectRatio);
+  void wallpaperEl(int id, const std::string& path, Texture2D* imageData, float aspectRatio);
 };
