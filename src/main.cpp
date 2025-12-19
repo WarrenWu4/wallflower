@@ -48,12 +48,26 @@ int main() {
 
   std::shared_ptr<Dropdown> dropdownFitMode = std::make_shared<Dropdown>();
   dropdownFitMode->items.insert(
-    {"CONTAIN", []() {
+    {"CONTAIN", [configuration](void* data) {
+      if (data == nullptr) { 
+        std::cerr << "No image path provided\n";
+        return; 
+      }
+      std::string path = *static_cast<std::string*>(data);
+      configuration->imageData[path] = WallpaperMode::CONTAIN;
+      runHyprCommand("", path, WallpaperMode::CONTAIN);
       std::cout << "set fit mode to contain\n";
     }}
   );
   dropdownFitMode->items.insert(
-    {"COVER", []() {
+    {"COVER", [configuration](void* data) {
+      if (data == nullptr) { 
+        std::cerr << "No image path provided\n";
+        return; 
+      }
+      std::string path = *static_cast<std::string*>(data);
+      configuration->imageData[path] = WallpaperMode::CONTAIN;
+      runHyprCommand("", path, WallpaperMode::CONTAIN);
       std::cout << "set fit mode to cover\n";
     }}
   );

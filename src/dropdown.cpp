@@ -5,6 +5,7 @@ Dropdown::Dropdown() {
   show = false;
   parentName = "";
   parentId = -1;
+  data = nullptr;
 }
 
 void Dropdown::dropdownEl() {
@@ -43,14 +44,14 @@ void Dropdown::dropdownEl() {
   }
 }
 
-void Dropdown::dropdownItemEl(int id, const std::string& name, const std::function<void()>& callback) {
+void Dropdown::dropdownItemEl(int id, const std::string& name, const std::function<void(void*)>& callback) {
   CLAY(CLAY_IDI("DropdownItem", id), {
     .layout = {
       .sizing = { .width = CLAY_SIZING_GROW(), .height = CLAY_SIZING_GROW() }
     }
   }) {
     if (Clay_Hovered() && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-      callback();
+      callback(data);
     }
     CLAY_TEXT(
       Clay_String({

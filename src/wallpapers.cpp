@@ -1,4 +1,5 @@
 #include "wallpapers.hpp"
+#include "raylib.h"
 
 Wallpapers::Wallpapers(std::shared_ptr<Configuration> configuration, std::shared_ptr<Settings> settings, std::shared_ptr<Dropdown> dropdown) {
   this->configuration = configuration;
@@ -83,6 +84,13 @@ void Wallpapers::wallpaperEl(int id, std::string path, Texture2D* imageData, flo
     .aspectRatio = { aspectRatio },
     .image = { .imageData = imageData} 
   }) {
+    if (Clay_Hovered() && IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && !Clay_PointerOver(Clay_GetElementIdWithIndex(CLAY_STRING("WallpaperMode"), id))) {
+      if (configuration->imageData.find(path) != configuration->imageData.end()) {
+        runHyprCommand("", path, configuration->imageData.at(path));
+      } else {
+        runHyprCommand("", path, settings->defaultMode);
+      }
+    }
     CLAY(CLAY_IDI("WallpaperMode", id), {
       .layout = {
         .sizing = { .width = CLAY_SIZING_FIT(), .height = CLAY_SIZING_FIT() },
@@ -90,6 +98,9 @@ void Wallpapers::wallpaperEl(int id, std::string path, Texture2D* imageData, flo
       },
       .backgroundColor = COLOR_BACKGROUND_0,
     }) {
+      if (Clay_Hovered() && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+        std::cout << "Opening dropdown\n";
+      }
       CLAY_TEXT(
         CLAY_STRING("COVER"),
         CLAY_TEXT_CONFIG({ 
@@ -97,12 +108,6 @@ void Wallpapers::wallpaperEl(int id, std::string path, Texture2D* imageData, flo
           .fontSize = 20
         })
       );
-    }
-    if (Clay_Hovered() && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-      dropdownFitMode->show = true;
-      dropdownFitMode->parentName = "WallpaperMode";
-      dropdownFitMode->parentId = id;
-      // runHyprCommand("", path, settings->defaultMode);
     }
   }
 }

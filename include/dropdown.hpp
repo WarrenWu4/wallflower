@@ -11,15 +11,17 @@
 class Dropdown {
 public:
   // INFO: using map instead of unordered map for consistent order
-  std::map<std::string, std::function<void()>> items;
+  std::map<std::string, std::function<void(void*)>> items;
   std::string active;
   bool show;
 
   std::string parentName;
   int parentId;
 
+  void* data;
+
   Dropdown();
 
   void dropdownEl();
-  void dropdownItemEl(int id, const std::string& name, const std::function<void()>& callback);
+  void dropdownItemEl(int id, const std::string& name, const std::function<void(void*)>& callback);
 };
