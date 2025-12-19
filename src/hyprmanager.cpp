@@ -2,6 +2,8 @@
 
 #include "hyprmanager.hpp"
 
+// FIX: issue where if wallpaper mode isn't specified it defaults to the previous mode
+// and since cover mode can't be specified it's stuck in the 2 other modes
 void runHyprCommand(std::string display, std::string wallpaperPath, WallpaperMode mode) {
   // WARNING: version 0.7.6-4 on arch linux does not support fill and cover is default which must be omitted
   // introduces slight problem where if fit mode is not cover, the new fit mode because the default
@@ -11,10 +13,12 @@ void runHyprCommand(std::string display, std::string wallpaperPath, WallpaperMod
     fitMode = "";
   }
   display += ",";
+  std::string unloadCmd = "hyprctl hyprpaper unload \"" + wallpaperPath + "\"";
   std::string preloadCmd = "hyprctl hyprpaper preload \"" + wallpaperPath + "\"";
   std::string wallpaperCmd =
       "hyprctl hyprpaper wallpaper \"" + display + fitMode + wallpaperPath + "\"";
   // FIX: fix system commands since it's dependent on hyprpaper version BRUH
+  std::system(unloadCmd.c_str());
   std::system(preloadCmd.c_str());
   std::system(wallpaperCmd.c_str());
 }
