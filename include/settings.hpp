@@ -19,6 +19,8 @@ public:
   Settings(std::shared_ptr<Configuration> configuration);
   ~Settings();
 
+  void folderPicker();
+
   void settingsContainerEl();
   void addFolderButtonEl(); 
   void folderEl(int id, const std::string& directory, std::string& dirToRemove);
