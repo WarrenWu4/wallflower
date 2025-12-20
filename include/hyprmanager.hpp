@@ -25,6 +25,13 @@ const std::vector<std::string> modeToString({
   "fill"
 });
 
+const std::vector<std::string> modeToStringUpper({
+  "COVER",
+  "CONTAIN",
+  "TILE",
+  "FILL"
+});
+
 struct WallpaperParams {
   std::string monitorName;
   std::string imagePath;

@@ -32,7 +32,8 @@ void Dropdown::dropdownEl() {
     .backgroundColor = COLOR_BACKGROUND_0,
     .floating = {
       .parentId = id,
-      .attachTo = CLAY_ATTACH_TO_ELEMENT_WITH_ID
+      .attachPoints = { .element = CLAY_ATTACH_POINT_LEFT_BOTTOM, .parent = CLAY_ATTACH_POINT_LEFT_BOTTOM },
+      .attachTo = CLAY_ATTACH_TO_ELEMENT_WITH_ID,
     }
   }) {
     int id = 0;

@@ -3,9 +3,11 @@
 #include "clay.h"
 #include "raylib.h"
 #include "dropdown.hpp"
+#include "hyprmanager.hpp"
 #include "settings.hpp"
 #include <string>
 #include <unordered_map>
+#include <cctype>
 #include <vector>
 #include <filesystem>
 #include <algorithm>
@@ -17,6 +19,8 @@ struct Wallpaper {
 };
 
 class Wallpapers {
+private:
+  std::string uppercaseString(const std::string& str);
 public:
   std::shared_ptr<Configuration> configuration;
   std::shared_ptr<Settings> settings;

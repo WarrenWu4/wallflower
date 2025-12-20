@@ -56,8 +56,6 @@ int main() {
       }
       std::string path = *static_cast<std::string*>(data);
       configuration->imageData[path] = WallpaperMode::CONTAIN;
-      runHyprCommand("", path, WallpaperMode::CONTAIN);
-      std::cout << "set fit mode to contain\n";
     }}
   );
   dropdownFitMode->items.insert(
@@ -68,8 +66,6 @@ int main() {
       }
       std::string path = *static_cast<std::string*>(data);
       configuration->imageData[path] = WallpaperMode::CONTAIN;
-      runHyprCommand("", path, WallpaperMode::CONTAIN);
-      std::cout << "set fit mode to cover\n";
     }}
   );
   

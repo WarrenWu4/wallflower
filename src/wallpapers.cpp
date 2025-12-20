@@ -1,5 +1,12 @@
 #include "wallpapers.hpp"
-#include "raylib.h"
+
+std::string Wallpapers::uppercaseString(const std::string& str) {
+  std::string new_str = "";
+  for (const char& c : str) {
+    new_str += std::toupper(c);
+  }
+  return new_str;
+}
 
 Wallpapers::Wallpapers(std::shared_ptr<Configuration> configuration, std::shared_ptr<Settings> settings, std::shared_ptr<Dropdown> dropdown) {
   this->configuration = configuration;
@@ -79,7 +86,11 @@ void Wallpapers::wallpaperColEl(int col) {
 void Wallpapers::wallpaperEl(int id, const std::string& path, Texture2D* imageData, float aspectRatio) {
   CLAY(CLAY_IDI("Wallpaper", id), {
     .layout = { 
-      .sizing = { .width = CLAY_SIZING_GROW() }
+      .sizing = { .width = CLAY_SIZING_GROW() },
+      .childAlignment = {
+        .x = CLAY_ALIGN_X_LEFT,
+        .y = CLAY_ALIGN_Y_BOTTOM
+      }
     }, 
     .aspectRatio = { aspectRatio },
     .image = { .imageData = imageData} 
@@ -104,8 +115,18 @@ void Wallpapers::wallpaperEl(int id, const std::string& path, Texture2D* imageDa
         dropdownFitMode->parentId = id;
         dropdownFitMode->data = &const_cast<std::string&>(path);
       }
+      Clay_String displayStr = Clay_String({
+        .length = static_cast<int32_t>(modeToStringUpper.at(static_cast<int>(settings->defaultMode)).size()),
+        .chars = modeToStringUpper.at(static_cast<int>(settings->defaultMode)).c_str()
+      });
+      if (configuration->imageData.find(path) != configuration->imageData.end()) {
+        displayStr = Clay_String({
+          .length = static_cast<int32_t>(modeToStringUpper.at(static_cast<int>(configuration->imageData.at(path))).size()),
+          .chars = modeToStringUpper.at(static_cast<int>(configuration->imageData.at(path))).c_str()
+        });
+      }
       CLAY_TEXT(
-        CLAY_STRING("COVER"),
+        displayStr,
         CLAY_TEXT_CONFIG({ 
           .textColor = COLOR_FOREGROUND_1,
           .fontSize = 20

@@ -1,5 +1,5 @@
 /home/warrenwu/backgrounds/
 /home/warrenwu/backgrounds/memes
 
-/home/warrenwu/backgrounds/depresso.png,contain
-/home/warrenwu/backgrounds/memes/gayman.jpeg,cover
+/home/warrenwu/backgrounds/depresso.png,cover
+/home/warrenwu/backgrounds/memes/gayman.jpeg,contain
