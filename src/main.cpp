@@ -63,6 +63,9 @@ int main() {
 
   Logger::logMsg(LogLabel::DEBUG, "Initializing program objects");
 
+  std::shared_ptr<HyprpaperParser> hyprparser = std::make_shared<HyprpaperParser>();
+  hyprparser->parseFile();
+
   std::shared_ptr<Configuration> configuration = std::make_shared<Configuration>();
 
   std::shared_ptr<Settings> settings = std::make_shared<Settings>(configuration);
@@ -79,7 +82,8 @@ int main() {
     }}
   );
   
-  std::shared_ptr<Wallpapers> wp = std::make_shared<Wallpapers>(configuration, settings, dropdownFitMode); 
+  std::shared_ptr<Wallpapers> wp = std::make_shared<Wallpapers>(configuration, settings, dropdownFitMode);
+  wp->activeWallpaper = hyprparser->getConfig().wallpaper.at(0).imagePath;
 
   std::shared_ptr<Tabs> tabs = std::make_shared<Tabs>(TabType::Gallery, wp, settings);
 

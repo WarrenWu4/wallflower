@@ -15,8 +15,7 @@ Wallpapers::Wallpapers(std::shared_ptr<Configuration> configuration, std::shared
   for (auto it = configuration->directories.begin(); it != configuration->directories.end(); it++) {
     scanDirectory(*it);
   }
-  // TODO: implement active wallpaper to front
-  activeWallpaper = "";
+  this->activeWallpaper = "";
 }
 
 Wallpapers::~Wallpapers() {
@@ -74,10 +73,16 @@ void Wallpapers::wallpaperColEl(int col) {
       .layoutDirection = CLAY_TOP_TO_BOTTOM
     }
   }) {
-    int id = 0;
+    int id = (activeWallpaper != "") ? 1 : 0;
+    if (activeWallpaper != "" && col == 0) {
+      wallpaperEl(wallpapers.size()+1, activeWallpaper, &wallpapers.at(activeWallpaper).imageData, wallpapers.at(activeWallpaper).aspectRatio);
+    }
     for(auto it = wallpapers.begin(); it != wallpapers.end(); it++, id++) {
-      if (id % 3 == col) {
+      if (id % 3 == col && it->first != activeWallpaper) {
         wallpaperEl(id, it->first, &it->second.imageData, it->second.aspectRatio);
+      }
+      if (it->first == activeWallpaper) {
+        id--;
       }
     }
   }
@@ -93,7 +98,11 @@ void Wallpapers::wallpaperEl(int id, const std::string& path, Texture2D* imageDa
       }
     }, 
     .aspectRatio = { aspectRatio },
-    .image = { .imageData = imageData} 
+    .image = { .imageData = imageData},
+    .border = {
+      .color = COLOR_GREEN_DARK,
+      .width = (this->activeWallpaper == path) ? (Clay_BorderWidth) { 2, 2, 2, 2 } : (Clay_BorderWidth) { 0, 0, 0, 0 }
+    },
   }) {
     if (Clay_Hovered() && IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && !Clay_PointerOver(Clay_GetElementIdWithIndex(CLAY_STRING("WallpaperMode"), id))) {
       if (configuration->imageData.find(path) != configuration->imageData.end()) {
@@ -101,6 +110,7 @@ void Wallpapers::wallpaperEl(int id, const std::string& path, Texture2D* imageDa
       } else {
         runHyprCommand("", path, settings->defaultMode);
       }
+      activeWallpaper = path;
     }
     CLAY(CLAY_IDI("WallpaperMode", id), {
       .layout = {

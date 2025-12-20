@@ -25,6 +25,7 @@ public:
   std::shared_ptr<Configuration> configuration;
   std::shared_ptr<Settings> settings;
   std::shared_ptr<Dropdown> dropdownFitMode;
+
   std::unordered_map<std::string, Wallpaper> wallpapers;
   std::string activeWallpaper;
 
