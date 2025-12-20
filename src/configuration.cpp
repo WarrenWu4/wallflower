@@ -19,6 +19,7 @@ Configuration::Configuration() {
 }
 
 Configuration::~Configuration() {
+  std::cout << "Configuration destructor\n";
   updateConfiguration();
 }
 
@@ -48,8 +49,26 @@ void Configuration::parseConfiguration() {
       }
     }
   }
+  file.close();
 }
 
 void Configuration::updateConfiguration() {
-  std::cout << "updateConfiguration() is work in progress\n";
+  printConfiguration();
+  std::ofstream file(this->configurationPath);
+  if (!file.is_open()) {
+    std::cerr << "Error: unable to open file" << std::endl;
+    return;
+  }
+  for (auto it = directories.begin(); it != directories.end(); it++) {
+    std::string directory = *it;
+    file << directory << "\n";
+  }
+  file << "\n";
+  for (auto it = imageData.begin(); it != imageData.end(); it++) {
+    std::string path = (*it).first;
+    std::string fitMode = modeToString.at(static_cast<int>((*it).second));
+    file << path << "," << path << "\n";
+  }
+  file.close();
+  std::cout << "Updating configuration\n";
 }

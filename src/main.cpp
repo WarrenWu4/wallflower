@@ -116,5 +116,8 @@ int main() {
   UnloadFont(fontMontserratSemiBold);
   UnloadFont(fontMontserratBold);
 
+  // manual call destructor since it doesnt seem to be automatically called
+  configuration->~Configuration();
+
   return 0;
 }
