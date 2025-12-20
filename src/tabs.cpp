@@ -4,19 +4,20 @@ Tabs::Tabs(TabType initType, std::shared_ptr<Wallpapers> wp, std::shared_ptr<Set
   currentTab = initType;
   this->wp = wp;
   this->settingsPtr = settingsPtr;
-  settingsIcon = LoadTexture("resources/icons/folder-icon.png");
-  closeIcon = LoadTexture("resources/icons/folder-icon.png");
+  settingsIcon = LoadTexture("resources/icons/settings-icon.png");
+  galleryIcon = LoadTexture("resources/icons/wallpaper-icon.png");
 }
 
 Tabs::~Tabs() {
   UnloadTexture(settingsIcon);
-  UnloadTexture(closeIcon);
+  UnloadTexture(galleryIcon);
 }
 
 void Tabs::tabEl() {
   CLAY(CLAY_ID("TabsContainer"), {
     .layout = {
       .sizing = {CLAY_SIZING_GROW(0), CLAY_SIZING_FIT()},
+      .childAlignment = { .y = CLAY_ALIGN_Y_CENTER }
     }
   }) {
     CLAY_TEXT(
@@ -37,16 +38,24 @@ void Tabs::tabEl() {
     CLAY(CLAY_ID("TabsButton"), {
       .layout = {
         .sizing = {CLAY_SIZING_FIT(), CLAY_SIZING_FIT()},
-        .padding = {12, 12, 12, 12}
+        .padding = {8, 8, 8, 8}
       },
-      .backgroundColor = COLOR_BLUE_DARK,
-      .cornerRadius = {28, 28, 28, 28},
+      .backgroundColor = (Clay_Hovered()) ? COLOR_FOREGROUND_1 : COLOR_FOREGROUND_3,
+      .cornerRadius = {24, 24, 24, 24},
     }) {
+      if (Clay_Hovered()) {
+        SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
+        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+          currentTab = (currentTab == TabType::Gallery) ? TabType::Settings : TabType::Gallery;
+        }
+      } else {
+        SetMouseCursor(MOUSE_CURSOR_DEFAULT);
+      }
       CLAY(CLAY_ID("TabsButtonIcon"), {
         .layout = { 
           .sizing = { .width = CLAY_SIZING_FIXED(16), .height = CLAY_SIZING_FIXED(16) }
         }, 
-        .image = { .imageData = &settingsIcon} 
+        .image = { .imageData = (currentTab == TabType::Gallery) ? &settingsIcon : &galleryIcon} 
       }) {}
     }
   }

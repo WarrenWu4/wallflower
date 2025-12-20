@@ -19,8 +19,8 @@ const std::vector<std::string> tabData = {
   "Settings"
 };
 
+Texture2D galleryIcon;
 Texture2D settingsIcon;
-Texture2D closeIcon;
 
 TabType currentTab;
 std::shared_ptr<Wallpapers> wp;
