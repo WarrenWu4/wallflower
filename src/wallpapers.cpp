@@ -16,6 +16,7 @@ Wallpapers::Wallpapers(std::shared_ptr<Configuration> configuration, std::shared
     scanDirectory(*it);
   }
   this->activeWallpaper = "";
+  this->wallpapersOrdered = {};
 }
 
 Wallpapers::~Wallpapers() {
@@ -59,6 +60,16 @@ void Wallpapers::wallpaperContainerEl() {
     .childGap = 16,
     },
   }) {
+    // distribute wallpapers
+    wallpapersOrdered = {};
+    if (activeWallpaper != "") {
+      wallpapersOrdered.push_back(activeWallpaper);
+    }
+    for (auto it = wallpapers.begin(); it != wallpapers.end(); it++) {
+      if ((*it).first != activeWallpaper) {
+        wallpapersOrdered.push_back((*it).first);
+      }
+    }
     wallpaperColEl(0);
     wallpaperColEl(1);
     wallpaperColEl(2);
@@ -73,22 +84,17 @@ void Wallpapers::wallpaperColEl(int col) {
       .layoutDirection = CLAY_TOP_TO_BOTTOM
     }
   }) {
-    int id = (activeWallpaper != "") ? 1 : 0;
-    if (activeWallpaper != "" && col == 0) {
-      wallpaperEl(wallpapers.size()+1, activeWallpaper, &wallpapers.at(activeWallpaper).imageData, wallpapers.at(activeWallpaper).aspectRatio);
-    }
-    for(auto it = wallpapers.begin(); it != wallpapers.end(); it++, id++) {
-      if (id % 3 == col && it->first != activeWallpaper) {
-        wallpaperEl(id, it->first, &it->second.imageData, it->second.aspectRatio);
-      }
-      if (it->first == activeWallpaper) {
-        id--;
+    for (size_t i = 0; i < wallpapersOrdered.size(); i++) {
+      const std::string& path = wallpapersOrdered.at(i);
+      if (i % 3 == col) {
+        wallpaperEl(i, path, &wallpapers.at(path).imageData, wallpapers.at(path).aspectRatio);
       }
     }
   }
 }
 
 void Wallpapers::wallpaperEl(int id, const std::string& path, Texture2D* imageData, float aspectRatio) {
+  // Logger::logMsg(LogLabel::DEBUG, std::to_string(id) + ": " + path);
   CLAY(CLAY_IDI("Wallpaper", id), {
     .layout = { 
       .sizing = { .width = CLAY_SIZING_GROW() },

@@ -21,6 +21,7 @@ struct Wallpaper {
 class Wallpapers {
 private:
   std::string uppercaseString(const std::string& str);
+  std::vector<std::string> wallpapersOrdered;
 public:
   std::shared_ptr<Configuration> configuration;
   std::shared_ptr<Settings> settings;
