@@ -1,5 +1,6 @@
 #include "hyprmanager.hpp"
 #include "raylib.h"
+#include <exception>
 #define CLAY_IMPLEMENTATION
 #include "clay.h"
 #include "clay_renderer_raylib.c"
@@ -7,6 +8,7 @@
 #include "wallpapers.hpp"
 #include "tabs.hpp"
 #include "configuration.hpp"
+#include "logger.hpp"
 #include "dropdown.hpp"
 
 #include <memory>
@@ -18,6 +20,21 @@ void HandleClayErrors(Clay_ErrorData errorData) {
   // switch (errorData.errorType) {
   //   // etc
   // }
+}
+
+void handleDropdownFitMode(std::shared_ptr<Configuration> configuration, std::shared_ptr<Dropdown> dropdownFitMode, void* path, WallpaperMode fitMode) {
+  if (path == nullptr) {
+    Logger::logMsg(LogLabel::ERROR, "No image path provided to dropdown");
+    return; 
+  }
+  try {
+    std::string pathStr = *static_cast<std::string*>(path);
+    configuration->imageData[pathStr] = fitMode;
+    Logger::logMsg(LogLabel::OK, "Updated fit mode to " + modeToStringUpper.at(static_cast<int>(fitMode)) + " for image " + pathStr);
+    dropdownFitMode->closeDropdown();
+  } catch (std::exception e) {
+    Logger::logMsg(LogLabel::FAIL, "Failed to updated fit mode: " + std::string(e.what()));
+  }
 }
 
 int main() {
@@ -44,6 +61,8 @@ int main() {
 
   Clay_SetMeasureTextFunction(Raylib_MeasureText, &fontMontserratSemiBold);
 
+  Logger::logMsg(LogLabel::DEBUG, "Initializing program objects");
+
   std::shared_ptr<Configuration> configuration = std::make_shared<Configuration>();
 
   std::shared_ptr<Settings> settings = std::make_shared<Settings>(configuration);
@@ -51,32 +70,20 @@ int main() {
   std::shared_ptr<Dropdown> dropdownFitMode = std::make_shared<Dropdown>();
   dropdownFitMode->items.insert(
     {"CONTAIN", [dropdownFitMode, configuration](void* data) {
-      if (data == nullptr) { 
-        std::cerr << "No image path provided\n";
-        return; 
-      }
-      std::string path = *static_cast<std::string*>(data);
-      configuration->imageData[path] = WallpaperMode::CONTAIN;
-      std::cout << "Updated fit mode to " << modeToStringUpper.at(static_cast<int>(WallpaperMode::CONTAIN)) << " for image " << path << std::endl;
-      dropdownFitMode->closeDropdown();
+    handleDropdownFitMode(configuration, dropdownFitMode, data, WallpaperMode::CONTAIN);
     }}
   );
   dropdownFitMode->items.insert(
     {"COVER", [dropdownFitMode, configuration](void* data) {
-      if (data == nullptr) { 
-        std::cerr << "No image path provided\n";
-        return; 
-      }
-      std::string path = *static_cast<std::string*>(data);
-      configuration->imageData[path] = WallpaperMode::COVER;
-      std::cout << "Updated fit mode to " << modeToStringUpper.at(static_cast<int>(WallpaperMode::COVER)) << " for image " << path << std::endl;
-      dropdownFitMode->closeDropdown();
+    handleDropdownFitMode(configuration, dropdownFitMode, data, WallpaperMode::COVER);
     }}
   );
   
   std::shared_ptr<Wallpapers> wp = std::make_shared<Wallpapers>(configuration, settings, dropdownFitMode); 
 
   std::shared_ptr<Tabs> tabs = std::make_shared<Tabs>(TabType::Gallery, wp, settings);
+
+  Logger::logMsg(LogLabel::DEBUG, "Finished initializing program objects");
 
   // loop
   while (!WindowShouldClose()) {

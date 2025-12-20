@@ -2,6 +2,7 @@
 #pragma once
 
 #include "hyprmanager.hpp"
+#include "logger.hpp"
 #include <unordered_set>
 #include <string>
 #include <unordered_map>

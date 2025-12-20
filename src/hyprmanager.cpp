@@ -18,6 +18,9 @@ void runHyprCommand(std::string display, std::string wallpaperPath, WallpaperMod
   std::string wallpaperCmd =
       "hyprctl hyprpaper wallpaper \"" + display + fitMode + wallpaperPath + "\"";
   // FIX: fix system commands since it's dependent on hyprpaper version BRUH
+  Logger::logMsg(LogLabel::DEBUG, "Running unload command: " + unloadCmd);
+  Logger::logMsg(LogLabel::DEBUG, "Running preload command: " + preloadCmd);
+  Logger::logMsg(LogLabel::DEBUG, "Running wallpaper command: " + wallpaperCmd);
   std::system(unloadCmd.c_str());
   std::system(preloadCmd.c_str());
   std::system(wallpaperCmd.c_str());

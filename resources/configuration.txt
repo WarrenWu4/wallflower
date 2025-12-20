@@ -1,6 +1,3 @@
 /home/warrenwu/backgrounds/memes
 /home/warrenwu/backgrounds/
 
-/home/warrenwu/backgrounds/memes/dogpad.jpeg,/home/warrenwu/backgrounds/memes/dogpad.jpeg
-/home/warrenwu/backgrounds/memes/gayman.jpeg,/home/warrenwu/backgrounds/memes/gayman.jpeg
-/home/warrenwu/backgrounds/depresso.png,/home/warrenwu/backgrounds/depresso.png

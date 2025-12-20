@@ -1,5 +1,6 @@
 #pragma once
 
+#include "logger.hpp"
 #include <string>
 #include <unordered_map>
 #include <vector>

@@ -19,7 +19,6 @@ Configuration::Configuration() {
 }
 
 Configuration::~Configuration() {
-  std::cout << "Configuration destructor\n";
   updateConfiguration();
 }
 
@@ -27,7 +26,7 @@ void Configuration::parseConfiguration() {
   // TODO: add default behavior to create configuration file if it does not exist
   std::ifstream file(this->configurationPath);
   if (!file.is_open()) {
-    std::cerr << "Error: unable to open file" << std::endl;
+    Logger::logMsg(LogLabel::ERROR, "Unable to open configuration file " + this->configurationPath);
     return;
   }
   std::string line;
@@ -50,13 +49,13 @@ void Configuration::parseConfiguration() {
     }
   }
   file.close();
+  Logger::logMsg(LogLabel::OK, "Configuration parsed");
 }
 
 void Configuration::updateConfiguration() {
-  printConfiguration();
   std::ofstream file(this->configurationPath);
   if (!file.is_open()) {
-    std::cerr << "Error: unable to open file" << std::endl;
+    Logger::logMsg(LogLabel::ERROR, "Unable to open configuration file " + this->configurationPath);
     return;
   }
   for (auto it = directories.begin(); it != directories.end(); it++) {
@@ -67,8 +66,8 @@ void Configuration::updateConfiguration() {
   for (auto it = imageData.begin(); it != imageData.end(); it++) {
     std::string path = (*it).first;
     std::string fitMode = modeToString.at(static_cast<int>((*it).second));
-    file << path << "," << path << "\n";
+    file << path << "," << fitMode << "\n";
   }
   file.close();
-  std::cout << "Updating configuration\n";
+  Logger::logMsg(LogLabel::OK, "Configuration updated");
 }
