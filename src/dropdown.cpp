@@ -1,11 +1,15 @@
 #include "dropdown.hpp"
 
 Dropdown::Dropdown() {
-  active = "";
-  show = false;
-  parentName = "";
-  parentId = -1;
-  data = nullptr;
+  closeDropdown();
+}
+
+void Dropdown::closeDropdown() {
+  this->active = "";
+  this->show = false;
+  this->parentName = "";
+  this->parentId = -1;
+  this->data = nullptr;
 }
 
 void Dropdown::dropdownEl() {

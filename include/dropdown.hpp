@@ -22,6 +22,8 @@ public:
 
   Dropdown();
 
+  void closeDropdown(); 
+
   void dropdownEl();
   void dropdownItemEl(int id, const std::string& name, const std::function<void(void*)>& callback);
 };

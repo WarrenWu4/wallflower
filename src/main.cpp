@@ -1,3 +1,4 @@
+#include "hyprmanager.hpp"
 #include "raylib.h"
 #define CLAY_IMPLEMENTATION
 #include "clay.h"
@@ -49,23 +50,27 @@ int main() {
 
   std::shared_ptr<Dropdown> dropdownFitMode = std::make_shared<Dropdown>();
   dropdownFitMode->items.insert(
-    {"CONTAIN", [configuration](void* data) {
+    {"CONTAIN", [dropdownFitMode, configuration](void* data) {
       if (data == nullptr) { 
         std::cerr << "No image path provided\n";
         return; 
       }
       std::string path = *static_cast<std::string*>(data);
       configuration->imageData[path] = WallpaperMode::CONTAIN;
+      std::cout << "Updated fit mode to " << modeToStringUpper.at(static_cast<int>(WallpaperMode::CONTAIN)) << " for image " << path << std::endl;
+      dropdownFitMode->closeDropdown();
     }}
   );
   dropdownFitMode->items.insert(
-    {"COVER", [configuration](void* data) {
+    {"COVER", [dropdownFitMode, configuration](void* data) {
       if (data == nullptr) { 
         std::cerr << "No image path provided\n";
         return; 
       }
       std::string path = *static_cast<std::string*>(data);
-      configuration->imageData[path] = WallpaperMode::CONTAIN;
+      configuration->imageData[path] = WallpaperMode::COVER;
+      std::cout << "Updated fit mode to " << modeToStringUpper.at(static_cast<int>(WallpaperMode::COVER)) << " for image " << path << std::endl;
+      dropdownFitMode->closeDropdown();
     }}
   );
   
