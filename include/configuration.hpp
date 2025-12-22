@@ -42,6 +42,10 @@ public:
   Configuration();
   ~Configuration();
 
+  std::vector<std::string> getImagesFromDirectories(std::vector<std::string> paths);
+  // void addDirectory();
+  void removeDirectory(std::string path);
+
   void parseConfiguration();
   void scanDirectories();
   void loadWallpapers(std::vector<std::string> paths);

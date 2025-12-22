@@ -36,6 +36,38 @@ Configuration::Configuration() {
   loadWallpapers(paths);
 }
 
+std::vector<std::string> Configuration::getImagesFromDirectories(std::vector<std::string> paths) {
+  std::vector<std::string> res;
+  for (const std::string& directory : paths) {
+    std::filesystem::path p(directory);
+    if (std::filesystem::exists(p) && std::filesystem::is_directory(p)) {
+      for (const auto& entry : std::filesystem::directory_iterator(p)) {
+        if (entry.is_regular_file()) {
+          std::string ext = entry.path().extension().string();
+          std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
+          if (ext == ".png" || ext == ".jpg" || ext == ".jpeg") {
+            res.push_back(entry.path());
+          }
+        }
+      }
+    } else {
+      Logger::logMsg(LogLabel::FAIL, "Path is not a directory or does not exist.");
+    }
+  }
+  return res;
+}
+
+void Configuration::removeDirectory(std::string path) {
+  // remove images from wallpapers and wallpaperImages 
+  // update directories set
+  std::vector<std::string> images = getImagesFromDirectories({path});
+  for (const std::string& image : images) {
+    wallpapers.erase(image);
+  }
+  unloadWallpapers(images);
+  directories.erase(path);
+}
+
 Configuration::~Configuration() {
   updateConfiguration();
   for (auto it = wallpaperImages.begin(); it != wallpaperImages.end(); it++) {
@@ -123,12 +155,13 @@ void Configuration::loadWallpapers(std::vector<std::string> paths) {
 
 void Configuration::unloadWallpapers(std::vector<std::string> paths) {
   for (const std::string& path : paths) {
-    if (wallpaperImages.find(path) != wallpaperImages.end()) {
+    if (wallpaperImages.find(path) == wallpaperImages.end()) {
       Logger::logMsg(LogLabel::FAIL, "Unable to unload \"" + path + "\" as it is not found");
       continue;
     }
     UnloadTexture(wallpaperImages.at(path).image);
     wallpaperImages.erase(path);
+    Logger::logMsg(LogLabel::OK, "Unloaded \"" + path + "\" from memory");
   }
 }
 

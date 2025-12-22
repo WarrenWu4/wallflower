@@ -67,7 +67,7 @@ void Settings::settingsContainerEl() {
         folderEl(id, *it, dirToRemove);
       }
       if (dirToRemove != "") {
-        this->configuration->directories.erase(dirToRemove);
+        configuration->removeDirectory(dirToRemove);
       }
     }
   }
