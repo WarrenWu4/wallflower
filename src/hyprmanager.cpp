@@ -1,15 +1,20 @@
 // hypr utility helper functions and classes
 
 #include "hyprmanager.hpp"
+#include "configuration.hpp"
+#include "logger.hpp"
+#include <sstream>
+#include <filesystem>
+#include <fstream>
 
 // FIX: issue where if wallpaper mode isn't specified it defaults to the previous mode
 // and since cover mode can't be specified it's stuck in the 2 other modes
-void runHyprCommand(std::string display, std::string wallpaperPath, WallpaperMode mode) {
+void runHyprCommand(std::string display, std::string wallpaperPath, FitMode mode) {
   // WARNING: version 0.7.6-4 on arch linux does not support fill and cover is default which must be omitted
   // introduces slight problem where if fit mode is not cover, the new fit mode because the default
   // and since cover is not a keyword that is parsed, it can never return to cover until it is unloaded
-  std::string fitMode = modeToString.at(static_cast<int>(mode)) + ":";
-  if (mode == WallpaperMode::COVER || mode == WallpaperMode::FILL) {
+  std::string fitMode = fitModeToString.at(mode) + ":";
+  if (mode == FitMode::COVER || mode == FitMode::FILL) {
     fitMode = "";
   }
   display += ",";
@@ -64,36 +69,36 @@ void HyprpaperParser::parseWallpaper(const std::string &value) {
   // wallpaper format: monitorName(optional),mode(optional):imagePath
   std::vector<std::string> parts = split(value, ',');
   std::vector<std::string> modeAndPath = split(parts[parts.size() - 1], ':');
-  WallpaperParams wp;
+  WallpaperData wp;
   if (parts.size() == 2) {
-    wp.monitorName = parts[0];
+    wp.monitor = parts[0];
   } else {
-    wp.monitorName = "";
+    wp.monitor = "";
   }
-  wp.imagePath = modeAndPath[modeAndPath.size() - 1];
+  wp.path = modeAndPath[modeAndPath.size() - 1];
   if (modeAndPath.size() == 1) {
-    wp.mode = WallpaperMode::COVER;
+    wp.fitMode = FitMode::COVER;
   } else {
     if (modeAndPath.at(1) == "contain") {
-      wp.mode = WallpaperMode::CONTAIN;
+      wp.fitMode = FitMode::CONTAIN;
     } else if (modeAndPath.at(1) == "tile") {
-      wp.mode = WallpaperMode::TILE;
+      wp.fitMode = FitMode::TILE;
     } else {
-      wp.mode = WallpaperMode::COVER;
+      wp.fitMode = FitMode::COVER;
     }
   }
 
   // image path must be in preloaded
   bool preloaded = false;
   for (const auto &preloadPath : config.preload) {
-    if (preloadPath == wp.imagePath) {
+    if (preloadPath == wp.path) {
       preloaded = true;
       break;
     }
   }
   if (!preloaded) {
     throw std::runtime_error("Wallpaper image path not preloaded: " +
-                             wp.imagePath);
+                             wp.path);
   }
   config.wallpaper.push_back(wp);
 }
@@ -159,22 +164,22 @@ void HyprpaperParser::writeConfigToFile() {
     file << "preload = " << preloadPath << "\n";
   }
   for (const auto &wp : config.wallpaper) {
-    file << "wallpaper = " << wp.monitorName << ", ";
-    switch (wp.mode) {
-    case WallpaperMode::COVER:
+    file << "wallpaper = " << wp.monitor << ", ";
+    switch (wp.fitMode) {
+    case FitMode::COVER:
       file << "";
       break;
-    case WallpaperMode::CONTAIN:
+    case FitMode::CONTAIN:
       file << "contain:";
       break;
-    case WallpaperMode::TILE:
+    case FitMode::TILE:
       file << "tile:";
       break;
-    case WallpaperMode::FILL:
+    case FitMode::FILL:
       file << "fill:";
       break;
     }
-    file << wp.imagePath << "\n";
+    file << wp.path << "\n";
   }
   file << "splash = " << (config.splash ? "true" : "false") << "\n";
   file << "splash_offset = " << config.splash_offset << "\n";

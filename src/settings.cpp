@@ -3,7 +3,7 @@
 Settings::Settings(std::shared_ptr<Configuration> configuration) {
   this->configuration = configuration;
   folderIcon = LoadTexture("resources/icons/folder-icon.png");
-  defaultMode = WallpaperMode::COVER;
+  defaultMode = FitMode::COVER;
 }
 
 Settings::~Settings() { UnloadTexture(folderIcon); }

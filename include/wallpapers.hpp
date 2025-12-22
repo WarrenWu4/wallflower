@@ -3,39 +3,22 @@
 #include "clay.h"
 #include "raylib.h"
 #include "dropdown.hpp"
-#include "hyprmanager.hpp"
 #include "settings.hpp"
 #include <string>
-#include <unordered_map>
-#include <cctype>
 #include <vector>
-#include <filesystem>
-#include <algorithm>
-#include <iostream>
-
-struct Wallpaper {
-  Texture2D imageData;
-  float aspectRatio;
-};
 
 class Wallpapers {
 private:
   std::string uppercaseString(const std::string& str);
-  std::vector<std::string> wallpapersOrdered;
 public:
   std::shared_ptr<Configuration> configuration;
   std::shared_ptr<Settings> settings;
   std::shared_ptr<Dropdown> dropdownFitMode;
 
-  std::unordered_map<std::string, Wallpaper> wallpapers;
+  std::vector<std::string> wallpapersOrdered;
   std::string activeWallpaper;
 
   Wallpapers(std::shared_ptr<Configuration> configuration, std::shared_ptr<Settings> settings, std::shared_ptr<Dropdown> dropdown);
-  ~Wallpapers();
-
-  void addWallpaper(std::string path);
-  void removeWallpaper(std::string path);
-  void scanDirectory(std::string path);
 
   void wallpaperContainerEl();
   void wallpaperColEl(int col);

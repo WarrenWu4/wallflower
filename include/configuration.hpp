@@ -1,29 +1,50 @@
 // custom configuration parser
 #pragma once
 
-#include "hyprmanager.hpp"
-#include "logger.hpp"
+#include "raylib.h"
 #include <unordered_set>
 #include <string>
 #include <unordered_map>
-#include <iostream>
-#include <fstream>
-#include <sstream>
+#include <vector>
+
+enum class FitMode { COVER, CONTAIN, TILE, FILL };
+const std::unordered_map<FitMode, std::string> fitModeToString({
+  {FitMode::COVER, "cover"},
+  {FitMode::CONTAIN, "contain"},
+  {FitMode::TILE, "tile"},
+  {FitMode::FILL, "fill"},
+});
+const std::unordered_map<std::string, FitMode> stringToFitMode({
+  {"cover", FitMode::COVER},
+  {"contain", FitMode::CONTAIN},
+  {"tile", FitMode::TILE},
+  {"fill", FitMode::FILL},
+});
+
+struct WallpaperData {
+  std::string path;
+  FitMode fitMode;
+  std::string monitor;
+};
+
+struct WallpaperImage {
+  Texture2D image;
+  float aspectRatio;
+};
 
 class Configuration {
-private:
-  void printConfiguration();
-
 public:
   std::string configurationPath;
   std::unordered_set<std::string> directories;
-  std::unordered_map<std::string, WallpaperMode> imageData;
+  std::unordered_map<std::string, WallpaperData> wallpapers;
+  std::unordered_map<std::string, WallpaperImage> wallpaperImages;
 
   Configuration();
   ~Configuration();
 
-  // WARNING: should only be ran once when Configuration is initialized to avoid heavy reading from disk
   void parseConfiguration();
-  // WARNING: should only run at application close to avoid weird behavior with writes and performance
+  void scanDirectories();
+  void loadWallpapers(std::vector<std::string> paths);
+  void unloadWallpapers(std::vector<std::string> paths);
   void updateConfiguration();
 };

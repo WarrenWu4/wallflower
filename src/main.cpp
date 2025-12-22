@@ -22,14 +22,14 @@ void HandleClayErrors(Clay_ErrorData errorData) {
   // }
 }
 
-void handleDropdownFitMode(std::shared_ptr<Configuration> configuration, std::shared_ptr<Dropdown> dropdownFitMode, void* path, WallpaperMode fitMode) {
+void handleDropdownFitMode(std::shared_ptr<Configuration> configuration, std::shared_ptr<Dropdown> dropdownFitMode, void* path, FitMode fitMode) {
   if (path == nullptr) {
     Logger::logMsg(LogLabel::ERROR, "No image path provided to dropdown");
     return; 
   }
   try {
     std::string pathStr = *static_cast<std::string*>(path);
-    configuration->imageData[pathStr] = fitMode;
+    configuration->wallpapers[pathStr].fitMode = static_cast<FitMode>(fitMode);
     Logger::logMsg(LogLabel::OK, "Updated fit mode to " + modeToStringUpper.at(static_cast<int>(fitMode)) + " for image " + pathStr);
     dropdownFitMode->closeDropdown();
   } catch (std::exception e) {
@@ -73,17 +73,17 @@ int main() {
   std::shared_ptr<Dropdown> dropdownFitMode = std::make_shared<Dropdown>();
   dropdownFitMode->items.insert(
     {"CONTAIN", [dropdownFitMode, configuration](void* data) {
-    handleDropdownFitMode(configuration, dropdownFitMode, data, WallpaperMode::CONTAIN);
+    handleDropdownFitMode(configuration, dropdownFitMode, data, FitMode::CONTAIN);
     }}
   );
   dropdownFitMode->items.insert(
     {"COVER", [dropdownFitMode, configuration](void* data) {
-    handleDropdownFitMode(configuration, dropdownFitMode, data, WallpaperMode::COVER);
+    handleDropdownFitMode(configuration, dropdownFitMode, data, FitMode::COVER);
     }}
   );
   
   std::shared_ptr<Wallpapers> wp = std::make_shared<Wallpapers>(configuration, settings, dropdownFitMode);
-  wp->activeWallpaper = hyprparser->getConfig().wallpaper.at(0).imagePath;
+  wp->activeWallpaper = hyprparser->getConfig().wallpaper.at(0).path;
 
   std::shared_ptr<Tabs> tabs = std::make_shared<Tabs>(TabType::Gallery, wp, settings);
 

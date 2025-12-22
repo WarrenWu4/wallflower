@@ -14,7 +14,7 @@ class Settings {
 public:
   std::shared_ptr<Configuration> configuration;
   Texture2D folderIcon;
-  WallpaperMode defaultMode;
+  FitMode defaultMode;
 
   Settings(std::shared_ptr<Configuration> configuration);
   ~Settings();

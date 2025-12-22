@@ -12,45 +12,8 @@ Wallpapers::Wallpapers(std::shared_ptr<Configuration> configuration, std::shared
   this->configuration = configuration;
   this->settings = settings;
   this->dropdownFitMode = dropdown;
-  for (auto it = configuration->directories.begin(); it != configuration->directories.end(); it++) {
-    scanDirectory(*it);
-  }
   this->activeWallpaper = "";
   this->wallpapersOrdered = {};
-}
-
-Wallpapers::~Wallpapers() {
-  for (auto it = wallpapers.begin(); it != wallpapers.end(); it++) {
-    UnloadTexture(it->second.imageData);
-  }
-}
-
-void Wallpapers::addWallpaper(std::string path) {
-  Texture2D imageData = LoadTexture(path.c_str());
-  float aspectRatio = static_cast<float>(imageData.width) / imageData.height;
-  wallpapers[path] = { imageData, aspectRatio };
-}
-
-void Wallpapers::removeWallpaper(std::string path) {
-  UnloadTexture(wallpapers[path].imageData);
-  wallpapers.erase(path);
-}
-
-void Wallpapers::scanDirectory(std::string path) {
-  std::filesystem::path p(path);
-  if (std::filesystem::exists(p) && std::filesystem::is_directory(p)) {
-    for (const auto& entry : std::filesystem::directory_iterator(p)) {
-      if (entry.is_regular_file()) {
-        std::string ext = entry.path().extension().string();
-        std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
-        if (ext == ".png" || ext == ".jpg" || ext == ".jpeg") {
-          addWallpaper(entry.path());
-        }
-      }
-    }
-  } else {
-    std::cerr << "Path is not a directory or does not exist\n";
-  }
 }
 
 void Wallpapers::wallpaperContainerEl() {
@@ -65,7 +28,7 @@ void Wallpapers::wallpaperContainerEl() {
     if (activeWallpaper != "") {
       wallpapersOrdered.push_back(activeWallpaper);
     }
-    for (auto it = wallpapers.begin(); it != wallpapers.end(); it++) {
+    for (auto it = configuration->wallpapers.begin(); it != configuration->wallpapers.end(); it++) {
       if ((*it).first != activeWallpaper) {
         wallpapersOrdered.push_back((*it).first);
       }
@@ -87,7 +50,7 @@ void Wallpapers::wallpaperColEl(int col) {
     for (size_t i = 0; i < wallpapersOrdered.size(); i++) {
       const std::string& path = wallpapersOrdered.at(i);
       if (i % 3 == col) {
-        wallpaperEl(i, path, &wallpapers.at(path).imageData, wallpapers.at(path).aspectRatio);
+        wallpaperEl(i, path, &configuration->wallpaperImages.at(path).image, configuration->wallpaperImages.at(path).aspectRatio);
       }
     }
   }
@@ -111,8 +74,8 @@ void Wallpapers::wallpaperEl(int id, const std::string& path, Texture2D* imageDa
     },
   }) {
     if (Clay_Hovered() && IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && !Clay_PointerOver(Clay_GetElementIdWithIndex(CLAY_STRING("WallpaperMode"), id))) {
-      if (configuration->imageData.find(path) != configuration->imageData.end()) {
-        runHyprCommand("", path, configuration->imageData.at(path));
+      if (configuration->wallpapers.find(path) != configuration->wallpapers.end()) {
+        runHyprCommand("", path, configuration->wallpapers.at(path).fitMode);
       } else {
         runHyprCommand("", path, settings->defaultMode);
       }
@@ -135,10 +98,10 @@ void Wallpapers::wallpaperEl(int id, const std::string& path, Texture2D* imageDa
         .length = static_cast<int32_t>(modeToStringUpper.at(static_cast<int>(settings->defaultMode)).size()),
         .chars = modeToStringUpper.at(static_cast<int>(settings->defaultMode)).c_str()
       });
-      if (configuration->imageData.find(path) != configuration->imageData.end()) {
+      if (configuration->wallpapers.find(path) != configuration->wallpapers.end()) {
         displayStr = Clay_String({
-          .length = static_cast<int32_t>(modeToStringUpper.at(static_cast<int>(configuration->imageData.at(path))).size()),
-          .chars = modeToStringUpper.at(static_cast<int>(configuration->imageData.at(path))).c_str()
+          .length = static_cast<int32_t>(modeToStringUpper.at(static_cast<int>(configuration->wallpapers.at(path).fitMode)).size()),
+          .chars = modeToStringUpper.at(static_cast<int>(configuration->wallpapers.at(path).fitMode)).c_str()
         });
       }
       CLAY_TEXT(
