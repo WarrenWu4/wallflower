@@ -57,6 +57,25 @@ std::vector<std::string> Configuration::getImagesFromDirectories(std::vector<std
   return res;
 }
 
+void Configuration::addDirectory(std::string path) {
+  // add found images to wallpaper only if it is a new image
+  // load image texture via loadWallpapers()
+  // update directories set
+  // INFO: no need to check if path exists or if it is a directory since getImagesFromDirectories() already handles it and returns an empty vector if not valid
+  std::vector<std::string> images = getImagesFromDirectories({path});
+  for (const std::string& image : images) {
+    if (wallpapers.find(image) == wallpapers.end()) {
+      wallpapers[image] = (WallpaperData) {
+        .path = image,
+        .fitMode = FitMode::COVER,
+        .monitor = ""
+      };
+    }
+  }
+  loadWallpapers(images);
+  directories.insert(path);
+}
+
 void Configuration::removeDirectory(std::string path) {
   // remove images from wallpapers and wallpaperImages 
   // update directories set

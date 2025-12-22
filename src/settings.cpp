@@ -15,7 +15,7 @@ void Settings::folderPicker() {
     if (fgets(path, sizeof(path), fp) != NULL) {
       std::string s(path);
       s.erase(s.find_last_not_of("\n\r") + 1);
-      configuration->directories.insert(s);
+      configuration->addDirectory(s);
     }
     pclose(fp);
   }

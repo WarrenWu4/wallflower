@@ -43,7 +43,7 @@ public:
   ~Configuration();
 
   std::vector<std::string> getImagesFromDirectories(std::vector<std::string> paths);
-  // void addDirectory();
+  void addDirectory(std::string path);
   void removeDirectory(std::string path);
 
   void parseConfiguration();
