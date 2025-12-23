@@ -82,7 +82,7 @@ int main() {
     }}
   );
   
-  std::shared_ptr<Wallpapers> wp = std::make_shared<Wallpapers>(configuration, settings, dropdownFitMode);
+  std::shared_ptr<Wallpapers> wp = std::make_shared<Wallpapers>(configuration, hyprparser, settings, dropdownFitMode);
   wp->activeWallpaper = hyprparser->activeWallpaper;
 
   std::shared_ptr<Tabs> tabs = std::make_shared<Tabs>(TabType::Gallery, wp, settings);

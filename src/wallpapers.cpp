@@ -8,8 +8,9 @@ std::string Wallpapers::uppercaseString(const std::string& str) {
   return new_str;
 }
 
-Wallpapers::Wallpapers(std::shared_ptr<Configuration> configuration, std::shared_ptr<Settings> settings, std::shared_ptr<Dropdown> dropdown) {
+Wallpapers::Wallpapers(std::shared_ptr<Configuration> configuration, std::shared_ptr<HyprpaperParser> hyprpaperParser, std::shared_ptr<Settings> settings, std::shared_ptr<Dropdown> dropdown) {
   this->configuration = configuration;
+  this->hyprpaperParser = hyprpaperParser;
   this->settings = settings;
   this->dropdownFitMode = dropdown;
   this->activeWallpaper = "";
@@ -75,9 +76,9 @@ void Wallpapers::wallpaperEl(int id, const std::string& path, Texture2D* imageDa
   }) {
     if (Clay_Hovered() && IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && !Clay_PointerOver(Clay_GetElementIdWithIndex(CLAY_STRING("WallpaperMode"), id))) {
       if (configuration->wallpapers.find(path) != configuration->wallpapers.end()) {
-        runHyprCommand("", path, configuration->wallpapers.at(path).fitMode);
+        hyprpaperParser->runHyprCommand("", path, configuration->wallpapers.at(path).fitMode);
       } else {
-        runHyprCommand("", path, settings->defaultMode);
+        hyprpaperParser->runHyprCommand("", path, settings->defaultMode);
       }
       activeWallpaper = path;
     }

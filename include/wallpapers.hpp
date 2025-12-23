@@ -1,6 +1,7 @@
 #pragma once
 
 #include "clay.h"
+#include "hyprmanager.hpp"
 #include "raylib.h"
 #include "dropdown.hpp"
 #include "settings.hpp"
@@ -12,13 +13,14 @@ private:
   std::string uppercaseString(const std::string& str);
 public:
   std::shared_ptr<Configuration> configuration;
+  std::shared_ptr<HyprpaperParser> hyprpaperParser;
   std::shared_ptr<Settings> settings;
   std::shared_ptr<Dropdown> dropdownFitMode;
 
   std::vector<std::string> wallpapersOrdered;
   std::string activeWallpaper;
 
-  Wallpapers(std::shared_ptr<Configuration> configuration, std::shared_ptr<Settings> settings, std::shared_ptr<Dropdown> dropdown);
+  Wallpapers(std::shared_ptr<Configuration> configuration, std::shared_ptr<HyprpaperParser> hyprpaperParser, std::shared_ptr<Settings> settings, std::shared_ptr<Dropdown> dropdown);
 
   void wallpaperContainerEl();
   void wallpaperColEl(int col);

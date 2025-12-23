@@ -12,7 +12,6 @@ const std::vector<std::string> modeToStringUpper({
   "FILL"
 });
 
-void runHyprCommand(std::string display, std::string wallpaperPath, FitMode mode);
 
 class HyprpaperParser {
 private:
@@ -23,7 +22,6 @@ private:
   std::string splash_color;
   bool ipc;
   std::string configPath;
-  // first wallpaper in hyprpaper.conf
 
   std::vector<std::string> split(const std::string &s, char delimiter);
   std::string removeWhitespace(const std::string &s);
@@ -32,7 +30,10 @@ private:
   void parseWallpaper(const std::string &value);
 
 public:
+  // first wallpaper in hyprpaper.conf
   std::string activeWallpaper;
+
+  void runHyprCommand(std::string display, std::string wallpaperPath, FitMode mode);
 
   HyprpaperParser(std::shared_ptr<Configuration> configuration);
 

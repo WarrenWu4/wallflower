@@ -9,7 +9,7 @@
 
 // FIX: issue where if wallpaper mode isn't specified it defaults to the previous mode
 // and since cover mode can't be specified it's stuck in the 2 other modes
-void runHyprCommand(std::string display, std::string wallpaperPath, FitMode mode) {
+void HyprpaperParser::runHyprCommand(std::string display, std::string wallpaperPath, FitMode mode) {
   // WARNING: version 0.7.6-4 on arch linux does not support fill and cover is default which must be omitted
   // introduces slight problem where if fit mode is not cover, the new fit mode because the default
   // and since cover is not a keyword that is parsed, it can never return to cover until it is unloaded
@@ -29,7 +29,10 @@ void runHyprCommand(std::string display, std::string wallpaperPath, FitMode mode
   std::system(unloadCmd.c_str());
   std::system(preloadCmd.c_str());
   std::system(wallpaperCmd.c_str());
+  this->activeWallpaper = wallpaperPath;
+  this->writeConfigToFile();
 }
+
 
 std::vector<std::string> HyprpaperParser::split(const std::string &s,
                                                 char delimiter) {
@@ -164,13 +167,10 @@ void HyprpaperParser::writeConfigToFile() {
 
   // update existing config file
   std::ofstream file(configPath);
-  for (const auto &preloadPath : preload) {
-    file << "preload = " << preloadPath << "\n";
-  }
-  for (auto it = configuration->wallpapers.begin(); it != configuration->wallpapers.end(); it++) {
-    WallpaperData wp = (*it).second;
-    file << "wallpaper = " << wp.monitor << ", ";
-    switch (wp.fitMode) {
+  file << "preload = " << activeWallpaper << "\n";
+  WallpaperData wp = configuration->wallpapers.at(activeWallpaper);
+  file << "wallpaper = " << wp.monitor << ", ";
+  switch (wp.fitMode) {
     case FitMode::COVER:
       file << "";
       break;
@@ -183,9 +183,8 @@ void HyprpaperParser::writeConfigToFile() {
     case FitMode::FILL:
       file << "fill:";
       break;
-    }
-    file << wp.path << "\n";
   }
+  file << wp.path << "\n";
   file << "splash = " << (splash ? "true" : "false") << "\n";
   file << "splash_offset = " << splash_offset << "\n";
   file << "splash_color = " << splash_color << "\n";
