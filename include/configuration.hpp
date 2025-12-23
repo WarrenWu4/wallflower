@@ -51,4 +51,6 @@ public:
   void loadWallpapers(std::vector<std::string> paths);
   void unloadWallpapers(std::vector<std::string> paths);
   void updateConfiguration();
+
+  void addWallpapers(std::vector<WallpaperData> wallpapers);
 };

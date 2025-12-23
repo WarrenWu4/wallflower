@@ -62,7 +62,7 @@ void HyprpaperParser::parsePreload(const std::string &path) {
   if (!std::filesystem::exists(p)) {
     throw std::runtime_error("Preload path does not exist: " + path);
   }
-  config.preload.push_back(path);
+  preload.push_back(path);
 }
 
 void HyprpaperParser::parseWallpaper(const std::string &value) {
@@ -90,7 +90,7 @@ void HyprpaperParser::parseWallpaper(const std::string &value) {
 
   // image path must be in preloaded
   bool preloaded = false;
-  for (const auto &preloadPath : config.preload) {
+  for (const auto &preloadPath : preload) {
     if (preloadPath == wp.path) {
       preloaded = true;
       break;
@@ -100,17 +100,21 @@ void HyprpaperParser::parseWallpaper(const std::string &value) {
     throw std::runtime_error("Wallpaper image path not preloaded: " +
                              wp.path);
   }
-  config.wallpaper.push_back(wp);
+  configuration->addWallpapers({wp});
+  if (activeWallpaper == "") {
+    activeWallpaper = wp.path;
+  }
 }
 
-HyprpaperParser::HyprpaperParser() {
+HyprpaperParser::HyprpaperParser(std::shared_ptr<Configuration> configuration) {
   configPath = std::string(getenv("HOME")) + "/.config/hypr/hyprpaper.conf";
-  config.preload = {};
-  config.wallpaper = {};
-  config.splash = false;
-  config.splash_offset = 2.0f;
-  config.splash_color = "55ffffff";
-  config.ipc = true;
+  this->configuration = configuration;
+  preload = {};
+  splash = false;
+  splash_offset = 2.0f;
+  splash_color = "55ffffff";
+  ipc = true;
+  activeWallpaper = "";
 }
 
 void HyprpaperParser::parseFile() {
@@ -133,13 +137,13 @@ void HyprpaperParser::parseFile() {
     } else if (key == "wallpaper") {
       parseWallpaper(value);
     } else if (key == "splash") {
-      config.splash = (value == "true");
+      splash = (value == "true");
     } else if (key == "splash_offset") {
-      config.splash_offset = std::stof(value);
+      splash_offset = std::stof(value);
     } else if (key == "splash_color") {
-      config.splash_color = value;
+      splash_color = value;
     } else if (key == "ipc") {
-      config.ipc = (value == "true");
+      ipc = (value == "true");
     } else {
       throw std::runtime_error("Unknown config key: " + key);
     }
@@ -160,10 +164,11 @@ void HyprpaperParser::writeConfigToFile() {
 
   // update existing config file
   std::ofstream file(configPath);
-  for (const auto &preloadPath : config.preload) {
+  for (const auto &preloadPath : preload) {
     file << "preload = " << preloadPath << "\n";
   }
-  for (const auto &wp : config.wallpaper) {
+  for (auto it = configuration->wallpapers.begin(); it != configuration->wallpapers.end(); it++) {
+    WallpaperData wp = (*it).second;
     file << "wallpaper = " << wp.monitor << ", ";
     switch (wp.fitMode) {
     case FitMode::COVER:
@@ -181,15 +186,10 @@ void HyprpaperParser::writeConfigToFile() {
     }
     file << wp.path << "\n";
   }
-  file << "splash = " << (config.splash ? "true" : "false") << "\n";
-  file << "splash_offset = " << config.splash_offset << "\n";
-  file << "splash_color = " << config.splash_color << "\n";
-  file << "ipc = " << (config.ipc ? "true" : "false") << "\n";
+  file << "splash = " << (splash ? "true" : "false") << "\n";
+  file << "splash_offset = " << splash_offset << "\n";
+  file << "splash_color = " << splash_color << "\n";
+  file << "ipc = " << (ipc ? "true" : "false") << "\n";
   file.close();
 }
 
-HyprpaperConfig HyprpaperParser::getConfig() { return config; }
-
-void HyprpaperParser::setConfig(const HyprpaperConfig &newConfig) {
-  config = newConfig;
-}

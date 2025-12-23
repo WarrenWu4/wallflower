@@ -3,6 +3,7 @@
 #include "configuration.hpp"
 #include <string>
 #include <vector>
+#include <memory>
 
 const std::vector<std::string> modeToStringUpper({
   "COVER",
@@ -11,21 +12,18 @@ const std::vector<std::string> modeToStringUpper({
   "FILL"
 });
 
-struct HyprpaperConfig {
-  std::vector<std::string> preload;
-  std::vector<WallpaperData> wallpaper;
-  bool splash;
-  float splash_offset;
-  std::string splash_color;
-  bool ipc;
-};
-
 void runHyprCommand(std::string display, std::string wallpaperPath, FitMode mode);
 
 class HyprpaperParser {
 private:
-  HyprpaperConfig config;
+  std::shared_ptr<Configuration> configuration;
+  std::vector<std::string> preload;
+  bool splash;
+  float splash_offset;
+  std::string splash_color;
+  bool ipc;
   std::string configPath;
+  // first wallpaper in hyprpaper.conf
 
   std::vector<std::string> split(const std::string &s, char delimiter);
   std::string removeWhitespace(const std::string &s);
@@ -34,11 +32,10 @@ private:
   void parseWallpaper(const std::string &value);
 
 public:
-  HyprpaperParser();
+  std::string activeWallpaper;
+
+  HyprpaperParser(std::shared_ptr<Configuration> configuration);
 
   void parseFile();
   void writeConfigToFile();
-
-  HyprpaperConfig getConfig();
-  void setConfig(const HyprpaperConfig &newConfig);
 };

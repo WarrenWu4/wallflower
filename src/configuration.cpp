@@ -163,6 +163,10 @@ void Configuration::loadWallpapers(std::vector<std::string> paths) {
       Logger::logMsg(LogLabel::FAIL, "Wallpaper path \"" + path + "\" does not exist");
       continue;
     }
+    if (wallpaperImages.find(path) != wallpaperImages.end()) {
+      Logger::logMsg(LogLabel::FAIL, "Wallpaper already exists in memory \"" + path);
+      continue;
+    }
     Texture2D image = LoadTexture(path.c_str());
     float aspectRatio = static_cast<float>(image.width) / image.height;
     wallpaperImages[path] = (WallpaperImage) {
@@ -203,4 +207,16 @@ void Configuration::updateConfiguration() {
   }
   file.close();
   Logger::logMsg(LogLabel::OK, "Configuration updated");
+}
+
+void Configuration::addWallpapers(std::vector<WallpaperData> _wallpapers) {
+  // overwrite current wallpaper data if it already exists
+  // load wallpapers as textures
+  std::vector<std::string> paths;
+  for (size_t i = 0; i < _wallpapers.size(); i++) {
+    wallpapers[_wallpapers.at(i).path] = _wallpapers.at(i);
+    paths.push_back(_wallpapers.at(i).path);
+  }
+  // INFO: loadWallpapers already checks that path is valid and doesn't already exist
+  loadWallpapers(paths);
 }
