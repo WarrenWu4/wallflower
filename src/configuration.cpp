@@ -116,7 +116,7 @@ void Configuration::parseConfiguration() {
       if (std::getline(ss, key, ',') && std::getline(ss, value)) {
         // TODO: add parsing support for monitors
         // just use empty string as default for now
-        std::filesystem::path p(value);
+        std::filesystem::path p(key);
         if (!std::filesystem::exists(p)) { continue; }
         wallpapers[key] = (WallpaperData) {
           .path = key,
@@ -210,12 +210,15 @@ void Configuration::updateConfiguration() {
 }
 
 void Configuration::addWallpapers(std::vector<WallpaperData> _wallpapers) {
-  // overwrite current wallpaper data if it already exists
+  // skip current wallpaper if it already exists
   // load wallpapers as textures
   std::vector<std::string> paths;
   for (size_t i = 0; i < _wallpapers.size(); i++) {
-    wallpapers[_wallpapers.at(i).path] = _wallpapers.at(i);
-    paths.push_back(_wallpapers.at(i).path);
+    WallpaperData wp = _wallpapers.at(i);
+    if (wallpapers.find(wp.path) == wallpapers.end()) {
+      wallpapers[wp.path] = wp;
+    }
+    paths.push_back(wp.path);
   }
   // INFO: loadWallpapers already checks that path is valid and doesn't already exist
   loadWallpapers(paths);
