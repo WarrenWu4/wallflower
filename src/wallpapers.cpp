@@ -25,7 +25,7 @@ void Wallpapers::wallpaperContainerEl() {
   }) {
     // distribute wallpapers
     wallpapersOrdered = {};
-    if (activeWallpaper != "") {
+    if (activeWallpaper != "" && configuration->wallpaperImages.find(activeWallpaper) != configuration->wallpaperImages.end()) {
       wallpapersOrdered.push_back(activeWallpaper);
     }
     for (auto it = configuration->wallpapers.begin(); it != configuration->wallpapers.end(); it++) {
