@@ -89,16 +89,19 @@ int main() {
 
   Logger::logMsg(LogLabel::DEBUG, "Finished initializing program objects");
 
+  const float scrollSpeedMultiplier = 8.0f;
+
   // loop
   while (!WindowShouldClose()) {
     // update state
     Vector2 mousePosition = GetMousePosition();
     Vector2 scrollDelta = GetMouseWheelMoveV();
+    float deltaTime = GetFrameTime();
 
     Clay_SetPointerState({mousePosition.x, mousePosition.y}, IsMouseButtonDown(MOUSE_LEFT_BUTTON));
     Clay_SetLayoutDimensions(
         {(float)GetScreenWidth(), (float)GetScreenHeight()});
-    Clay_UpdateScrollContainers(true, (Clay_Vector2) {scrollDelta.x, scrollDelta.y}, 0.00016f);
+    Clay_UpdateScrollContainers(true, (Clay_Vector2) {scrollDelta.x * scrollSpeedMultiplier, scrollDelta.y * scrollSpeedMultiplier}, deltaTime);
 
     // build UI
     Clay_BeginLayout();
