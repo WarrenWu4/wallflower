@@ -1,3 +1,4 @@
+#include "bouncer.hpp"
 #include "hyprmanager.hpp"
 #include "raylib.h"
 #include <exception>
@@ -12,7 +13,8 @@
 #include "dropdown.hpp"
 
 #include <memory>
-#include <iostream>
+
+std::shared_ptr<Bouncer> bouncer = std::make_shared<Bouncer>();
 
 void HandleClayErrors(Clay_ErrorData errorData) {
   // See the Clay_ErrorData struct for more information

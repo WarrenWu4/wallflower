@@ -21,8 +21,9 @@
  * zenity can run
  */
 
+std::string Bouncer::currentVersion = getHyprpaperVersion();
+
 Bouncer::Bouncer() {
-  currentVersion = getHyprpaperVersion();
   isHyprpaperVersionSupported();
   if (!(isHyprlandRunning() && isHyprpaperRunning() &&
         isHyprpaperIpcEnabled() && doesZenityRun())) {
@@ -86,21 +87,23 @@ std::string Bouncer::getHyprpaperVersion() {
 
 bool Bouncer::isHyprlandRunning() {
   if (isProcessRunning("hyprland")) {
+    Logger::logMsg(LogLabel::OK, "Hyprland process found.");
     return true;
   }
   Logger::logMsg(
       LogLabel::ERROR,
-      "No Hyprland session detected. Unable to start wallflower program.");
+      "No Hyprland process found. Unable to start wallflower program.");
   return false;
 }
 
 bool Bouncer::isHyprpaperRunning() {
   if (isProcessRunning("hyprpaper")) {
+    Logger::logMsg(LogLabel::OK, "Hyprpaper process found.");
     return true;
   }
   Logger::logMsg(
       LogLabel::ERROR,
-      "No Hyprpaper session detected. Unable to start wallflower program.");
+      "No Hyprpaper process found. Unable to start wallflower program.");
   return false;
 }
 
@@ -112,20 +115,29 @@ bool Bouncer::isHyprpaperIpcEnabled() {
         "Hyprland session not detected. Unable to start wallflower program.");
     return false;
   }
+  const char* xdgRuntimeDir = std::getenv("XDG_RUNTIME_DIR");
+  if (!xdgRuntimeDir) {
+    Logger::logMsg(
+        LogLabel::ERROR,
+        "XDG_RUNTIME_DIR environment variable not found. Unable to start wallflower program.");
+    return false;
+  }
   std::string socketPath =
-      "/tmp/hypr/" + std::string(signature) + "/.hyprpaper.sock";
+      std::string(xdgRuntimeDir) + "/hypr/" + std::string(signature) + "/.socket.sock";
   if (!std::filesystem::exists(socketPath)) {
     Logger::logMsg(
         LogLabel::ERROR,
         "Hyprpaper IPC not enabled. Unable to start wallflower program.");
     return false;
   }
+  Logger::logMsg(LogLabel::OK, "Hyprpaper IPC enabled.");
   return true;
 }
 
 bool Bouncer::isHyprpaperVersionSupported() {
   for (std::string_view version : supportedHyprpaperVersions) {
-    if (currentVersion == version) {
+    if (Bouncer::currentVersion == version) {
+      Logger::logMsg(LogLabel::OK, "Hyprpaper version supported.");
       return true;
     }
   }
@@ -147,7 +159,7 @@ bool Bouncer::isHyprpaperVersionSupported() {
     return result;
   }(supportedHyprpaperVersions);
   Logger::logMsg(LogLabel::WARNING,
-                 "Your Hyprpaper version (" + currentVersion +
+                 "Your Hyprpaper version (" + Bouncer::currentVersion +
                      ") is not explicitly supported. You may encounter weird "
                      "issues or bugs. Please use a supported version: " +
                      joinedVersions);
@@ -157,6 +169,7 @@ bool Bouncer::isHyprpaperVersionSupported() {
 bool Bouncer::doesZenityRun() {
   std::string res = executeCommand("which zenity");
   if (res != "Error" && res != "") {
+    Logger::logMsg(LogLabel::OK, "Zenity program found.");
     return true;
   }
   Logger::logMsg(LogLabel::ERROR, "Zenity file dialog module does not exist. "
