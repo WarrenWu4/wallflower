@@ -1,11 +1,26 @@
 #pragma once
 
-bool doesHyprlandExist();
+#include <string>
+#include <vector>
 
-bool isHyprlandRunning();
+class Bouncer {
+public:
+  static inline const std::vector<std::string_view> supportedHyprpaperVersions = {
+    "0.7.6-4"
+  };
+  static std::string currentVersion;
 
-bool doesHyprpaperExist();
+  Bouncer();
 
-bool isHyprpaperRunning();
+  static std::string executeCommand(const char *cmd);
+  static bool isProcessRunning(const std::string &processName);
+  static std::vector<std::string> split(const std::string& str, char delimiter);
 
-bool isHyprpaperIpcEnabled();
+  static std::string getHyprpaperVersion();
+
+  static bool isHyprlandRunning();
+  static bool isHyprpaperRunning();
+  static bool isHyprpaperIpcEnabled();
+  static bool isHyprpaperVersionSupported();
+  static bool doesZenityRun();
+};
