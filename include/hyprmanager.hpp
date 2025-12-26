@@ -1,17 +1,9 @@
 #pragma once
 
 #include "configuration.hpp"
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
-
-const std::vector<std::string> modeToStringUpper({
-  "COVER",
-  "CONTAIN",
-  "TILE",
-  "FILL"
-});
-
 
 class HyprpaperParser {
 private:
@@ -30,7 +22,8 @@ public:
   // first wallpaper in hyprpaper.conf
   std::string activeWallpaper;
 
-  void runHyprCommand(std::string display, std::string wallpaperPath, FitMode mode);
+  void runHyprCommand(std::string display, std::string wallpaperPath,
+                      FitMode mode);
 
   HyprpaperParser(std::shared_ptr<Configuration> configuration);
 

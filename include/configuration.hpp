@@ -2,24 +2,26 @@
 #pragma once
 
 #include "raylib.h"
-#include <unordered_set>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 enum class FitMode { COVER, CONTAIN, TILE, FILL };
 const std::unordered_map<FitMode, std::string> fitModeToString({
-  {FitMode::COVER, "cover"},
-  {FitMode::CONTAIN, "contain"},
-  {FitMode::TILE, "tile"},
-  {FitMode::FILL, "fill"},
+    {FitMode::COVER, "cover"},
+    {FitMode::CONTAIN, "contain"},
+    {FitMode::TILE, "tile"},
+    {FitMode::FILL, "fill"},
 });
 const std::unordered_map<std::string, FitMode> stringToFitMode({
-  {"cover", FitMode::COVER},
-  {"contain", FitMode::CONTAIN},
-  {"tile", FitMode::TILE},
-  {"fill", FitMode::FILL},
+    {"cover", FitMode::COVER},
+    {"contain", FitMode::CONTAIN},
+    {"tile", FitMode::TILE},
+    {"fill", FitMode::FILL},
 });
+const std::vector<std::string> modeToStringUpper({"COVER", "CONTAIN", "TILE",
+                                                  "FILL"});
 
 struct WallpaperData {
   std::string path;
@@ -42,7 +44,8 @@ public:
   Configuration();
   ~Configuration();
 
-  std::vector<std::string> getImagesFromDirectories(std::vector<std::string> paths);
+  std::vector<std::string>
+  getImagesFromDirectories(std::vector<std::string> paths);
   void addDirectory(std::string path);
   void removeDirectory(std::string path);
 
