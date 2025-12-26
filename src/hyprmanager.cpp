@@ -3,25 +3,30 @@
 #include "hyprmanager.hpp"
 #include "configuration.hpp"
 #include "logger.hpp"
-#include <sstream>
+#include "utils.hpp"
 #include <filesystem>
 #include <fstream>
+#include <sstream>
 
-// FIX: issue where if wallpaper mode isn't specified it defaults to the previous mode
-// and since cover mode can't be specified it's stuck in the 2 other modes
-void HyprpaperParser::runHyprCommand(std::string display, std::string wallpaperPath, FitMode mode) {
-  // WARNING: version 0.7.6-4 on arch linux does not support fill and cover is default which must be omitted
-  // introduces slight problem where if fit mode is not cover, the new fit mode because the default
-  // and since cover is not a keyword that is parsed, it can never return to cover until it is unloaded
+// FIX: issue where if wallpaper mode isn't specified it defaults to the
+// previous mode and since cover mode can't be specified it's stuck in the 2
+// other modes
+void HyprpaperParser::runHyprCommand(std::string display,
+                                     std::string wallpaperPath, FitMode mode) {
+  // WARNING: version 0.7.6-4 on arch linux does not support fill and cover is
+  // default which must be omitted introduces slight problem where if fit mode
+  // is not cover, the new fit mode because the default and since cover is not a
+  // keyword that is parsed, it can never return to cover until it is unloaded
   std::string fitMode = fitModeToString.at(mode) + ":";
   if (mode == FitMode::COVER || mode == FitMode::FILL) {
     fitMode = "";
   }
   display += ",";
   std::string unloadCmd = "hyprctl hyprpaper unload \"" + wallpaperPath + "\"";
-  std::string preloadCmd = "hyprctl hyprpaper preload \"" + wallpaperPath + "\"";
-  std::string wallpaperCmd =
-      "hyprctl hyprpaper wallpaper \"" + display + fitMode + wallpaperPath + "\"";
+  std::string preloadCmd =
+      "hyprctl hyprpaper preload \"" + wallpaperPath + "\"";
+  std::string wallpaperCmd = "hyprctl hyprpaper wallpaper \"" + display +
+                             fitMode + wallpaperPath + "\"";
   // FIX: fix system commands since it's dependent on hyprpaper version BRUH
   Logger::logMsg(LogLabel::DEBUG, "Running unload command: " + unloadCmd);
   Logger::logMsg(LogLabel::DEBUG, "Running preload command: " + preloadCmd);
@@ -31,28 +36,6 @@ void HyprpaperParser::runHyprCommand(std::string display, std::string wallpaperP
   std::system(wallpaperCmd.c_str());
   this->activeWallpaper = wallpaperPath;
   this->writeConfigToFile();
-}
-
-
-std::vector<std::string> HyprpaperParser::split(const std::string &s,
-                                                char delimiter) {
-  std::vector<std::string> tokens;
-  std::stringstream ss(s);
-  std::string token;
-  while (std::getline(ss, token, delimiter)) {
-    tokens.push_back(token);
-  }
-  return tokens;
-}
-
-std::string HyprpaperParser::removeWhitespace(const std::string &s) {
-  std::string result;
-  for (char c : s) {
-    if (!isspace(c)) {
-      result += c;
-    }
-  }
-  return result;
 }
 
 void HyprpaperParser::parsePreload(const std::string &path) {
@@ -70,8 +53,9 @@ void HyprpaperParser::parsePreload(const std::string &path) {
 
 void HyprpaperParser::parseWallpaper(const std::string &value) {
   // wallpaper format: monitorName(optional),mode(optional):imagePath
-  std::vector<std::string> parts = split(value, ',');
-  std::vector<std::string> modeAndPath = split(parts[parts.size() - 1], ':');
+  std::vector<std::string> parts = Utils::split(value, ',');
+  std::vector<std::string> modeAndPath =
+      Utils::split(parts[parts.size() - 1], ':');
   WallpaperData wp;
   if (parts.size() == 2) {
     wp.monitor = parts[0];
@@ -100,8 +84,7 @@ void HyprpaperParser::parseWallpaper(const std::string &value) {
     }
   }
   if (!preloaded) {
-    throw std::runtime_error("Wallpaper image path not preloaded: " +
-                             wp.path);
+    throw std::runtime_error("Wallpaper image path not preloaded: " + wp.path);
   }
   configuration->addWallpapers({wp});
   if (activeWallpaper == "") {
@@ -128,8 +111,8 @@ void HyprpaperParser::parseFile() {
 
   std::string line;
   while (std::getline(file, line)) {
-    std::string cleanedLine = removeWhitespace(line);
-    std::vector<std::string> values = split(cleanedLine, '=');
+    std::string cleanedLine = Utils::removeWhitespace(line);
+    std::vector<std::string> values = Utils::split(cleanedLine, '=');
     if (values.size() != 2) {
       throw std::runtime_error("Invalid line in config: " + line);
     }
@@ -171,18 +154,18 @@ void HyprpaperParser::writeConfigToFile() {
   WallpaperData wp = configuration->wallpapers.at(activeWallpaper);
   file << "wallpaper = " << wp.monitor << ", ";
   switch (wp.fitMode) {
-    case FitMode::COVER:
-      file << "";
-      break;
-    case FitMode::CONTAIN:
-      file << "contain:";
-      break;
-    case FitMode::TILE:
-      file << "tile:";
-      break;
-    case FitMode::FILL:
-      file << "fill:";
-      break;
+  case FitMode::COVER:
+    file << "";
+    break;
+  case FitMode::CONTAIN:
+    file << "contain:";
+    break;
+  case FitMode::TILE:
+    file << "tile:";
+    break;
+  case FitMode::FILL:
+    file << "fill:";
+    break;
   }
   file << wp.path << "\n";
   file << "splash = " << (splash ? "true" : "false") << "\n";
@@ -191,4 +174,3 @@ void HyprpaperParser::writeConfigToFile() {
   file << "ipc = " << (ipc ? "true" : "false") << "\n";
   file.close();
 }
-

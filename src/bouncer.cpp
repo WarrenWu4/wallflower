@@ -3,6 +3,7 @@
 
 #include "bouncer.hpp"
 #include "logger.hpp"
+#include "utils.hpp"
 #include <algorithm>
 #include <filesystem>
 #include <fstream>
@@ -65,19 +66,9 @@ bool Bouncer::isProcessRunning(const std::string &processName) {
   return false;
 }
 
-std::vector<std::string> Bouncer::split(const std::string &s, char delimiter) {
-  std::vector<std::string> tokens;
-  std::stringstream ss(s);
-  std::string token;
-  while (std::getline(ss, token, delimiter)) {
-    tokens.push_back(token);
-  }
-  return tokens;
-}
-
 std::string Bouncer::getHyprpaperVersion() {
   // TODO: add additional commands based on distro/package manager
-  std::vector<std::string> res = split(executeCommand("pacman -Q hyprpaper"), ' ');
+  std::vector<std::string> res = Utils::split(executeCommand("pacman -Q hyprpaper"), ' ');
   if (res.size() != 2) {
     Logger::logMsg(LogLabel::ERROR, "Error getting hyprpaper version. Output does not match Hypaper {version} format.");
     return "";

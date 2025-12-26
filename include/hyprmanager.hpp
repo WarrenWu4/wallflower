@@ -23,9 +23,6 @@ private:
   bool ipc;
   std::string configPath;
 
-  std::vector<std::string> split(const std::string &s, char delimiter);
-  std::string removeWhitespace(const std::string &s);
-
   void parsePreload(const std::string &path);
   void parseWallpaper(const std::string &value);
 
