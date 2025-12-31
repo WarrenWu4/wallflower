@@ -6,33 +6,14 @@
 #include "utils.hpp"
 #include <filesystem>
 #include <fstream>
-#include <sstream>
 
-// FIX: issue where if wallpaper mode isn't specified it defaults to the
-// previous mode and since cover mode can't be specified it's stuck in the 2
-// other modes
 void HyprpaperParser::runHyprCommand(std::string display,
                                      std::string wallpaperPath, FitMode mode) {
-  // WARNING: version 0.7.6-4 on arch linux does not support fill and cover is
-  // default which must be omitted introduces slight problem where if fit mode
-  // is not cover, the new fit mode because the default and since cover is not a
-  // keyword that is parsed, it can never return to cover until it is unloaded
-  std::string fitMode = fitModeToString.at(mode) + ":";
-  if (mode == FitMode::COVER || mode == FitMode::FILL) {
-    fitMode = "";
-  }
   display += ",";
-  std::string unloadCmd = "hyprctl hyprpaper unload \"" + wallpaperPath + "\"";
-  std::string preloadCmd =
-      "hyprctl hyprpaper preload \"" + wallpaperPath + "\"";
+  wallpaperPath += ",";
   std::string wallpaperCmd = "hyprctl hyprpaper wallpaper \"" + display +
-                             fitMode + wallpaperPath + "\"";
-  // FIX: fix system commands since it's dependent on hyprpaper version BRUH
-  Logger::logMsg(LogLabel::DEBUG, "Running unload command: " + unloadCmd);
-  Logger::logMsg(LogLabel::DEBUG, "Running preload command: " + preloadCmd);
+                             wallpaperPath + fitModeToString.at(mode) + "\"";
   Logger::logMsg(LogLabel::DEBUG, "Running wallpaper command: " + wallpaperCmd);
-  std::system(unloadCmd.c_str());
-  std::system(preloadCmd.c_str());
   std::system(wallpaperCmd.c_str());
   this->activeWallpaper = wallpaperPath;
   this->writeConfigToFile();
