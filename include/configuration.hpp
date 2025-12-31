@@ -2,6 +2,7 @@
 #pragma once
 
 #include "raylib.h"
+#include <filesystem>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
@@ -43,6 +44,8 @@ public:
 
   Configuration();
   ~Configuration();
+
+  std::string getResourcePath();
 
   std::vector<std::string>
   getImagesFromDirectories(std::vector<std::string> paths);

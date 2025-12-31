@@ -2,7 +2,8 @@
 
 Settings::Settings(std::shared_ptr<Configuration> configuration) {
   this->configuration = configuration;
-  folderIcon = LoadTexture("resources/icons/folder-icon.png");
+  std::string resourcePath = configuration->getResourcePath();
+  folderIcon = LoadTexture((resourcePath+"icons/folder-icon.png").c_str());
   defaultMode = FitMode::COVER;
 }
 

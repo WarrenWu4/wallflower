@@ -6,7 +6,7 @@
 #include <fstream>
 
 Configuration::Configuration() {
-  configurationPath = "/home/warrenwu/projects/wallflower/resources/configuration.txt";
+  configurationPath = getResourcePath()+"configuration.txt";
 
   // create configuration file & path if it does not exist
   std::filesystem::path p(configurationPath);
@@ -34,6 +34,18 @@ Configuration::Configuration() {
     paths[i] = (*it).first;
   }
   loadWallpapers(paths);
+}
+
+std::string Configuration::getResourcePath() {
+  try {
+    std::filesystem::path exe_path = std::filesystem::read_symlink("/proc/self/exe");
+    if (exe_path.parent_path() == "/usr/bin") {
+      return "/usr/share/wallflower/";
+    }
+  } catch (const std::filesystem::filesystem_error& e) {
+    Logger::logMsg(LogLabel::FAIL, "Unable to get resource path. Using relative directory \"./resources/\" as default.");
+  }
+  return "./resources/";
 }
 
 std::vector<std::string> Configuration::getImagesFromDirectories(std::vector<std::string> paths) {

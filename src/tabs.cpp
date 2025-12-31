@@ -4,8 +4,9 @@ Tabs::Tabs(TabType initType, std::shared_ptr<Wallpapers> wp, std::shared_ptr<Set
   currentTab = initType;
   this->wp = wp;
   this->settingsPtr = settingsPtr;
-  settingsIcon = LoadTexture("resources/icons/settings-icon.png");
-  galleryIcon = LoadTexture("resources/icons/wallpaper-icon.png");
+  std::string resourcePath = settingsPtr->configuration->getResourcePath();
+  settingsIcon = LoadTexture((resourcePath + "icons/settings-icon.png").c_str());
+  galleryIcon = LoadTexture((resourcePath + "icons/wallpaper-icon.png").c_str());
 }
 
 Tabs::~Tabs() {

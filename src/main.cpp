@@ -55,17 +55,19 @@ int main() {
   Clay_Initialize(arena, (Clay_Dimensions){screenWidth, screenHeight},
                   (Clay_ErrorHandler){HandleClayErrors});
 
+  std::shared_ptr<Configuration> configuration = std::make_shared<Configuration>();
+
   // init fonts
-  Font fontMontserratBold = LoadFont("resources/fonts/Montserrat-Bold.ttf");
-  Font fontMontserratSemiBold = LoadFont("resources/fonts/Montserrat-SemiBold.ttf");
+  std::string resourcePath = configuration->getResourcePath();
+  Logger::logMsg(LogLabel::DEBUG, "Using resource path: " + resourcePath);
+  Font fontMontserratBold = LoadFont((resourcePath + "fonts/Montserrat-Bold.ttf").c_str());
+  Font fontMontserratSemiBold = LoadFont((resourcePath + "fonts/Montserrat-SemiBold.ttf").c_str());
   SetTextureFilter(fontMontserratSemiBold.texture, TEXTURE_FILTER_BILINEAR);
   SetTextureFilter(fontMontserratBold.texture, TEXTURE_FILTER_BILINEAR);
 
   Clay_SetMeasureTextFunction(Raylib_MeasureText, &fontMontserratSemiBold);
 
   Logger::logMsg(LogLabel::DEBUG, "Initializing program objects");
-
-  std::shared_ptr<Configuration> configuration = std::make_shared<Configuration>();
 
   std::shared_ptr<HyprpaperParser> hyprparser = std::make_shared<HyprpaperParser>(configuration);
   hyprparser->parseFile();
