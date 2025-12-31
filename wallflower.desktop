@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=Wallflower
+Exec=/usr/bin/wallflower
+Icon=wallflower
+Type=Application
+Categories=Graphics;

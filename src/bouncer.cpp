@@ -3,7 +3,6 @@
 
 #include "bouncer.hpp"
 #include "logger.hpp"
-#include "utils.hpp"
 #include <algorithm>
 #include <filesystem>
 #include <fstream>
@@ -18,14 +17,10 @@
  * Hyprland is running
  * Hyprpaper is running
  * Hyprpaper IPC is enabled
- * Hyprland/Hyprpaper version is supported (warning if not)
  * zenity can run
  */
 
-std::string Bouncer::currentVersion = getHyprpaperVersion();
-
 Bouncer::Bouncer() {
-  isHyprpaperVersionSupported();
   if (!(isHyprlandRunning() && isHyprpaperRunning() &&
         isHyprpaperIpcEnabled() && doesZenityRun())) {
     exit(1);
@@ -64,16 +59,6 @@ bool Bouncer::isProcessRunning(const std::string &processName) {
     }
   }
   return false;
-}
-
-std::string Bouncer::getHyprpaperVersion() {
-  // TODO: add additional commands based on distro/package manager
-  std::vector<std::string> res = Utils::split(executeCommand("pacman -Q hyprpaper"), ' ');
-  if (res.size() != 2) {
-    Logger::logMsg(LogLabel::ERROR, "Error getting hyprpaper version. Output does not match Hypaper {version} format.");
-    return "";
-  }
-  return res.at(1);
 }
 
 bool Bouncer::isHyprlandRunning() {
@@ -123,38 +108,6 @@ bool Bouncer::isHyprpaperIpcEnabled() {
   }
   Logger::logMsg(LogLabel::OK, "Hyprpaper IPC enabled.");
   return true;
-}
-
-bool Bouncer::isHyprpaperVersionSupported() {
-  for (std::string_view version : supportedHyprpaperVersions) {
-    if (Bouncer::currentVersion == version) {
-      Logger::logMsg(LogLabel::OK, "Hyprpaper version supported.");
-      return true;
-    }
-  }
-  std::string joinedVersions = [](const auto &views) -> std::string {
-    if (views.empty())
-      return "";
-    size_t total_size = 0;
-    for (auto v : views)
-      total_size += v.size();
-    total_size += (views.size() - 1);
-    std::string result;
-    result.reserve(total_size);
-    for (size_t i = 0; i < views.size(); ++i) {
-      result += views[i];
-      if (i < views.size() - 1) {
-        result += ",";
-      }
-    }
-    return result;
-  }(supportedHyprpaperVersions);
-  Logger::logMsg(LogLabel::WARNING,
-                 "Your Hyprpaper version (" + Bouncer::currentVersion +
-                     ") is not explicitly supported. You may encounter weird "
-                     "issues or bugs. Please use a supported version: " +
-                     joinedVersions);
-  return false;
 }
 
 bool Bouncer::doesZenityRun() {
