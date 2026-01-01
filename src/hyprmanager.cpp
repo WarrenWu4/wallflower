@@ -57,6 +57,7 @@ HyprpaperParser::HyprpaperParser(std::shared_ptr<Configuration> configuration) {
                                       .ipc = true};
   activeWallpaper = "";
   parseFile();
+  printHyprpaperConfig();
 }
 
 void HyprpaperParser::runHyprCommand(std::string display,
@@ -155,24 +156,14 @@ void HyprpaperParser::writeConfigToFile() {
 
   // update existing config file
   std::ofstream file(hyprpaperConfigPath);
-  file << "preload = " << activeWallpaper << "\n";
-  WallpaperData wp = configuration->wallpapers.at(activeWallpaper);
-  file << "wallpaper = " << wp.monitor << ", ";
-  switch (wp.fitMode) {
-  case FitMode::COVER:
-    file << "";
-    break;
-  case FitMode::CONTAIN:
-    file << "contain:";
-    break;
-  case FitMode::TILE:
-    file << "tile:";
-    break;
-  case FitMode::FILL:
-    file << "fill:";
-    break;
+  for (size_t i = 0; i < hyprpaperConfig.wallpapers.size(); i++) {
+    WallpaperData wd = hyprpaperConfig.wallpapers.at(i);
+    file << "wallpaper {\n";
+    file << "\tmonitor = " << wd.monitor << "\n";
+    file << "\tpath = " << wd.path << "\n";
+    file << "\tfit_mode = " << fitModeToString.at(wd.fitMode) << "\n";
+    file << "{\n";
   }
-  file << wp.path << "\n";
   file << "splash = " << (hyprpaperConfig.splash ? "true" : "false") << "\n";
   file << "splash_offset = " << hyprpaperConfig.splash_offset << "\n";
   file << "splash_opacity = " << hyprpaperConfig.splash_opacity << "\n";
