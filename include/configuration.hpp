@@ -2,7 +2,6 @@
 #pragma once
 
 #include "raylib.h"
-#include <filesystem>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>

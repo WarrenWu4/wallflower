@@ -70,7 +70,6 @@ int main() {
   Logger::logMsg(LogLabel::DEBUG, "Initializing program objects");
 
   std::shared_ptr<HyprpaperParser> hyprparser = std::make_shared<HyprpaperParser>(configuration);
-  hyprparser->parseFile();
 
   std::shared_ptr<Settings> settings = std::make_shared<Settings>(configuration);
 

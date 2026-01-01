@@ -21,10 +21,10 @@
  */
 
 Bouncer::Bouncer() {
-  if (!(isHyprlandRunning() && isHyprpaperRunning() &&
-        isHyprpaperIpcEnabled() && doesZenityRun())) {
-    exit(1);
-  }
+  // if (!(isHyprlandRunning() && isHyprpaperRunning() &&
+  //       isHyprpaperIpcEnabled() && doesZenityRun())) {
+  //   exit(1);
+  // }
 }
 
 std::string Bouncer::executeCommand(const char *cmd) {
