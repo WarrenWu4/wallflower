@@ -10,6 +10,7 @@ depends=('hyprland' 'hyprpaper' 'zenity' 'libx11' 'mesa')
 makedepends=('git' 'gcc' 'make')
 source=("git+https://github.com/WarrenWu4/wallflower.git")
 sha256sums=('SKIP')
+options=('!debug' '!strip')
 
 build() {
     cd "$pkgname"
@@ -20,6 +21,7 @@ package() {
     cd "$pkgname"
     
     # install binary to /usr/bin
+    mkdir -p "$pkgdir/usr/bin/"
     install -Dm755 build/main "$pkgdir/usr/bin/$pkgname"
 
     # move resources to /usr/share/wallflower
@@ -27,8 +29,10 @@ package() {
     cp -r resources/* "$pkgdir/usr/share/$pkgname/"
 
     # add desktop entry in /usr/share/applications
+    mkdir -p "$pkgdir/usr/share/applications/"
     cp wallflower.desktop "$pkgdir/usr/share/applications/"
 
     # set app icon in /usr/share/icons/hicolor/...
+    mkdir -p "$pkgdir/usr/share/icons/hicolor/64x64/"
     cp wallflower.png "$pkgdir/usr/share/icons/hicolor/64x64/"
 }
