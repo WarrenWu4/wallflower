@@ -1,6 +1,7 @@
 #include "bouncer.hpp"
 #include "hyprmanager.hpp"
 #include "raylib.h"
+#include "utils.hpp"
 #include <exception>
 #define CLAY_IMPLEMENTATION
 #include "clay.h"
@@ -34,7 +35,7 @@ void handleDropdownFitMode(std::shared_ptr<Configuration> configuration, std::sh
     configuration->wallpapers[pathStr].fitMode = static_cast<FitMode>(fitMode);
     Logger::logMsg(LogLabel::OK, "Updated fit mode to " + modeToStringUpper.at(static_cast<int>(fitMode)) + " for image " + pathStr);
     dropdownFitMode->closeDropdown();
-  } catch (std::exception e) {
+  } catch (const std::exception& e) {
     Logger::logMsg(LogLabel::FAIL, "Failed to updated fit mode: " + std::string(e.what()));
   }
 }
@@ -58,10 +59,9 @@ int main() {
   std::shared_ptr<Configuration> configuration = std::make_shared<Configuration>();
 
   // init fonts
-  std::string resourcePath = configuration->getResourcePath();
-  Logger::logMsg(LogLabel::DEBUG, "Using resource path: " + resourcePath);
-  Font fontMontserratBold = LoadFont((resourcePath + "fonts/Montserrat-Bold.ttf").c_str());
-  Font fontMontserratSemiBold = LoadFont((resourcePath + "fonts/Montserrat-SemiBold.ttf").c_str());
+  std::filesystem::path resourcePath = Utils::getResourcePath();
+  Font fontMontserratBold = LoadFont((resourcePath.generic_string() + "fonts/Montserrat-Bold.ttf").c_str());
+  Font fontMontserratSemiBold = LoadFont((resourcePath.generic_string() + "fonts/Montserrat-SemiBold.ttf").c_str());
   SetTextureFilter(fontMontserratSemiBold.texture, TEXTURE_FILTER_BILINEAR);
   SetTextureFilter(fontMontserratBold.texture, TEXTURE_FILTER_BILINEAR);
 

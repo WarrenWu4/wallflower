@@ -1,9 +1,10 @@
 #include "settings.hpp"
+#include "utils.hpp"
 
 Settings::Settings(std::shared_ptr<Configuration> configuration) {
   this->configuration = configuration;
-  std::string resourcePath = configuration->getResourcePath();
-  folderIcon = LoadTexture((resourcePath+"icons/folder-icon.png").c_str());
+  std::filesystem::path resourcePath = Utils::getResourcePath();
+  folderIcon = LoadTexture((resourcePath.generic_string() + "icons/folder-icon.png").c_str());
   defaultMode = FitMode::COVER;
 }
 

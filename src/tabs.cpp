@@ -1,12 +1,13 @@
 #include "tabs.hpp"
+#include "utils.hpp"
 
 Tabs::Tabs(TabType initType, std::shared_ptr<Wallpapers> wp, std::shared_ptr<Settings> settingsPtr) {
   currentTab = initType;
   this->wp = wp;
   this->settingsPtr = settingsPtr;
-  std::string resourcePath = settingsPtr->configuration->getResourcePath();
-  settingsIcon = LoadTexture((resourcePath + "icons/settings-icon.png").c_str());
-  galleryIcon = LoadTexture((resourcePath + "icons/wallpaper-icon.png").c_str());
+  std::filesystem::path resourcePath = Utils::getResourcePath();
+  settingsIcon = LoadTexture((resourcePath.generic_string() + "icons/settings-icon.png").c_str());
+  galleryIcon = LoadTexture((resourcePath.generic_string() + "icons/wallpaper-icon.png").c_str());
 }
 
 Tabs::~Tabs() {
