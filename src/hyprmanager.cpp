@@ -162,7 +162,7 @@ void HyprpaperParser::writeConfigToFile() {
     file << "\tmonitor = " << wd.monitor << "\n";
     file << "\tpath = " << wd.path << "\n";
     file << "\tfit_mode = " << fitModeToString.at(wd.fitMode) << "\n";
-    file << "{\n";
+    file << "}\n";
   }
   file << "splash = " << (hyprpaperConfig.splash ? "true" : "false") << "\n";
   file << "splash_offset = " << hyprpaperConfig.splash_offset << "\n";
