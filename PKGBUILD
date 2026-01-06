@@ -14,7 +14,7 @@ options=('!debug' '!strip')
 
 build() {
     cd "$pkgname"
-    make
+    make prod
 }
 
 package() {

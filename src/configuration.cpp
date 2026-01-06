@@ -1,27 +1,13 @@
 #include "configuration.hpp"
 #include "logger.hpp"
 #include "raylib.h"
+#include "utils.hpp"
 #include <algorithm>
 #include <filesystem>
 #include <fstream>
 
 Configuration::Configuration() {
-  configurationPath = getResourcePath()+"configuration.txt";
-
-  // create configuration file & path if it does not exist
-  std::filesystem::path p(configurationPath);
-  if (!std::filesystem::exists(p)) {
-    try {
-      // INFO: configuratin.txt will always be file name and is always 17 characters +1 (for the extra /)
-      Logger::logMsg(LogLabel::DEBUG, "Configuration path does not exist. Creating path and file.");
-      std::filesystem::create_directories(configurationPath.substr(0, configurationPath.size()-18));
-      std::ofstream file(configurationPath);
-      file.close();
-      Logger::logMsg(LogLabel::OK, "Configuration file created.");
-    } catch (const std::exception& e) {
-      Logger::logMsg(LogLabel::FAIL, "Unknown error: " + std::string(e.what()));
-    }
-  }
+  saveFile = Utils::getSaveFilePath(); 
 
   parseConfiguration();
   scanDirectories();
@@ -34,18 +20,6 @@ Configuration::Configuration() {
     paths[i] = (*it).first;
   }
   loadWallpapers(paths);
-}
-
-std::string Configuration::getResourcePath() {
-  try {
-    std::filesystem::path exe_path = std::filesystem::read_symlink("/proc/self/exe");
-    if (exe_path.parent_path() == "/usr/bin") {
-      return "/usr/share/wallflower/";
-    }
-  } catch (const std::filesystem::filesystem_error& e) {
-    Logger::logMsg(LogLabel::FAIL, "Unable to get resource path. Using relative directory \"./resources/\" as default.");
-  }
-  return "./resources/";
 }
 
 std::vector<std::string> Configuration::getImagesFromDirectories(std::vector<std::string> paths) {
@@ -107,9 +81,9 @@ Configuration::~Configuration() {
 }
 
 void Configuration::parseConfiguration() {
-  std::ifstream file(this->configurationPath);
+  std::ifstream file(this->saveFile);
   if (!file.is_open()) {
-    Logger::logMsg(LogLabel::ERROR, "Unable to open configuration file " + this->configurationPath);
+    Logger::logMsg(LogLabel::ERROR, "Unable to open configuration file " + this->saveFile.string());
     return;
   }
   std::string line;
@@ -201,9 +175,9 @@ void Configuration::unloadWallpapers(std::vector<std::string> paths) {
 }
 
 void Configuration::updateConfiguration() {
-  std::ofstream file(this->configurationPath);
+  std::ofstream file(this->saveFile);
   if (!file.is_open()) {
-    Logger::logMsg(LogLabel::ERROR, "Unable to open configuration file " + this->configurationPath);
+    Logger::logMsg(LogLabel::ERROR, "Unable to open configuration file " + this->saveFile.string());
     return;
   }
   for (auto it = directories.begin(); it != directories.end(); it++) {

@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+#include <filesystem>
 
 enum class FitMode { COVER, CONTAIN, TILE, FILL };
 const std::unordered_map<FitMode, std::string> fitModeToString({
@@ -36,15 +37,13 @@ struct WallpaperImage {
 
 class Configuration {
 public:
-  std::string configurationPath;
+  std::filesystem::path saveFile;
   std::unordered_set<std::string> directories;
   std::unordered_map<std::string, WallpaperData> wallpapers;
   std::unordered_map<std::string, WallpaperImage> wallpaperImages;
 
   Configuration();
   ~Configuration();
-
-  std::string getResourcePath();
 
   std::vector<std::string>
   getImagesFromDirectories(std::vector<std::string> paths);
