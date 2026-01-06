@@ -22,7 +22,7 @@ package() {
     
     # install binary to /usr/bin
     mkdir -p "$pkgdir/usr/bin/"
-    install -Dm755 build/main "$pkgdir/usr/bin/$pkgname"
+    install -Dm755 build/prod/main "$pkgdir/usr/bin/$pkgname"
 
     # move resources to /usr/share/wallflower
     mkdir -p "$pkgdir/usr/share/$pkgname/"
