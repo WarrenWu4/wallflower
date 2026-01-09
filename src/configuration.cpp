@@ -1,100 +1,138 @@
 #include "configuration.hpp"
 #include "logger.hpp"
-#include "raylib.h"
 #include "utils.hpp"
-#include <algorithm>
+#include <cassert>
 #include <filesystem>
 #include <fstream>
 
+WallflowerConfig Configuration::getDefaultConfig() {
+  return (WallflowerConfig){
+      .wallpapers = {},
+      .splash = true,
+      .splash_offset = 20,
+      .splash_opacity = 0.8,
+      .ipc = true,
+      .preferences = {},
+      .directories = {},
+  };
+}
+
+void Configuration::printWallflowerConfig() {
+  std::string msg = "";
+  for (size_t i = 0; i < config.wallpapers.size(); i++) {
+    WallpaperData wd = config.wallpapers.at(i);
+    msg += "wallpaper = " + wd.monitor + "," + wd.path + "," +
+           fitModeToString.at(wd.fitMode) + "\n";
+  }
+  msg += "splash = " + std::string(config.splash ? "true" : "false") + "\n";
+  msg += "splash_offset = " + std::to_string(config.splash_offset) + "\n";
+  msg += "splash_opacity= " + std::to_string(config.splash_opacity) + "\n";
+  msg += "ipc = " + std::string(config.splash ? "true" : "false") + "\n\n";
+  for (auto it = config.preferences.begin(); it != config.preferences.end();
+       it++) {
+    WallpaperData wd = (*it).second;
+    msg += "wallpaper_preference = " + wd.monitor + "," + wd.path + "," +
+           fitModeToString.at(wd.fitMode) + "\n";
+  }
+  for (auto it = config.directories.begin(); it != config.directories.end();
+       it++) {
+    msg += "directory = " + *it;
+  }
+  Logger::logMsg(LogLabel::DEBUG, "Wallflower Config\n" + msg);
+}
+
 Configuration::Configuration() {
-  saveFile = Utils::getSaveFilePath(); 
+  config = getDefaultConfig();
+  hyprpaperConfigPath = std::filesystem::path(std::string(getenv("HOME")) +
+                                              "/.config/hypr/hyprpaper.conf");
+  saveFilePath = Utils::getSaveFilePath();
 
-  parseConfiguration();
-  scanDirectories();
-
-  // FIX: current naive loading could have problems with large galleries
-  // in the future implement lazy loading and remove this naive load all images logic
-  std::vector<std::string> paths(wallpapers.size());
-  int i = 0;
-  for (auto it = wallpapers.begin(); it != wallpapers.end(); it++, i++) {
-    paths[i] = (*it).first;
+  if (std::filesystem::exists(hyprpaperConfigPath)) {
+    readHyprpaperConf();
+    Logger::logMsg(LogLabel::OK, "Parsing hyprpaper.conf successful.");
+  } else {
+    Logger::logMsg(
+        LogLabel::DEBUG,
+        "No hyprpaper.conf file found. Skipping hyprpaper.conf parsing step.");
   }
-  loadWallpapers(paths);
-}
 
-std::vector<std::string> Configuration::getImagesFromDirectories(std::vector<std::string> paths) {
-  std::vector<std::string> res;
-  for (const std::string& directory : paths) {
-    std::filesystem::path p(directory);
-    if (std::filesystem::exists(p) && std::filesystem::is_directory(p)) {
-      for (const auto& entry : std::filesystem::directory_iterator(p)) {
-        if (entry.is_regular_file()) {
-          std::string ext = entry.path().extension().string();
-          std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
-          if (ext == ".png" || ext == ".jpg" || ext == ".jpeg") {
-            res.push_back(entry.path());
-          }
-        }
-      }
-    } else {
-      Logger::logMsg(LogLabel::FAIL, "Path is not a directory or does not exist.");
-    }
+  if (std::filesystem::exists(saveFilePath)) {
+    readWallflowerSave();
+    Logger::logMsg(LogLabel::OK, "Parsing wallflower.save successful.");
+  } else {
+    Logger::logMsg(LogLabel::DEBUG, "No wallflower.save file found. Skipping "
+                                    "wallflower.save parsing step.");
   }
-  return res;
-}
 
-void Configuration::addDirectory(std::string path) {
-  // add found images to wallpaper only if it is a new image
-  // load image texture via loadWallpapers()
-  // update directories set
-  // INFO: no need to check if path exists or if it is a directory since getImagesFromDirectories() already handles it and returns an empty vector if not valid
-  std::vector<std::string> images = getImagesFromDirectories({path});
-  for (const std::string& image : images) {
-    if (wallpapers.find(image) == wallpapers.end()) {
-      wallpapers[image] = (WallpaperData) {
-        .path = image,
-        .fitMode = FitMode::COVER,
-        .monitor = ""
-      };
-    }
-  }
-  loadWallpapers(images);
-  directories.insert(path);
-}
-
-void Configuration::removeDirectory(std::string path) {
-  // remove images from wallpapers and wallpaperImages 
-  // update directories set
-  std::vector<std::string> images = getImagesFromDirectories({path});
-  for (const std::string& image : images) {
-    wallpapers.erase(image);
-  }
-  unloadWallpapers(images);
-  directories.erase(path);
+  printWallflowerConfig();
 }
 
 Configuration::~Configuration() {
-  updateConfiguration();
-  for (auto it = wallpaperImages.begin(); it != wallpaperImages.end(); it++) {
-    UnloadTexture(it->second.image);
-  }
+  writeHyprpaperConf();
+  writeWallflowerSave();
 }
 
-void Configuration::parseConfiguration() {
-  std::ifstream file(this->saveFile);
-  if (!file.is_open()) {
-    Logger::logMsg(LogLabel::ERROR, "Unable to open configuration file " + this->saveFile.string());
-    return;
+void Configuration::updateWallpaper(std::string display, std::string path,
+                                    FitMode mode) {
+  WallpaperData wd =
+      (WallpaperData){.path = path, .fitMode = mode, .monitor = display};
+  display += ",";
+  path += ",";
+  std::string wallpaperCmd = "hyprctl hyprpaper wallpaper \"" + display + path +
+                             fitModeToString.at(mode) + "\"";
+  Logger::logMsg(LogLabel::DEBUG, "Running wallpaper command: " + wallpaperCmd);
+  std::system(wallpaperCmd.c_str());
+  // TODO: update to support multiple monitors in the future
+  this->config.wallpapers[0] = wd;
+  this->writeHyprpaperConf();
+}
+
+void Configuration::readHyprpaperConf() {
+  HyprpaperConfParser(hyprpaperConfigPath.string(), config);
+}
+
+void Configuration::writeHyprpaperConf() {
+  // create .bak file for old config
+  std::ofstream backupFile(hyprpaperConfigPath.string() + ".bak");
+  std::ifstream originalFile(hyprpaperConfigPath);
+  if (!originalFile.is_open()) {
+    throw std::runtime_error("Could not open file: " +
+                             hyprpaperConfigPath.string());
   }
+  backupFile << originalFile.rdbuf();
+  backupFile.close();
+  originalFile.close();
+
+  // update existing config file
+  std::ofstream file(hyprpaperConfigPath);
+  for (size_t i = 0; i < config.wallpapers.size(); i++) {
+    WallpaperData wd = config.wallpapers.at(i);
+    file << "wallpaper {\n";
+    file << "\tmonitor = " << wd.monitor << "\n";
+    file << "\tpath = " << wd.path << "\n";
+    file << "\tfit_mode = " << fitModeToString.at(wd.fitMode) << "\n";
+    file << "}\n";
+  }
+  file << "splash = " << (config.splash ? "true" : "false") << "\n";
+  file << "splash_offset = " << config.splash_offset << "\n";
+  file << "splash_opacity = " << config.splash_opacity << "\n";
+  file << "ipc = " << (config.ipc ? "true" : "false") << "\n";
+  file.close();
+}
+
+void Configuration::readWallflowerSave() {
+  std::ifstream f(this->saveFilePath);
+  assert(f.is_open() &&
+         "readWallflowerSave() expects wallflower.save file to exist.");
   std::string line;
   bool reachedSeparator = false;
-  while (std::getline(file, line)) {
+  while (std::getline(f, line)) {
     if (line == "") {
       reachedSeparator = true;
       continue;
     }
     if (!reachedSeparator) {
-      this->directories.insert(line);
+      config.directories.insert(line);
     } else {
       std::stringstream ss(line);
       std::string key, value;
@@ -103,109 +141,194 @@ void Configuration::parseConfiguration() {
         // TODO: add parsing support for monitors
         // just use empty string as default for now
         std::filesystem::path p(key);
-        if (!std::filesystem::exists(p)) { continue; }
-        wallpapers[key] = (WallpaperData) {
-          .path = key,
-          .fitMode = stringToFitMode.at(value),
-          .monitor = ""
-        };
+        if (!std::filesystem::exists(p)) {
+          continue;
+        }
+        config.preferences[key] = (WallpaperData){
+            .path = key, .fitMode = stringToFitMode.at(value), .monitor = ""};
       }
     }
   }
-  file.close();
-  Logger::logMsg(LogLabel::OK, "Configuration parsed");
+  f.close();
 }
 
-void Configuration::scanDirectories() {
-  for (auto it = directories.begin(); it != directories.end(); it++) {
-    const std::string& directory = *it;
-    std::filesystem::path p(directory);
-    if (std::filesystem::exists(p) && std::filesystem::is_directory(p)) {
-      for (const auto& entry : std::filesystem::directory_iterator(p)) {
-        if (entry.is_regular_file()) {
-          std::string ext = entry.path().extension().string();
-          std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
-          if ((ext == ".png" || ext == ".jpg" || ext == ".jpeg") && wallpapers.find(entry.path()) == wallpapers.end()) {
-            wallpapers[entry.path()] = (WallpaperData) {
-              .path = entry.path(),
-              .fitMode = FitMode::COVER,
-              .monitor = ""
-            };
+void Configuration::writeWallflowerSave() {
+  std::ofstream f(saveFilePath);
+  assert(f.is_open() &&
+         "writeWallflowerSave(): unable to open configuration file");
+  for (auto it = config.directories.begin(); it != config.directories.end();
+       it++) {
+    f << *it << "\n";
+  }
+  f << "\n";
+  // TODO: add format for adding monitors
+  for (auto it = config.preferences.begin(); it != config.preferences.end(); it++) {
+    WallpaperData wd = (*it).second;
+    f << wd.path << "," << fitModeToString.at(wd.fitMode) << "\n";
+  }
+  f.close();
+}
+
+const WallflowerConfig &Configuration::getConfig() { return config; }
+
+void Configuration::addPreferences(std::vector<WallpaperData> wds) {
+  for (const WallpaperData& wd: wds) {
+    std::filesystem::path p(wd.path);
+    if (std::filesystem::exists(p)) {
+      config.preferences[wd.path] = wd;
+    }
+  }
+  for (auto& callback : callbackAddPreference) {
+    callback();
+  }
+}
+
+void Configuration::removePreferences(std::vector<WallpaperData> wds) {
+  for (const WallpaperData& wd : wds) {
+    config.preferences.erase(wd.path);
+  }
+  for (auto &callback : callbackRemovePreference) {
+    callback();
+  }
+}
+
+void Configuration::addDirectories(std::vector<std::string> _directories) {
+  for (const std::string &dir : _directories) {
+    std::filesystem::path p(dir);
+    if (config.directories.find(dir) == config.directories.end() &&
+        std::filesystem::exists(dir)) {
+      config.directories.insert(dir);
+    }
+  }
+  for (auto &callback : callbackAddDirectory) {
+    callback();
+  }
+}
+
+void Configuration::removeDirectories(std::vector<std::string> _directories) {
+  for (const std::string &dir : _directories) {
+    config.directories.erase(dir);
+  }
+  for (auto &callback : callbackRemoveDirectory) {
+    callback();
+  }
+}
+
+HyprpaperConfParser::HyprpaperConfParser(std::string_view path,
+                                         WallflowerConfig &config) {
+  std::ifstream f(path.data());
+  if (!f.is_open()) {
+    throw std::runtime_error("Could not open file: " + std::string(path));
+  }
+  std::string text((std::istreambuf_iterator<char>(f)),
+                   std::istreambuf_iterator<char>());
+  f.close();
+  std::vector<Token> tokens = lexer(text);
+  parse(tokens, config);
+}
+
+std::vector<HyprpaperConfParser::Token>
+HyprpaperConfParser::lexer(std::string_view text) {
+  std::vector<Token> tokens;
+  bool isComment = false;
+  bool isKey = true;
+  std::string value = "";
+  for (size_t i = 0; i < text.size(); i++) {
+    char c = text.at(i);
+    isComment = (c == '#' || (isComment && c != '\n'));
+    if (c == ' ' || c == '\t' || isComment) {
+      continue;
+    }
+    if (c == '{') {
+      tokens.push_back((Token){TokenType::LBRACE, "{"});
+      value = "";
+    } else if (c == '}') {
+      tokens.push_back((Token){TokenType::RBRACE, "}"});
+      value = "";
+    } else if (c == '=') {
+      if (value != "") {
+        TokenType t = (isKey) ? TokenType::KEYWORD : TokenType::STRING;
+        tokens.push_back((Token){t, value});
+      }
+      tokens.push_back((Token){TokenType::EQUALS, "="});
+      isKey = false;
+      value = "";
+    } else if (c == '\n') {
+      if (value != "") {
+        TokenType t = (isKey) ? TokenType::KEYWORD : TokenType::STRING;
+        tokens.push_back((Token){t, value});
+      }
+      tokens.push_back((Token){TokenType::NEWLINE, "\n"});
+      isKey = true;
+      value = "";
+    } else {
+      value += c;
+    }
+  }
+  return tokens;
+}
+
+void HyprpaperConfParser::parse(const std::vector<Token> &tokens,
+                                WallflowerConfig &config) {
+  size_t pos = 0;
+  while (pos < tokens.size()) {
+    // handle wallpaper object
+    if (tokens.at(pos).tokenType == TokenType::LBRACE) {
+      WallpaperData wd = (WallpaperData){
+          .path = "",
+          .fitMode = FitMode::COVER,
+          .monitor = "",
+      };
+      while (tokens.at(pos).tokenType != TokenType::RBRACE) {
+        if (tokens.at(pos).tokenType == TokenType::KEYWORD) {
+          if (tokens.at(pos).value == "path") {
+            if (!Utils::isValidHyprPath(tokens.at(pos + 2).value)) {
+              throw std::runtime_error("Invalid path found in hyprpaper.conf");
+            }
+            // INFO: convert everything to absolute path
+            if (tokens.at(pos + 2).value.at(0) == '~') {
+              wd.path = std::string(getenv("HOME")) + tokens.at(pos + 2).value.substr(1);
+            } else {
+              wd.path = tokens.at(pos + 2).value;
+            }
+          } else if (tokens.at(pos).value == "monitor") {
+            if (tokens.at(pos + 2).value == "\n") {
+              wd.monitor = "";
+            } else {
+              wd.monitor = tokens.at(pos + 2).value;
+            }
+          } else if (tokens.at(pos).value == "fit_mode") {
+            if (tokens.at(pos + 2).value == "\n") {
+              wd.fitMode = FitMode::COVER;
+            } else {
+              wd.fitMode = stringToFitMode.at(tokens.at(pos + 2).value);
+            }
+          } else {
+            throw std::runtime_error(
+                "Error parsing hyprpaper.conf: Uknown field for wallpaper " +
+                tokens.at(pos).value);
           }
         }
+        pos++;
       }
-    } else {
-      Logger::logMsg(LogLabel::FAIL, "Path is not a directory or does not exist. Removing the path from configuration.");
-      directories.erase(directory);
+      config.wallpapers.push_back(wd);
     }
-  }
-  Logger::logMsg(LogLabel::OK, "Directories scanned");
-}
 
-void Configuration::loadWallpapers(std::vector<std::string> paths) {
-  for (const std::string& path : paths) {
-    std::filesystem::path p(path);
-    if (!std::filesystem::exists(p)) {
-      Logger::logMsg(LogLabel::FAIL, "Wallpaper path \"" + path + "\" does not exist");
-      continue;
+    // handle all other assignments
+    if (tokens.at(pos).tokenType == TokenType::KEYWORD) {
+      if (tokens.at(pos).value == "splash") {
+        config.splash = (tokens.at(pos + 2).value == "true");
+      } else if (tokens.at(pos).value == "splash_offset") {
+        config.splash_offset = std::stoi(tokens.at(pos + 2).value);
+      } else if (tokens.at(pos).value == "splash_opacity") {
+        config.splash_opacity = std::stof(tokens.at(pos + 2).value);
+      } else if (tokens.at(pos).value == "ipc") {
+        config.ipc = (tokens.at(pos + 2).value == "true");
+      } else {
+        throw std::runtime_error("Error parsing hyprpaper.conf: Uknown field " +
+                                 tokens.at(pos).value);
+      }
     }
-    if (wallpaperImages.find(path) != wallpaperImages.end()) {
-      Logger::logMsg(LogLabel::FAIL, "Wallpaper already exists in memory \"" + path);
-      continue;
-    }
-    Texture2D image = LoadTexture(path.c_str());
-    float aspectRatio = static_cast<float>(image.width) / image.height;
-    wallpaperImages[path] = (WallpaperImage) {
-      .image = image,
-      .aspectRatio = aspectRatio
-    };
+    pos++;
   }
-}
-
-void Configuration::unloadWallpapers(std::vector<std::string> paths) {
-  for (const std::string& path : paths) {
-    if (wallpaperImages.find(path) == wallpaperImages.end()) {
-      Logger::logMsg(LogLabel::FAIL, "Unable to unload \"" + path + "\" as it is not found");
-      continue;
-    }
-    UnloadTexture(wallpaperImages.at(path).image);
-    wallpaperImages.erase(path);
-    Logger::logMsg(LogLabel::OK, "Unloaded \"" + path + "\" from memory");
-  }
-}
-
-void Configuration::updateConfiguration() {
-  std::ofstream file(this->saveFile);
-  if (!file.is_open()) {
-    Logger::logMsg(LogLabel::ERROR, "Unable to open configuration file " + this->saveFile.string());
-    return;
-  }
-  for (auto it = directories.begin(); it != directories.end(); it++) {
-    std::string directory = *it;
-    file << directory << "\n";
-  }
-  file << "\n";
-  // TODO: add format for adding monitors
-  for (auto it = wallpapers.begin(); it != wallpapers.end(); it++) {
-    std::string path = (*it).second.path;
-    std::string fitMode = fitModeToString.at((*it).second.fitMode);
-    file << path << "," << fitMode << "\n";
-  }
-  file.close();
-  Logger::logMsg(LogLabel::OK, "Configuration updated");
-}
-
-void Configuration::addWallpapers(std::vector<WallpaperData> _wallpapers) {
-  // skip current wallpaper if it already exists
-  // load wallpapers as textures
-  std::vector<std::string> paths;
-  for (size_t i = 0; i < _wallpapers.size(); i++) {
-    WallpaperData wp = _wallpapers.at(i);
-    if (wallpapers.find(wp.path) == wallpapers.end()) {
-      wallpapers[wp.path] = wp;
-    }
-    paths.push_back(wp.path);
-  }
-  // INFO: loadWallpapers already checks that path is valid and doesn't already exist
-  loadWallpapers(paths);
 }

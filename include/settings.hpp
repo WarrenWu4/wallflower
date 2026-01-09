@@ -1,13 +1,9 @@
 #pragma once
 
 #include "clay.h"
-#include "colors.h"
 #include "configuration.hpp"
 #include "raylib.h"
-#include "hyprmanager.hpp"
 #include <string>
-#include <unordered_set>
-#include <iostream>
 #include <memory>
 
 class Settings {
