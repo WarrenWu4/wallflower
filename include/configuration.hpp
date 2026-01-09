@@ -1,12 +1,12 @@
 // custom configuration parser
 #pragma once
 
-#include "raylib.h"
+#include <filesystem>
+#include <functional>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
-#include <filesystem>
 
 enum class FitMode { COVER, CONTAIN, TILE, FILL };
 const std::unordered_map<FitMode, std::string> fitModeToString({
@@ -30,31 +30,116 @@ struct WallpaperData {
   std::string monitor;
 };
 
-struct WallpaperImage {
-  Texture2D image;
-  float aspectRatio;
+struct WallflowerConfig {
+  std::vector<WallpaperData> wallpapers;
+  bool splash;
+  int splash_offset;
+  float splash_opacity;
+  bool ipc;
+  std::unordered_map<std::string, WallpaperData> preferences;
+  std::unordered_set<std::string> directories;
 };
 
 class Configuration {
+private:
+  WallflowerConfig config;
+  std::filesystem::path hyprpaperConfigPath;
+  std::filesystem::path saveFilePath;
+
+  WallflowerConfig getDefaultConfig();
+  void printWallflowerConfig();
+
 public:
-  std::filesystem::path saveFile;
-  std::unordered_set<std::string> directories;
-  std::unordered_map<std::string, WallpaperData> wallpapers;
-  std::unordered_map<std::string, WallpaperImage> wallpaperImages;
+  std::vector<std::function<void()>> callbackAddPreference;
+  std::vector<std::function<void()>> callbackRemovePreference;
+  std::vector<std::function<void()>> callbackAddDirectory;
+  std::vector<std::function<void()>> callbackRemoveDirectory;
 
   Configuration();
   ~Configuration();
 
-  std::vector<std::string>
-  getImagesFromDirectories(std::vector<std::string> paths);
-  void addDirectory(std::string path);
-  void removeDirectory(std::string path);
+  /*
+   * update the user's current wallpaper by
+   * running hyprctl ipc under the hood
+   * updates app config and hyprpaper.conf
+   * with updated data
+   */
+  void updateWallpaper(std::string display, std::string path, FitMode mode);
 
-  void parseConfiguration();
-  void scanDirectories();
-  void loadWallpapers(std::vector<std::string> paths);
-  void unloadWallpapers(std::vector<std::string> paths);
-  void updateConfiguration();
+  /*
+   * parsers hyprpaper.conf and
+   * updates app config
+   */
+  void readHyprpaperConf();
 
-  void addWallpapers(std::vector<WallpaperData> wallpapers);
+  /*
+   * writes the current app
+   * config to hyprpaper.conf
+   */
+  void writeHyprpaperConf();
+
+  /*
+   * parses wallflower.save
+   * and updates app config
+   */
+  void readWallflowerSave();
+
+  /*
+   * writes the current app
+   * config to wallflower.save
+   */
+  void writeWallflowerSave();
+
+  /*
+   * returns a read-only
+   * version of app config
+   */
+  const WallflowerConfig &getConfig();
+
+  /*
+   * adds preferences to config
+   * checks if the path exists
+   */
+  void addPreferences(std::vector<WallpaperData> wds);
+
+  /*
+   * removes preferences from config 
+   */
+  void removePreferences(std::vector<WallpaperData> wds);
+
+  /*
+   * adds all new directories to the 
+   * app config directories parameter
+   * validates that all directory paths exists and no duplicates
+   */
+  void addDirectories(std::vector<std::string> _directories);
+
+  /*
+   * removes all directories passed in
+   * updates app config directories parameter
+   */
+  void removeDirectories(std::vector<std::string> _directories);
+};
+
+class HyprpaperConfParser {
+private:
+  enum class TokenType {
+    LBRACE,
+    RBRACE,
+    EQUALS,
+    NEWLINE,
+    KEYWORD,
+    STRING,
+  };
+
+  struct Token {
+    TokenType tokenType;
+    std::string value;
+  };
+
+  std::vector<Token> lexer(std::string_view text);
+  void parse(const std::vector<Token> &tokens, WallflowerConfig &config);
+
+public:
+  HyprpaperConfParser(std::string_view path, WallflowerConfig &config);
 };

@@ -1,5 +1,6 @@
 #include "settings.hpp"
 #include "utils.hpp"
+#include "colors.h"
 
 Settings::Settings(std::shared_ptr<Configuration> configuration) {
   this->configuration = configuration;
@@ -17,7 +18,7 @@ void Settings::folderPicker() {
     if (fgets(path, sizeof(path), fp) != NULL) {
       std::string s(path);
       s.erase(s.find_last_not_of("\n\r") + 1);
-      configuration->addDirectory(s);
+      configuration->addDirectories({s});
     }
     pclose(fp);
   }
@@ -64,12 +65,12 @@ void Settings::settingsContainerEl() {
           addFolderButtonEl();
       std::string dirToRemove = "";
       int id = 0;
-      for (auto it = this->configuration->directories.begin();
-           it != this->configuration->directories.end(); it++, id++) {
+      for (auto it = configuration->getConfig().directories.begin();
+           it != configuration->getConfig().directories.end(); it++, id++) {
         folderEl(id, *it, dirToRemove);
       }
       if (dirToRemove != "") {
-        configuration->removeDirectory(dirToRemove);
+        configuration->removeDirectories({dirToRemove});
       }
     }
   }

@@ -1,5 +1,4 @@
 #include "bouncer.hpp"
-#include "hyprmanager.hpp"
 #include "raylib.h"
 #include "utils.hpp"
 #include <exception>
@@ -15,7 +14,6 @@
 
 #include <memory>
 
-std::shared_ptr<Bouncer> bouncer = std::make_shared<Bouncer>();
 
 void HandleClayErrors(Clay_ErrorData errorData) {
   // See the Clay_ErrorData struct for more information
@@ -32,7 +30,15 @@ void handleDropdownFitMode(std::shared_ptr<Configuration> configuration, std::sh
   }
   try {
     std::string pathStr = *static_cast<std::string*>(path);
-    configuration->wallpapers[pathStr].fitMode = static_cast<FitMode>(fitMode);
+    std::string monitor = "";
+    if (configuration->getConfig().preferences.find(pathStr) != configuration->getConfig().preferences.end()) {
+      monitor = configuration->getConfig().preferences.find(pathStr)->second.monitor;
+    }
+    configuration->addPreferences({(WallpaperData) {
+      .path = pathStr,
+      .fitMode = fitMode,
+      .monitor = monitor
+    }});
     Logger::logMsg(LogLabel::OK, "Updated fit mode to " + modeToStringUpper.at(static_cast<int>(fitMode)) + " for image " + pathStr);
     dropdownFitMode->closeDropdown();
   } catch (const std::exception& e) {
@@ -56,20 +62,18 @@ int main() {
   Clay_Initialize(arena, (Clay_Dimensions){screenWidth, screenHeight},
                   (Clay_ErrorHandler){HandleClayErrors});
 
-  std::shared_ptr<Configuration> configuration = std::make_shared<Configuration>();
-
   // init fonts
   std::filesystem::path resourcePath = Utils::getResourcePath();
   Font fontMontserratBold = LoadFont((resourcePath.generic_string() + "fonts/Montserrat-Bold.ttf").c_str());
   Font fontMontserratSemiBold = LoadFont((resourcePath.generic_string() + "fonts/Montserrat-SemiBold.ttf").c_str());
   SetTextureFilter(fontMontserratSemiBold.texture, TEXTURE_FILTER_BILINEAR);
   SetTextureFilter(fontMontserratBold.texture, TEXTURE_FILTER_BILINEAR);
-
   Clay_SetMeasureTextFunction(Raylib_MeasureText, &fontMontserratSemiBold);
 
   Logger::logMsg(LogLabel::DEBUG, "Initializing program objects");
 
-  std::shared_ptr<HyprpaperParser> hyprparser = std::make_shared<HyprpaperParser>(configuration);
+  std::shared_ptr<Bouncer> bouncer = std::make_shared<Bouncer>();
+  std::shared_ptr<Configuration> configuration = std::make_shared<Configuration>();
 
   std::shared_ptr<Settings> settings = std::make_shared<Settings>(configuration);
 
@@ -85,10 +89,18 @@ int main() {
     }}
   );
   
-  std::shared_ptr<Wallpapers> wp = std::make_shared<Wallpapers>(configuration, hyprparser, settings, dropdownFitMode);
-  wp->activeWallpaper = hyprparser->activeWallpaper;
+  std::shared_ptr<Wallpapers> wp = std::make_shared<Wallpapers>(configuration, settings, dropdownFitMode);
 
   std::shared_ptr<Tabs> tabs = std::make_shared<Tabs>(TabType::Gallery, wp, settings);
+
+  // register callbacks
+  configuration->callbackAddDirectory.push_back([&]() {
+    wp->onAddDirectory();
+  });
+
+  configuration->callbackRemoveDirectory.push_back([&]() {
+    wp->onRemoveDirectory();
+  });
 
   Logger::logMsg(LogLabel::DEBUG, "Finished initializing program objects");
 

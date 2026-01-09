@@ -1,8 +1,8 @@
 #pragma once
 
+#include <filesystem>
 #include <string>
 #include <vector>
-#include <filesystem>
 
 namespace Utils {
 /**
@@ -26,4 +26,25 @@ const std::filesystem::path getResourcePath();
  * creates save file if not exists
  */
 const std::filesystem::path getSaveFilePath();
+
+/*
+ * Checks path is a valid hyprpaper wallpaper path
+ *
+ * In order to be valid the following has to be true:
+ * 1. file has to exist on the system
+ * 2. path must start with '~' or '/'
+ */
+bool isValidHyprPath(std::string_view imagePath);
+
+/*
+ * returns all uppercase version of string
+ */
+std::string toUpperString(std::string str);
+
+/*
+ * returns all valid images in given path
+ * currently supported image formats:
+ * PNG, JPEG 
+ */
+std::vector<std::string> getImagesInDirectory(std::string path);
 } // namespace Utils
