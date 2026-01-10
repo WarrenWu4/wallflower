@@ -1,3 +1,4 @@
 build
 .clangd
 resources/wallflower.save
+resources/wallflower.log

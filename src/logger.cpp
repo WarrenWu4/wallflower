@@ -1,5 +1,7 @@
 #include "logger.hpp"
 #include <chrono>
+#include <cstring>
+#include <filesystem>
 #include <iostream>
 
 namespace Logger {
@@ -39,6 +41,10 @@ std::string levelToString(LogLabel level) {
   }
 }
 
+#ifdef BUILD_MODE_PROD
+FileLogger fl = FileLogger();
+#endif
+
 std::string getTimestamp() {
   auto now = std::chrono::system_clock::now();
   auto in_time_t = std::chrono::system_clock::to_time_t(now);
@@ -57,8 +63,65 @@ void logMsg(LogLabel level, const std::string &msg,
   std::string src =
       std::string(location.file_name()) + ":" + std::to_string(location.line());
 
-  std::cout << getColorCode(level) << "[" << timeStr << "] "
-            << "[" << levelStr << "] "
-            << "[" << src << "] " << msg << ansiReset << std::endl;
+  std::string log = getColorCode(level) + "[" + timeStr + "] " + "[" +
+                    levelStr + "] " + "[" + src + "] " + msg + ansiReset + "\n";
+#ifdef BUILD_MODE_PROD
+  fl.write(log);
+#else
+  std::cout << log;
+#endif
 }
 } // namespace Logger
+
+FileLogger::FileLogger() {
+  const std::string path =
+      std::string(getenv("HOME")) + "/.local/state/wallflower";
+  const std::filesystem::path p(FILE_NAME);
+  if (!std::filesystem::exists(p)) {
+    try {
+      std::filesystem::create_directories(path);
+      std::ofstream f(FILE_NAME);
+      f.close();
+    } catch (const std::exception &e) {
+      throw std::runtime_error("Unable to create log file: " +
+                               std::string(e.what()));
+    }
+  }
+  file.open(FILE_NAME, std::ios::binary | std::ios::in | std::ios::out | std::ios::ate);
+  if (!file) {
+    throw std::runtime_error("Cannot open log file at: " + FILE_NAME);
+  }
+  buffer.resize(BUFFER_SIZE);
+  bufferSize = 0;
+  temp.resize(MAX_FILE_SIZE);
+}
+
+FileLogger::~FileLogger() {
+  if (file.is_open()) {
+    flush();
+    file.close();
+  }
+}
+
+void FileLogger::write(const std::string &data) {
+  std::size_t dataSize = data.size();
+  if (static_cast<int>(bufferSize + dataSize) > BUFFER_SIZE) {
+    flush();
+  }
+  std::memcpy(buffer.data() + bufferSize, data.data(), dataSize);
+  bufferSize += dataSize;
+}
+
+void FileLogger::flush() {
+  int currFileSize = file.tellg();
+  if (bufferSize + currFileSize > MAX_FILE_SIZE) {
+    int bytesToRemove = bufferSize + currFileSize - MAX_FILE_SIZE;
+    int oldDataSize = currFileSize - bytesToRemove;
+    file.seekg(bytesToRemove, std::ios::beg);
+    file.read(temp.data(), oldDataSize);
+    file.seekp(0, std::ios::beg);
+    file.write(temp.data(), oldDataSize);
+  }
+  file.write(buffer.data(), bufferSize);
+  bufferSize = 0;
+}
