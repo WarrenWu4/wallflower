@@ -4,6 +4,12 @@ GUI utility application for configuring wallpapers in Hyprland. Built on top of 
 
 ## Installation
 
+### Arch AUR
+
+```bash
+yay -S wallflower
+```
+
 ### Manual Installation
 
 ```bash
