@@ -8,6 +8,11 @@ Dates are in the form: **mm-dd-yyyy**
 
 ---
 
+## [Unreleased]
+
+### Added
+- Updated README.md to include installation through Arch AUR and yay
+
 ## [0.0.2] - 01-10-2026
 
 ### Added
