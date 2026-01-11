@@ -30,4 +30,16 @@ If you find a bug or would like to request a new feature. Please first open an i
 
 5. Open a pull request for review.
 
+**Reminder for myself to run the following after updating PKGBUILD (until a git hook is added for this):**
+
+```bash
+makepkg --printsrcinfo > .SRCINFO
+```
+
+**Command for updating sha256sums parameter in PKGBUILD:**
+
+```bash
+sudo pacman -S pacman-contrib
+updpkgsums
+```
 
