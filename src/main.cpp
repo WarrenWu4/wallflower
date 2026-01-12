@@ -95,11 +95,11 @@ int main() {
 
   // register callbacks
   configuration->callbackAddDirectory.push_back([&]() {
-    wp->onAddDirectory();
+    wp->onSearchPathChange(true);
   });
 
   configuration->callbackRemoveDirectory.push_back([&]() {
-    wp->onRemoveDirectory();
+    wp->onSearchPathChange(false);
   });
 
   Logger::logMsg(LogLabel::DEBUG, "Finished initializing program objects");

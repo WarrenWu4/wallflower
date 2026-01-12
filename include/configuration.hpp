@@ -37,7 +37,7 @@ struct WallflowerConfig {
   float splash_opacity;
   bool ipc;
   std::unordered_map<std::string, WallpaperData> preferences;
-  std::unordered_set<std::string> directories;
+  std::unordered_set<std::string> searchPaths;
 };
 
 class Configuration {
@@ -100,7 +100,7 @@ public:
    * adds preferences to config
    * checks if the path exists
    */
-  void addPreferences(std::vector<WallpaperData> wds);
+  void addPreferences(std::vector<WallpaperData> wds, bool overwrite = false);
 
   /*
    * removes preferences from config 

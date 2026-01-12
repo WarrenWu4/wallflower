@@ -19,7 +19,7 @@ private:
   std::shared_ptr<Dropdown> dropdownFitMode;
 
   std::unordered_map<std::string, WallpaperImage> images;
-  std::unordered_set<std::string> directorySnapshot;
+  std::unordered_set<std::string> searchPathSnapshot;
 
   std::vector<std::string> wallpapersOrdered;
   std::string activeWallpaper;
@@ -52,18 +52,13 @@ public:
   void unloadWallpaper(const std::string& path);
 
   /*
-   * slot function that scans new directories
-   * by comparing with directorySnapshot
+   * slot function that scans new directories and images
+   * by comparing with searchPathSnapshot 
    * for each image path it checks if path exists
    * and if the image is new
+   * pass in the signalType
+   * True = path added to SearchPath
+   * False = path removed from searchPath
    */
-  void onAddDirectory();
-  
-  /*
-   * slot function that scans new directories
-   * by comparing with directorySnapshot
-   * for each image path it checks if path exists
-   * then unloads the image from memory 
-   */
-  void onRemoveDirectory();
+  void onSearchPathChange(bool signalType);
 };
