@@ -13,7 +13,7 @@ WallflowerConfig Configuration::getDefaultConfig() {
       .splash_opacity = 0.8,
       .ipc = true,
       .preferences = {},
-      .directories = {},
+      .searchPaths = {},
   };
 }
 
@@ -34,9 +34,9 @@ void Configuration::printWallflowerConfig() {
     msg += "wallpaper_preference = " + wd.monitor + "," + wd.path + "," +
            fitModeToString.at(wd.fitMode) + "\n";
   }
-  for (auto it = config.directories.begin(); it != config.directories.end();
+  for (auto it = config.searchPaths.begin(); it != config.searchPaths.end();
        it++) {
-    msg += "directory = " + *it;
+    msg += "searchPath = " + *it;
   }
   Logger::logMsg(LogLabel::DEBUG, "Wallflower Config\n" + msg);
 }
@@ -132,7 +132,7 @@ void Configuration::readWallflowerSave() {
       continue;
     }
     if (!reachedSeparator) {
-      config.directories.insert(line);
+      config.searchPaths.insert(line);
     } else {
       std::stringstream ss(line);
       std::string key, value;
@@ -156,7 +156,7 @@ void Configuration::writeWallflowerSave() {
   std::ofstream f(saveFilePath);
   assert(f.is_open() &&
          "writeWallflowerSave(): unable to open configuration file");
-  for (auto it = config.directories.begin(); it != config.directories.end();
+  for (auto it = config.searchPaths.begin(); it != config.searchPaths.end();
        it++) {
     f << *it << "\n";
   }
@@ -171,11 +171,13 @@ void Configuration::writeWallflowerSave() {
 
 const WallflowerConfig &Configuration::getConfig() { return config; }
 
-void Configuration::addPreferences(std::vector<WallpaperData> wds) {
+void Configuration::addPreferences(std::vector<WallpaperData> wds, bool overwrite) {
   for (const WallpaperData& wd: wds) {
     std::filesystem::path p(wd.path);
     if (std::filesystem::exists(p)) {
-      config.preferences[wd.path] = wd;
+      if (!overwrite && config.preferences.find(wd.path) == config.preferences.end() || overwrite) {
+        config.preferences[wd.path] = wd;
+      }
     }
   }
   for (auto& callback : callbackAddPreference) {
@@ -195,9 +197,9 @@ void Configuration::removePreferences(std::vector<WallpaperData> wds) {
 void Configuration::addDirectories(std::vector<std::string> _directories) {
   for (const std::string &dir : _directories) {
     std::filesystem::path p(dir);
-    if (config.directories.find(dir) == config.directories.end() &&
+    if (config.searchPaths.find(dir) == config.searchPaths.end() &&
         std::filesystem::exists(dir)) {
-      config.directories.insert(dir);
+      config.searchPaths.insert(dir);
     }
   }
   for (auto &callback : callbackAddDirectory) {
@@ -207,7 +209,7 @@ void Configuration::addDirectories(std::vector<std::string> _directories) {
 
 void Configuration::removeDirectories(std::vector<std::string> _directories) {
   for (const std::string &dir : _directories) {
-    config.directories.erase(dir);
+    config.searchPaths.erase(dir);
   }
   for (auto &callback : callbackRemoveDirectory) {
     callback();

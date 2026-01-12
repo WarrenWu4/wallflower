@@ -12,6 +12,8 @@ Dates are in the form: **mm-dd-yyyy**
 
 ### Added
 - Updated README.md to include installation through Arch AUR and yay
+- Separate button for opening file dialog to add folders and images
+- Can now select multiple folders or multiple images in file dialog
 
 ## [0.0.2] - 01-10-2026
 
