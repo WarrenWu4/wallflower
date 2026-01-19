@@ -2,14 +2,16 @@
 #include "configuration.hpp"
 #include "logger.hpp"
 #include "utils.hpp"
+#include "wallpaper_dropdown.hpp"
 #include <cassert>
 
 Wallpapers::Wallpapers(std::shared_ptr<Configuration> configuration,
                        std::shared_ptr<Settings> settings,
-                       std::shared_ptr<Dropdown> dropdown) {
+                       std::shared_ptr<Dropdown> dropdown, std::shared_ptr<WallpaperDropdown> wd) {
   this->configuration = configuration;
   this->settings = settings;
   this->dropdownFitMode = dropdown;
+  this->dropdown = wd;
 
   this->images = {};
   this->searchPathSnapshot = {};
@@ -91,14 +93,16 @@ void Wallpapers::wallpaperEl(int id, const std::string &path,
     if (Clay_Hovered() && IsMouseButtonPressed(MOUSE_LEFT_BUTTON) &&
         !Clay_PointerOver(
             Clay_GetElementIdWithIndex(CLAY_STRING("WallpaperMode"), id))) {
-      const WallflowerConfig &temp = configuration->getConfig();
-      if (temp.preferences.find(path) != temp.preferences.end()) {
-        configuration->updateWallpaper("", path,
-                                       temp.preferences.at(path).fitMode);
-      } else {
-        configuration->updateWallpaper("", path, settings->defaultMode);
-      }
-      activeWallpaper = path;
+      Logger::logMsg(LogLabel::DEBUG, "Image Clicked");
+      dropdown->toggle();
+      // const WallflowerConfig &temp = configuration->getConfig();
+      // if (temp.preferences.find(path) != temp.preferences.end()) {
+      //   configuration->updateWallpaper("", path,
+      //                                  temp.preferences.at(path).fitMode);
+      // } else {
+      //   configuration->updateWallpaper("", path, settings->defaultMode);
+      // }
+      // activeWallpaper = path;
     }
     CLAY(CLAY_IDI("WallpaperMode", id),
          {

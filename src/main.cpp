@@ -1,6 +1,7 @@
 #include "bouncer.hpp"
 #include "raylib.h"
 #include "utils.hpp"
+#include "wallpaper_dropdown.hpp"
 #include <exception>
 #define CLAY_IMPLEMENTATION
 #include "clay.h"
@@ -89,7 +90,8 @@ int main() {
     }}
   );
   
-  std::shared_ptr<Wallpapers> wp = std::make_shared<Wallpapers>(configuration, settings, dropdownFitMode);
+  std::shared_ptr<WallpaperDropdown> wd = std::make_shared<WallpaperDropdown>(configuration);
+  std::shared_ptr<Wallpapers> wp = std::make_shared<Wallpapers>(configuration, settings, dropdownFitMode, wd);
 
   std::shared_ptr<Tabs> tabs = std::make_shared<Tabs>(TabType::Gallery, wp, settings);
 
@@ -133,6 +135,7 @@ int main() {
       tabs->tabEl();
       tabs->bodyEl();
       dropdownFitMode->dropdownEl();
+      wd->dropdownEl();
     }
     Clay_RenderCommandArray renderCommands = Clay_EndLayout();
 
