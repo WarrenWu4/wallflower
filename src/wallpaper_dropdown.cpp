@@ -15,7 +15,8 @@ WallpaperDropdown::WallpaperDropdown(std::shared_ptr<Configuration> _config) {
   config = _config;
   std::filesystem::path resourcePath = Utils::getResourcePath();
   monitorIcon = LoadTexture((resourcePath.generic_string() + "icons/monitor-icon.png").c_str());
-  // load monitor icon texture
+  // load radio button icon textures
+  defaultMonitor = "All";
 }
 
 WallpaperDropdown::~WallpaperDropdown() {
@@ -41,7 +42,7 @@ void WallpaperDropdown::dropdownEl() {
   if (show) {
     CLAY(CLAY_ID("WallpaperDropdownContainer"), {
       .layout = {
-        .sizing = { .width = CLAY_SIZING_FIT(), .height = CLAY_SIZING_FIXED(120) },
+        .sizing = { .width = CLAY_SIZING_FIT(), .height = CLAY_SIZING_FIT() },
         .padding = {12, 12, 12, 12},
         .childGap = 8,
         .layoutDirection = CLAY_TOP_TO_BOTTOM
@@ -88,17 +89,49 @@ void WallpaperDropdown::dropdownEl() {
           .layoutDirection = CLAY_TOP_TO_BOTTOM
         }
       }) {
-        for(size_t i = 0; i < 2; i++) {
-          CLAY_TEXT(
-            CLAY_STRING("Monitor Name"),
-            CLAY_TEXT_CONFIG({
-              .textColor = COLOR_FOREGROUND_1,
-              .fontSize = 20 
-            })
-          );
+        const std::vector<MonitorInfo>& monitors = config->getMonitors();
+        monitorOptionEl(monitors.size()+1, defaultMonitor, true);
+        for(size_t i = 0; i < monitors.size(); i++) {
+          monitorOptionEl(i, monitors.at(i).name, false);
         }
       }
 
     }
+  }
+}
+
+void WallpaperDropdown::monitorOptionEl(int id, const std::string& name, bool selected) {
+  CLAY(CLAY_IDI("WallpaperDropdownMonitorOption", id), {
+    .layout = {
+      .sizing = {
+        .width = CLAY_SIZING_GROW(),
+        .height = CLAY_SIZING_FIT()
+      },
+      .childGap = 4,
+      .childAlignment = {
+        .y = CLAY_ALIGN_Y_CENTER
+      }
+    }
+  }) {
+    if (Clay_Hovered() && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+      Logger::logMsg(LogLabel::DEBUG, "Updating monitor preference for image");
+      // TODO: update monitor preferences and update wallpaper
+    }
+    CLAY(CLAY_IDI("WallpaperDropdownMonitorOptionIcon", id), {
+      .layout = {
+        .sizing = { .width = CLAY_SIZING_FIXED(12), .height = CLAY_SIZING_FIXED(12) },
+      },
+      .image = {.imageData = &monitorIcon }
+    });
+    CLAY_TEXT(
+      Clay_String({
+        .length = static_cast<int32_t>(name.size()),
+        .chars = name.c_str()
+      }),
+      CLAY_TEXT_CONFIG({
+        .textColor = COLOR_FOREGROUND_3,
+        .fontSize = 20
+      })
+    );
   }
 }

@@ -11,6 +11,10 @@ private:
   Vector2 mousePosition;
   
   Texture2D monitorIcon;
+  Texture2D radioButton;
+  Texture2D activeRadioButton;
+
+  std::string defaultMonitor;
 
   void callback(); 
 public:
@@ -22,4 +26,5 @@ public:
   void toggle();
 
   void dropdownEl();
+  void monitorOptionEl(int id, const std::string& name, bool selected);
 };
