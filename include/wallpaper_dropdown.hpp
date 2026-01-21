@@ -31,5 +31,8 @@ public:
   void toggle();
 
   void dropdownEl();
+  void fitModeEl();
+  void fitModeOptionEl(int id, const std::string& fitMode, bool selected);
+  void monitorsEl();
   void monitorOptionEl(int id, const std::string& name, bool selected);
 };

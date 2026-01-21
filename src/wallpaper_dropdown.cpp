@@ -53,49 +53,132 @@ void WallpaperDropdown::dropdownEl() {
         .attachTo = CLAY_ATTACH_TO_ROOT
       },
     }) {
-      CLAY(CLAY_ID("WallpaperDropdownHeader"), {
-        .layout = {
-          .sizing = {
-            .width = CLAY_SIZING_GROW(),
-            .height = CLAY_SIZING_FIT()
-          },
-          .childGap = 4,
-          .childAlignment = {
-            .y = CLAY_ALIGN_Y_CENTER
-          }
-        }
-      }) {
-        CLAY(CLAY_ID("WallpaperDropdownMonitorIcon"), {
-          .layout = {
-            .sizing = { .width = CLAY_SIZING_FIXED(12), .height = CLAY_SIZING_FIXED(12) },
-          },
-          .image = {.imageData = &monitorIcon }
-        });
-        CLAY_TEXT(
-          CLAY_STRING("Monitors"),
-          CLAY_TEXT_CONFIG({
-            .textColor = COLOR_FOREGROUND_3,
-            .fontSize = 20
-          })
-        );
-      }
+      fitModeEl();
+      monitorsEl();
+    }
+  }
+}
 
-      CLAY(CLAY_ID("WallpaperDropdownMonitors"), {
-        .layout = {
-          .sizing = {
-            .width = CLAY_SIZING_GROW(),
-            .height = CLAY_SIZING_GROW()
-          },
-          .layoutDirection = CLAY_TOP_TO_BOTTOM
-        }
-      }) {
-        const std::vector<MonitorInfo>& monitors = config->getMonitors();
-        monitorOptionEl(monitors.size()+1, defaultMonitor, true);
-        for(size_t i = 0; i < monitors.size(); i++) {
-          monitorOptionEl(i, monitors.at(i).name, false);
-        }
-      }
+void WallpaperDropdown::fitModeEl() {
+  CLAY(CLAY_ID("WallpaperDropdownHeaderFitMode"), {
+    .layout = {
+      .sizing = {
+        .width = CLAY_SIZING_GROW(),
+        .height = CLAY_SIZING_FIT()
+      },
+      .childGap = 4,
+      .childAlignment = {
+        .y = CLAY_ALIGN_Y_CENTER
+      },
+    }
+  }) {
+    CLAY(CLAY_ID("WallpaperDropdownFitModeIcon"), {
+      .layout = {
+        .sizing = { .width = CLAY_SIZING_FIXED(12), .height = CLAY_SIZING_FIXED(12) },
+      },
+      .image = {.imageData = &monitorIcon }
+    });
+    CLAY_TEXT(
+      CLAY_STRING("Fit Mode"),
+      CLAY_TEXT_CONFIG({
+        .textColor = COLOR_FOREGROUND_3,
+        .fontSize = 20
+      })
+    );
+  }
 
+  CLAY(CLAY_ID("WallpaperDropdownFitMode"), {
+    .layout = {
+      .sizing = {
+        .width = CLAY_SIZING_GROW(),
+        .height = CLAY_SIZING_FIT()
+      },
+      .layoutDirection = CLAY_TOP_TO_BOTTOM
+    }
+  }) {
+    for (size_t i = 0; i < modeToStringUpper.size(); i++) {
+      fitModeOptionEl(i, modeToStringUpper.at(i), false);
+    }
+  }
+}
+
+void WallpaperDropdown::fitModeOptionEl(int id, const std::string& fitMode, bool selected) {
+  CLAY(CLAY_IDI("WallpaperDropdownFitModeOption", id), {
+    .layout = {
+      .sizing = {
+        .width = CLAY_SIZING_GROW(),
+        .height = CLAY_SIZING_FIT()
+      },
+      .childGap = 4,
+      .childAlignment = {
+        .y = CLAY_ALIGN_Y_CENTER
+      }
+    }
+  }) {
+    if (Clay_Hovered() && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+      Logger::logMsg(LogLabel::DEBUG, "Updating fit mode preference for image");
+      // TODO: add code to update fit mode
+    }
+    CLAY(CLAY_IDI("WallpaperDropdownFitModeOptionIcon", id), {
+      .layout = {
+        .sizing = { .width = CLAY_SIZING_FIXED(12), .height = CLAY_SIZING_FIXED(12) },
+      },
+      .image = {.imageData = &monitorIcon }
+    });
+    CLAY_TEXT(
+      Clay_String({
+        .length = static_cast<int32_t>(fitMode.size()),
+        .chars = fitMode.c_str()
+      }),
+      CLAY_TEXT_CONFIG({
+        .textColor = COLOR_FOREGROUND_3,
+        .fontSize = 20
+      })
+    );
+  }
+}
+
+void WallpaperDropdown::monitorsEl() {
+  CLAY(CLAY_ID("WallpaperDropdownHeader"), {
+    .layout = {
+      .sizing = {
+        .width = CLAY_SIZING_GROW(),
+        .height = CLAY_SIZING_FIT()
+      },
+      .childGap = 4,
+      .childAlignment = {
+        .y = CLAY_ALIGN_Y_CENTER
+      }
+    }
+  }) {
+    CLAY(CLAY_ID("WallpaperDropdownMonitorIcon"), {
+      .layout = {
+        .sizing = { .width = CLAY_SIZING_FIXED(12), .height = CLAY_SIZING_FIXED(12) },
+      },
+      .image = {.imageData = &monitorIcon }
+    });
+    CLAY_TEXT(
+      CLAY_STRING("Monitors"),
+      CLAY_TEXT_CONFIG({
+        .textColor = COLOR_FOREGROUND_3,
+        .fontSize = 20
+      })
+    );
+  }
+
+  CLAY(CLAY_ID("WallpaperDropdownMonitors"), {
+    .layout = {
+      .sizing = {
+        .width = CLAY_SIZING_GROW(),
+        .height = CLAY_SIZING_GROW()
+      },
+      .layoutDirection = CLAY_TOP_TO_BOTTOM
+    }
+  }) {
+    const std::vector<MonitorInfo>& monitors = config->getMonitors();
+    monitorOptionEl(monitors.size()+1, defaultMonitor, true);
+    for(size_t i = 0; i < monitors.size(); i++) {
+      monitorOptionEl(i, monitors.at(i).name, false);
     }
   }
 }
