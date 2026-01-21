@@ -67,7 +67,7 @@ void Wallpapers::wallpaperColEl(int col) {
                    .layoutDirection = CLAY_TOP_TO_BOTTOM}}) {
     for (size_t i = 0; i < wallpapersOrdered.size(); i++) {
       const std::string &path = wallpapersOrdered.at(i);
-      if (i % 3 == col) {
+      if (static_cast<int>(i) % 3 == col) {
         wallpaperEl(i, path, &images.at(path).image,
                     images.at(path).aspectRatio);
       }

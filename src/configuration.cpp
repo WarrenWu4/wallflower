@@ -238,7 +238,7 @@ void Configuration::addPreferences(std::vector<WallpaperData> wds, bool overwrit
   for (const WallpaperData& wd: wds) {
     std::filesystem::path p(wd.path);
     if (std::filesystem::exists(p)) {
-      if (!overwrite && config.preferences.find(wd.path) == config.preferences.end() || overwrite) {
+      if ((!overwrite && config.preferences.find(wd.path) == config.preferences.end()) || overwrite) {
         config.preferences[wd.path] = wd;
       }
     }
