@@ -17,7 +17,12 @@ private:
   std::string defaultMonitor;
 
   void callback(); 
+
 public:
+  // data needed from wallpaper to run updateWallpaper
+  std::string wallpaperPath;
+  FitMode wallpaperFitMode;
+
   WallpaperDropdown(std::shared_ptr<Configuration> _config);
   ~WallpaperDropdown();
 

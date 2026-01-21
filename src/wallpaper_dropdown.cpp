@@ -116,6 +116,8 @@ void WallpaperDropdown::monitorOptionEl(int id, const std::string& name, bool se
     if (Clay_Hovered() && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
       Logger::logMsg(LogLabel::DEBUG, "Updating monitor preference for image");
       // TODO: update monitor preferences and update wallpaper
+      // const WallflowerConfig& tempConfig = config->getConfig();
+      // config->updateWallpaper((name == "All") ? "" : name, )
     }
     CLAY(CLAY_IDI("WallpaperDropdownMonitorOptionIcon", id), {
       .layout = {
