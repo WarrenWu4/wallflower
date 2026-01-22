@@ -1,7 +1,6 @@
 #pragma once
 
 #include "clay.h"
-#include "dropdown.hpp"
 #include "raylib.h"
 #include "settings.hpp"
 #include "wallpaper_dropdown.hpp"
@@ -17,7 +16,6 @@ class Wallpapers {
 private:
   std::shared_ptr<Configuration> configuration;
   std::shared_ptr<Settings> settings;
-  std::shared_ptr<Dropdown> dropdownFitMode;
   std::shared_ptr<WallpaperDropdown> dropdown;
 
   std::unordered_map<std::string, WallpaperImage> images;
@@ -29,7 +27,6 @@ private:
 public:
   Wallpapers(std::shared_ptr<Configuration> configuration,
              std::shared_ptr<Settings> settings,
-             std::shared_ptr<Dropdown> dropdown,
              std::shared_ptr<WallpaperDropdown> wd);
   ~Wallpapers();
 

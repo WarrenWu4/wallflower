@@ -21,6 +21,7 @@ WallpaperDropdown::WallpaperDropdown(std::shared_ptr<Configuration> _config) {
 
 WallpaperDropdown::~WallpaperDropdown() {
   UnloadTexture(monitorIcon);
+  Logger::logMsg(LogLabel::OK, "Destructor ran");
 }
 
 void WallpaperDropdown::open() { 

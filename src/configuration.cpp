@@ -129,6 +129,7 @@ Configuration::Configuration() {
 Configuration::~Configuration() {
   writeHyprpaperConf();
   writeWallflowerSave();
+  Logger::logMsg(LogLabel::OK, "Destructor ran");
 }
 
 const std::vector<MonitorInfo>& Configuration::getMonitors() {

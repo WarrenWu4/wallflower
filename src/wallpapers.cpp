@@ -1,5 +1,6 @@
 #include "wallpapers.hpp"
 #include "configuration.hpp"
+#include "colors.h"
 #include "logger.hpp"
 #include "raylib.h"
 #include "utils.hpp"
@@ -8,11 +9,9 @@
 
 Wallpapers::Wallpapers(std::shared_ptr<Configuration> configuration,
                        std::shared_ptr<Settings> settings,
-                       std::shared_ptr<Dropdown> dropdown,
                        std::shared_ptr<WallpaperDropdown> wd) {
   this->configuration = configuration;
   this->settings = settings;
-  this->dropdownFitMode = dropdown;
   this->dropdown = wd;
 
   this->images = {};
@@ -35,6 +34,7 @@ Wallpapers::~Wallpapers() {
   for (auto it = images.begin(); it != images.end(); it++) {
     UnloadTexture(it->second.image);
   }
+  Logger::logMsg(LogLabel::OK, "Destructor ran");
 }
 
 void Wallpapers::wallpaperContainerEl() {
@@ -130,41 +130,6 @@ void Wallpapers::wallpaperEl(int id, const std::string &path,
         Logger::logMsg(LogLabel::DEBUG, "Opening wallpaper config menu");
         dropdown->toggle();
       }
-    }
-    CLAY(CLAY_IDI("WallpaperMode", id),
-         {
-             .layout = {.sizing = {.width = CLAY_SIZING_FIT(),
-                                   .height = CLAY_SIZING_FIT()},
-                        .padding = {12, 12, 8, 8}},
-             .backgroundColor = COLOR_BACKGROUND_0,
-         }) {
-      if (Clay_Hovered() && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-        dropdownFitMode->show = true;
-        dropdownFitMode->parentName = "WallpaperMode";
-        dropdownFitMode->parentId = id;
-        dropdownFitMode->data = &const_cast<std::string &>(path);
-      }
-      Clay_String displayStr = Clay_String(
-          {.length = static_cast<int32_t>(
-               modeToStringUpper.at(static_cast<int>(settings->defaultMode))
-                   .size()),
-           .chars =
-               modeToStringUpper.at(static_cast<int>(settings->defaultMode))
-                   .c_str()});
-      const WallflowerConfig &temp = configuration->getConfig();
-      if (temp.preferences.find(path) != temp.preferences.end()) {
-        displayStr = Clay_String(
-            {.length = static_cast<int32_t>(
-                 modeToStringUpper
-                     .at(static_cast<int>(temp.preferences.at(path).fitMode))
-                     .size()),
-             .chars =
-                 modeToStringUpper
-                     .at(static_cast<int>(temp.preferences.at(path).fitMode))
-                     .c_str()});
-      }
-      CLAY_TEXT(displayStr, CLAY_TEXT_CONFIG({.textColor = COLOR_FOREGROUND_1,
-                                              .fontSize = 20}));
     }
   }
 }
