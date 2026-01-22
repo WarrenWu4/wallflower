@@ -95,6 +95,9 @@ int main() {
         },
         .backgroundColor = COLOR_BACKGROUND_1,
     }) {
+      if (Clay_Hovered() && (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT) || IsMouseButtonPressed(MOUSE_BUTTON_LEFT))) {
+        wd->close();
+      }
       tabs->tabEl();
       tabs->bodyEl();
       wd->dropdownEl();

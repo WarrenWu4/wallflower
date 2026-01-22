@@ -30,6 +30,7 @@ void WallpaperDropdown::open() {
 }
 
 void WallpaperDropdown::close() { 
+  Logger::logMsg(LogLabel::DEBUG, "Closing config menu");
   mousePosition = GetMousePosition();
   show = false; 
 }
