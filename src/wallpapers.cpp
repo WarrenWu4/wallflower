@@ -128,6 +128,7 @@ void Wallpapers::wallpaperEl(int id, const std::string &path,
         activeWallpaper = path;
       } else if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {
         Logger::logMsg(LogLabel::DEBUG, "Opening wallpaper config menu");
+        dropdown->wallpaperPath = path;
         dropdown->open();
       }
     }

@@ -10,18 +10,18 @@ private:
   bool show;
   Vector2 mousePosition;
   
+  Texture2D fitModeIcon;
   Texture2D monitorIcon;
   Texture2D radioButton;
-  Texture2D activeRadioButton;
+  Texture2D radioButtonActive;
 
   std::string defaultMonitor;
 
   void callback(); 
 
 public:
-  // data needed from wallpaper to run updateWallpaper
+  // path of the wallpaper the dropdown is configuring
   std::string wallpaperPath;
-  FitMode wallpaperFitMode;
 
   WallpaperDropdown(std::shared_ptr<Configuration> _config);
   ~WallpaperDropdown();

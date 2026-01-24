@@ -14,13 +14,22 @@ WallpaperDropdown::WallpaperDropdown(std::shared_ptr<Configuration> _config) {
   mousePosition = GetMousePosition();
   config = _config;
   std::filesystem::path resourcePath = Utils::getResourcePath();
-  monitorIcon = LoadTexture((resourcePath.generic_string() + "icons/monitor-icon.png").c_str());
+  std::string resourcePathStr = resourcePath.generic_string();
+  fitModeIcon = LoadTexture((resourcePathStr + "icons/fit-mode-icon.png").c_str());
+  monitorIcon = LoadTexture((resourcePathStr + "icons/monitor-icon.png").c_str());
+  radioButton = LoadTexture((resourcePathStr + "icons/radio-inactive-icon.png").c_str());
+  radioButtonActive = LoadTexture((resourcePathStr + "icons/radio-active-icon.png").c_str());
   // load radio button icon textures
   defaultMonitor = "All";
+
+  wallpaperPath = "";
 }
 
 WallpaperDropdown::~WallpaperDropdown() {
+  UnloadTexture(fitModeIcon);
   UnloadTexture(monitorIcon);
+  UnloadTexture(radioButton);
+  UnloadTexture(radioButtonActive);
   Logger::logMsg(LogLabel::OK, "Destructor ran");
 }
 
@@ -78,7 +87,7 @@ void WallpaperDropdown::fitModeEl() {
       .layout = {
         .sizing = { .width = CLAY_SIZING_FIXED(12), .height = CLAY_SIZING_FIXED(12) },
       },
-      .image = {.imageData = &monitorIcon }
+      .image = {.imageData = &fitModeIcon}
     });
     CLAY_TEXT(
       CLAY_STRING("Fit Mode"),
@@ -99,7 +108,12 @@ void WallpaperDropdown::fitModeEl() {
     }
   }) {
     for (size_t i = 0; i < modeToStringUpper.size(); i++) {
-      fitModeOptionEl(i, modeToStringUpper.at(i), false);
+      const std::unordered_map<std::string, WallpaperData>& temp = config->getConfig().preferences;
+      if (temp.contains(wallpaperPath)) {
+        fitModeOptionEl(i, modeToStringUpper.at(i), temp.at(wallpaperPath).fitMode == static_cast<FitMode>(i));
+      } else {
+        fitModeOptionEl(i, modeToStringUpper.at(i), FitMode::COVER == static_cast<FitMode>(i));
+      }
     }
   }
 }
@@ -125,7 +139,7 @@ void WallpaperDropdown::fitModeOptionEl(int id, const std::string& fitMode, bool
       .layout = {
         .sizing = { .width = CLAY_SIZING_FIXED(12), .height = CLAY_SIZING_FIXED(12) },
       },
-      .image = {.imageData = &monitorIcon }
+      .image = {.imageData = (selected) ? &radioButtonActive : &radioButton }
     });
     CLAY_TEXT(
       Clay_String({
@@ -180,7 +194,12 @@ void WallpaperDropdown::monitorsEl() {
     const std::vector<MonitorInfo>& monitors = config->getMonitors();
     monitorOptionEl(monitors.size()+1, defaultMonitor, true);
     for(size_t i = 0; i < monitors.size(); i++) {
-      monitorOptionEl(i, monitors.at(i).name, false);
+      const std::unordered_map<std::string, WallpaperData>& temp = config->getConfig().preferences; 
+      if (temp.contains(wallpaperPath)) {
+        monitorOptionEl(i, monitors.at(i).name, monitors.at(i).name == temp.at(wallpaperPath).monitor);
+      } else {
+        monitorOptionEl(i, monitors.at(i).name, monitors.at(i).name == "All");
+      }
     }
   }
 }
@@ -208,7 +227,7 @@ void WallpaperDropdown::monitorOptionEl(int id, const std::string& name, bool se
       .layout = {
         .sizing = { .width = CLAY_SIZING_FIXED(12), .height = CLAY_SIZING_FIXED(12) },
       },
-      .image = {.imageData = &monitorIcon }
+      .image = {.imageData = (selected) ? &radioButtonActive : &radioButton }
     });
     CLAY_TEXT(
       Clay_String({
