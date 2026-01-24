@@ -202,13 +202,13 @@ void WallpaperDropdown::monitorsEl() {
     }
   }) {
     const std::vector<MonitorInfo>& monitors = config->getMonitors();
-    monitorOptionEl(monitors.size()+1, defaultMonitor, true);
     for(size_t i = 0; i < monitors.size(); i++) {
       const std::unordered_map<std::string, WallpaperData>& temp = config->getConfig().preferences; 
       if (temp.contains(wallpaperPath)) {
-        monitorOptionEl(i, monitors.at(i).name, monitors.at(i).name == temp.at(wallpaperPath).monitor);
+        monitorOptionEl(i, monitors.at(i).name, monitors.at(i).name == temp.at(wallpaperPath).monitor || temp.at(wallpaperPath).monitor == "");
       } else {
-        monitorOptionEl(i, monitors.at(i).name, monitors.at(i).name == "All");
+        // if no preference found; default should be all monitors
+        monitorOptionEl(i, monitors.at(i).name, true);
       }
     }
   }
@@ -228,10 +228,17 @@ void WallpaperDropdown::monitorOptionEl(int id, const std::string& name, bool se
     }
   }) {
     if (Clay_Hovered() && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-      Logger::logMsg(LogLabel::DEBUG, "Updating monitor preference for image");
-      // TODO: update monitor preferences and update wallpaper
-      // const WallflowerConfig& tempConfig = config->getConfig();
-      // config->updateWallpaper((name == "All") ? "" : name, )
+      Logger::logMsg(LogLabel::DEBUG, "Updating monitor preference from image");
+      const std::unordered_map<std::string, WallpaperData>& temp = config->getConfig().preferences;
+      WallpaperData wd = {
+        .path = wallpaperPath,
+        .fitMode = FitMode::COVER,
+        .monitor = name
+      };
+      if (temp.contains(wallpaperPath)) {
+        wd.fitMode = temp.at(wallpaperPath).fitMode;
+      }
+      config->addPreferences({wd}, true);
     }
     CLAY(CLAY_IDI("WallpaperDropdownMonitorOptionIcon", id), {
       .layout = {
