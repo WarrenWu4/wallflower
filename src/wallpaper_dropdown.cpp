@@ -1,4 +1,5 @@
 #include "wallpaper_dropdown.hpp"
+#include "configuration.hpp"
 #include "logger.hpp"
 #include "raylib.h"
 #include "clay.h"
@@ -133,7 +134,16 @@ void WallpaperDropdown::fitModeOptionEl(int id, const std::string& fitMode, bool
   }) {
     if (Clay_Hovered() && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
       Logger::logMsg(LogLabel::DEBUG, "Updating fit mode preference for image");
-      // TODO: add code to update fit mode
+      const std::unordered_map<std::string, WallpaperData>& temp = config->getConfig().preferences;
+      WallpaperData wd = {
+        .path = wallpaperPath,
+        .fitMode = stringToFitMode.at(Utils::toLowerString(fitMode)),
+        .monitor = ""
+      };
+      if (temp.contains(wallpaperPath)) {
+        wd.monitor = temp.at(wallpaperPath).monitor;
+      }
+      config->addPreferences({wd}, true);
     }
     CLAY(CLAY_IDI("WallpaperDropdownFitModeOptionIcon", id), {
       .layout = {
