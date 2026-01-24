@@ -198,19 +198,32 @@ void Configuration::readWallflowerSave() {
     if (!reachedSeparator) {
       config.searchPaths.insert(line);
     } else {
-      std::stringstream ss(line);
-      std::string key, value;
-
-      if (std::getline(ss, key, ',') && std::getline(ss, value)) {
-        // TODO: add parsing support for monitors
-        // just use empty string as default for now
-        std::filesystem::path p(key);
-        if (!std::filesystem::exists(p)) {
-          continue;
-        }
-        config.preferences[key] = (WallpaperData){
-            .path = key, .fitMode = stringToFitMode.at(value), .monitor = ""};
+      std::vector<std::string> values = Utils::split(line, ',');
+      if (values.size() < 2 || values.size() > 3) {
+        Logger::logMsg(LogLabel::FAIL, "unexpected number of parameters in preference line");
+        continue;
       }
+      std::filesystem::path p(values.at(0));
+      if (!std::filesystem::exists(p)) {
+        continue;
+      }
+      // maintain backwards compat where
+      // monitors are not in prev pref line
+      // bad design by me previously...
+      if (values.size() == 2) {
+        config.preferences[values.at(0)] = (WallpaperData) {
+          .path = values.at(0),
+          .fitMode = stringToFitMode.at(values.at(1)),
+          .monitor = ""
+        };
+      } else if (values.size() == 3) {
+        config.preferences[values.at(0)] = (WallpaperData) {
+          .path = values.at(0),
+          .fitMode = stringToFitMode.at(values.at(1)),
+          .monitor = values.at(2)
+        };
+      }
+
     }
   }
   f.close();
@@ -225,10 +238,9 @@ void Configuration::writeWallflowerSave() {
     f << *it << "\n";
   }
   f << "\n";
-  // TODO: add format for adding monitors
   for (auto it = config.preferences.begin(); it != config.preferences.end(); it++) {
     WallpaperData wd = (*it).second;
-    f << wd.path << "," << fitModeToString.at(wd.fitMode) << "\n";
+    f << wd.monitor << "," << wd.path << "," << fitModeToString.at(wd.fitMode) << "\n";
   }
   f.close();
 }
