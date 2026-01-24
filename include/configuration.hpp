@@ -40,14 +40,24 @@ struct WallflowerConfig {
   std::unordered_set<std::string> searchPaths;
 };
 
+struct MonitorInfo {
+  std::string name;
+  int x, y;
+  int width, height;
+  bool primary;
+};
+
 class Configuration {
 private:
   WallflowerConfig config;
+  std::vector<MonitorInfo> monitors;
   std::filesystem::path hyprpaperConfigPath;
   std::filesystem::path saveFilePath;
 
   WallflowerConfig getDefaultConfig();
+  std::vector<MonitorInfo> getActiveMonitors();
   void printWallflowerConfig();
+  void printMonitorInformation();
 
 public:
   std::vector<std::function<void()>> callbackAddPreference;
@@ -57,6 +67,8 @@ public:
 
   Configuration();
   ~Configuration();
+
+  const std::vector<MonitorInfo>& getMonitors();
 
   /*
    * update the user's current wallpaper by

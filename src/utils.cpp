@@ -107,6 +107,14 @@ std::string toUpperString(std::string str) {
   return new_str;
 }
 
+std::string toLowerString(std::string str) {
+  std::string new_str = "";
+  for (const char &c : str) {
+    new_str += std::tolower(c);
+  }
+  return new_str;
+}
+
 std::vector<std::string> getImagesInDirectory(std::string path) {
   std::vector<std::string> res;
   std::filesystem::path p(path);

@@ -113,7 +113,7 @@ void FileLogger::write(const std::string &data) {
 }
 
 void FileLogger::flush() {
-  int currFileSize = file.tellg();
+  size_t currFileSize = file.tellg();
   if (bufferSize + currFileSize > MAX_FILE_SIZE) {
     int bytesToRemove = bufferSize + currFileSize - MAX_FILE_SIZE;
     int oldDataSize = currFileSize - bytesToRemove;

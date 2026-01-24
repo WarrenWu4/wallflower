@@ -42,6 +42,11 @@ bool isValidHyprPath(std::string_view imagePath);
 std::string toUpperString(std::string str);
 
 /*
+ * returns all lowercase version of string
+ */
+std::string toLowerString(std::string str);
+
+/*
  * returns all valid images in given path
  * currently supported image formats:
  * PNG, JPEG 

@@ -30,7 +30,7 @@ Bouncer::Bouncer() {
 std::string Bouncer::executeCommand(const char *cmd) {
   char buffer[128];
   std::string result = "";
-  std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd, "r"), pclose);
+  std::unique_ptr<FILE, int(*)(FILE*)> pipe(popen(cmd, "r"), pclose);
   if (!pipe)
     return "Error";
   while (fgets(buffer, sizeof(buffer), pipe.get()) != nullptr) {

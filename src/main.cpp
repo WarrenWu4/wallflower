@@ -1,7 +1,7 @@
 #include "bouncer.hpp"
 #include "raylib.h"
 #include "utils.hpp"
-#include <exception>
+#include "wallpaper_dropdown.hpp"
 #define CLAY_IMPLEMENTATION
 #include "clay.h"
 #include "clay_renderer_raylib.c"
@@ -10,7 +10,6 @@
 #include "tabs.hpp"
 #include "configuration.hpp"
 #include "logger.hpp"
-#include "dropdown.hpp"
 
 #include <memory>
 
@@ -21,29 +20,6 @@ void HandleClayErrors(Clay_ErrorData errorData) {
   // switch (errorData.errorType) {
   //   // etc
   // }
-}
-
-void handleDropdownFitMode(std::shared_ptr<Configuration> configuration, std::shared_ptr<Dropdown> dropdownFitMode, void* path, FitMode fitMode) {
-  if (path == nullptr) {
-    Logger::logMsg(LogLabel::ERROR, "No image path provided to dropdown");
-    return; 
-  }
-  try {
-    std::string pathStr = *static_cast<std::string*>(path);
-    std::string monitor = "";
-    if (configuration->getConfig().preferences.find(pathStr) != configuration->getConfig().preferences.end()) {
-      monitor = configuration->getConfig().preferences.find(pathStr)->second.monitor;
-    }
-    configuration->addPreferences({(WallpaperData) {
-      .path = pathStr,
-      .fitMode = fitMode,
-      .monitor = monitor
-    }});
-    Logger::logMsg(LogLabel::OK, "Updated fit mode to " + modeToStringUpper.at(static_cast<int>(fitMode)) + " for image " + pathStr);
-    dropdownFitMode->closeDropdown();
-  } catch (const std::exception& e) {
-    Logger::logMsg(LogLabel::FAIL, "Failed to updated fit mode: " + std::string(e.what()));
-  }
 }
 
 int main() {
@@ -77,19 +53,8 @@ int main() {
 
   std::shared_ptr<Settings> settings = std::make_shared<Settings>(configuration);
 
-  std::shared_ptr<Dropdown> dropdownFitMode = std::make_shared<Dropdown>();
-  dropdownFitMode->items.insert(
-    {"CONTAIN", [dropdownFitMode, configuration](void* data) {
-    handleDropdownFitMode(configuration, dropdownFitMode, data, FitMode::CONTAIN);
-    }}
-  );
-  dropdownFitMode->items.insert(
-    {"COVER", [dropdownFitMode, configuration](void* data) {
-    handleDropdownFitMode(configuration, dropdownFitMode, data, FitMode::COVER);
-    }}
-  );
-  
-  std::shared_ptr<Wallpapers> wp = std::make_shared<Wallpapers>(configuration, settings, dropdownFitMode);
+  std::shared_ptr<WallpaperDropdown> wd = std::make_shared<WallpaperDropdown>(configuration);
+  std::shared_ptr<Wallpapers> wp = std::make_shared<Wallpapers>(configuration, settings, wd);
 
   std::shared_ptr<Tabs> tabs = std::make_shared<Tabs>(TabType::Gallery, wp, settings);
 
@@ -130,9 +95,12 @@ int main() {
         },
         .backgroundColor = COLOR_BACKGROUND_1,
     }) {
+      if (Clay_Hovered() && (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT) || IsMouseButtonPressed(MOUSE_BUTTON_LEFT))) {
+        wd->close();
+      }
       tabs->tabEl();
       tabs->bodyEl();
-      dropdownFitMode->dropdownEl();
+      wd->dropdownEl();
     }
     Clay_RenderCommandArray renderCommands = Clay_EndLayout();
 
@@ -145,8 +113,6 @@ int main() {
   UnloadFont(fontMontserratSemiBold);
   UnloadFont(fontMontserratBold);
 
-  // manual call destructor since it doesnt seem to be automatically called
-  configuration->~Configuration();
-
+  Logger::logMsg(LogLabel::OK, "Ending wallflower");
   return 0;
 }

@@ -1,5 +1,6 @@
 #include "tabs.hpp"
 #include "utils.hpp"
+#include "logger.hpp"
 
 Tabs::Tabs(TabType initType, std::shared_ptr<Wallpapers> wp, std::shared_ptr<Settings> settingsPtr) {
   currentTab = initType;
@@ -13,6 +14,7 @@ Tabs::Tabs(TabType initType, std::shared_ptr<Wallpapers> wp, std::shared_ptr<Set
 Tabs::~Tabs() {
   UnloadTexture(settingsIcon);
   UnloadTexture(galleryIcon);
+  Logger::logMsg(LogLabel::OK, "Destructor ran");
 }
 
 void Tabs::tabEl() {

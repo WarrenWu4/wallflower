@@ -1,6 +1,6 @@
 CXX = g++
-CXXFLAGS = -Wall -std=c++20
-LIBFLAGS = -lraylib -lGL -lm -lpthread -ldl -lrt -lX11 -Llib -Iinclude
+CXXFLAGS = -Wall -std=c++20 -fsanitize=address
+LIBFLAGS = -lraylib -lGL -lm -lpthread -ldl -lrt -lX11 -lXrandr -lwayland-client -Llib -Iinclude
 PRODFLAGS = -O3 -DBUILD_MODE_PROD
 DEPFLAGS = -MMD -MP
 

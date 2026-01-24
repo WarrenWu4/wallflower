@@ -1,15 +1,18 @@
 #include "wallpapers.hpp"
 #include "configuration.hpp"
+#include "colors.h"
 #include "logger.hpp"
+#include "raylib.h"
 #include "utils.hpp"
+#include "wallpaper_dropdown.hpp"
 #include <cassert>
 
 Wallpapers::Wallpapers(std::shared_ptr<Configuration> configuration,
                        std::shared_ptr<Settings> settings,
-                       std::shared_ptr<Dropdown> dropdown) {
+                       std::shared_ptr<WallpaperDropdown> wd) {
   this->configuration = configuration;
   this->settings = settings;
-  this->dropdownFitMode = dropdown;
+  this->dropdown = wd;
 
   this->images = {};
   this->searchPathSnapshot = {};
@@ -31,6 +34,7 @@ Wallpapers::~Wallpapers() {
   for (auto it = images.begin(); it != images.end(); it++) {
     UnloadTexture(it->second.image);
   }
+  Logger::logMsg(LogLabel::OK, "Destructor ran");
 }
 
 void Wallpapers::wallpaperContainerEl() {
@@ -40,8 +44,23 @@ void Wallpapers::wallpaperContainerEl() {
                {
                    .sizing = {CLAY_SIZING_GROW(0), CLAY_SIZING_GROW(0)},
                    .childGap = 16,
+                   .layoutDirection = CLAY_TOP_TO_BOTTOM
                },
        }) {
+    CLAY_TEXT(
+      CLAY_STRING("Left click to update wallpaper"),
+      CLAY_TEXT_CONFIG({
+        .textColor = COLOR_FOREGROUND_3,
+        .fontSize = 20
+      })
+    );
+    CLAY_TEXT(
+      CLAY_STRING("Right click to configure wallpaper"),
+      CLAY_TEXT_CONFIG({
+        .textColor = COLOR_FOREGROUND_3,
+        .fontSize = 20
+      })
+    );
     // distribute wallpapers
     wallpapersOrdered = {};
     if (activeWallpaper != "" && images.find(activeWallpaper) != images.end()) {
@@ -52,9 +71,16 @@ void Wallpapers::wallpaperContainerEl() {
         wallpapersOrdered.push_back((*it).first);
       }
     }
-    wallpaperColEl(0);
-    wallpaperColEl(1);
-    wallpaperColEl(2);
+    CLAY(CLAY_ID("WallpaperColContainer"), {
+      .layout = {
+        .sizing = {CLAY_SIZING_GROW(0), CLAY_SIZING_GROW(0)},
+        .childGap = 16,
+      },
+    }) {
+      wallpaperColEl(0);
+      wallpaperColEl(1);
+      wallpaperColEl(2);
+    }
   }
 }
 
@@ -65,7 +91,7 @@ void Wallpapers::wallpaperColEl(int col) {
                    .layoutDirection = CLAY_TOP_TO_BOTTOM}}) {
     for (size_t i = 0; i < wallpapersOrdered.size(); i++) {
       const std::string &path = wallpapersOrdered.at(i);
-      if (i % 3 == col) {
+      if (static_cast<int>(i) % 3 == col) {
         wallpaperEl(i, path, &images.at(path).image,
                     images.at(path).aspectRatio);
       }
@@ -88,52 +114,23 @@ void Wallpapers::wallpaperEl(int id, const std::string &path,
                                    ? (Clay_BorderWidth){2, 2, 2, 2}
                                    : (Clay_BorderWidth){0, 0, 0, 0}},
        }) {
-    if (Clay_Hovered() && IsMouseButtonPressed(MOUSE_LEFT_BUTTON) &&
-        !Clay_PointerOver(
-            Clay_GetElementIdWithIndex(CLAY_STRING("WallpaperMode"), id))) {
-      const WallflowerConfig &temp = configuration->getConfig();
-      if (temp.preferences.find(path) != temp.preferences.end()) {
-        configuration->updateWallpaper("", path,
-                                       temp.preferences.at(path).fitMode);
-      } else {
-        configuration->updateWallpaper("", path, settings->defaultMode);
+    if (Clay_Hovered() && !Clay_PointerOver(Clay_GetElementIdWithIndex(
+                              CLAY_STRING("WallpaperMode"), id))) {
+      if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+        Logger::logMsg(LogLabel::DEBUG, "Updating active wallpaper");
+        const WallflowerConfig &temp = configuration->getConfig();
+        if (temp.preferences.find(path) != temp.preferences.end()) {
+          configuration->updateWallpaper("", path,
+                                         temp.preferences.at(path).fitMode);
+        } else {
+          configuration->updateWallpaper("", path, settings->defaultMode);
+        }
+        activeWallpaper = path;
+      } else if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {
+        Logger::logMsg(LogLabel::DEBUG, "Opening wallpaper config menu");
+        dropdown->wallpaperPath = path;
+        dropdown->open();
       }
-      activeWallpaper = path;
-    }
-    CLAY(CLAY_IDI("WallpaperMode", id),
-         {
-             .layout = {.sizing = {.width = CLAY_SIZING_FIT(),
-                                   .height = CLAY_SIZING_FIT()},
-                        .padding = {12, 12, 8, 8}},
-             .backgroundColor = COLOR_BACKGROUND_0,
-         }) {
-      if (Clay_Hovered() && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-        dropdownFitMode->show = true;
-        dropdownFitMode->parentName = "WallpaperMode";
-        dropdownFitMode->parentId = id;
-        dropdownFitMode->data = &const_cast<std::string &>(path);
-      }
-      Clay_String displayStr = Clay_String(
-          {.length = static_cast<int32_t>(
-               modeToStringUpper.at(static_cast<int>(settings->defaultMode))
-                   .size()),
-           .chars =
-               modeToStringUpper.at(static_cast<int>(settings->defaultMode))
-                   .c_str()});
-      const WallflowerConfig &temp = configuration->getConfig();
-      if (temp.preferences.find(path) != temp.preferences.end()) {
-        displayStr = Clay_String(
-            {.length = static_cast<int32_t>(
-                 modeToStringUpper
-                     .at(static_cast<int>(temp.preferences.at(path).fitMode))
-                     .size()),
-             .chars =
-                 modeToStringUpper
-                     .at(static_cast<int>(temp.preferences.at(path).fitMode))
-                     .c_str()});
-      }
-      CLAY_TEXT(displayStr, CLAY_TEXT_CONFIG({.textColor = COLOR_FOREGROUND_1,
-                                              .fontSize = 20}));
     }
   }
 }
@@ -188,7 +185,8 @@ void Wallpapers::onSearchPathChange(bool signalType) {
       std::string searchPath = *it;
       if (temp.searchPaths.find(searchPath) == temp.searchPaths.end()) {
         if (std::filesystem::is_directory(searchPath)) {
-          std::vector<std::string> imagePaths = Utils::getImagesInDirectory(searchPath);
+          std::vector<std::string> imagePaths =
+              Utils::getImagesInDirectory(searchPath);
           for (const std::string &path : imagePaths) {
             unloadWallpaper(path);
           }

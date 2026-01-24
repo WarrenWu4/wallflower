@@ -4,6 +4,9 @@
 #include <cassert>
 #include <filesystem>
 #include <fstream>
+#include <X11/Xlib.h>
+#include <X11/extensions/Xrandr.h>
+#include <wayland-client.h>
 
 WallflowerConfig Configuration::getDefaultConfig() {
   return (WallflowerConfig){
@@ -15,6 +18,54 @@ WallflowerConfig Configuration::getDefaultConfig() {
       .preferences = {},
       .searchPaths = {},
   };
+}
+
+std::vector<MonitorInfo> Configuration::getActiveMonitors() {
+  std::vector<MonitorInfo> monitors = {};
+  
+  // try to open display
+  Display* display = XOpenDisplay(nullptr);
+  if (!display) {
+    Logger::logMsg(LogLabel::FAIL, "Could not open display");
+    return monitors;
+  }
+  
+  Window root = DefaultRootWindow(display);
+  
+  // get screen resources using XRandR
+  XRRScreenResources* resources = XRRGetScreenResources(display, root);
+  if (!resources) {
+    Logger::logMsg(LogLabel::FAIL, "Could not get resources using XRandR");
+    XCloseDisplay(display);
+    return monitors;
+  }
+  
+  // iterate through all outputs
+  for (int i = 0; i < resources->noutput; i++) {
+    XRROutputInfo* outputInfo = XRRGetOutputInfo(display, resources, resources->outputs[i]);
+    
+    if (outputInfo->connection == RR_Connected && outputInfo->crtc) {
+      // get monitor information through XRRGetCrtcInfo
+      XRRCrtcInfo* crtcInfo = XRRGetCrtcInfo(display, resources, outputInfo->crtc); 
+      MonitorInfo monitor;
+      monitor.name = outputInfo->name;
+      monitor.x = crtcInfo->x;
+      monitor.y = crtcInfo->y;
+      monitor.width = crtcInfo->width;
+      monitor.height = crtcInfo->height;
+      
+      // Check if this is the primary monitor
+      RROutput primary = XRRGetOutputPrimary(display, root);
+      monitor.primary = (resources->outputs[i] == primary);
+      
+      monitors.push_back(monitor);
+      XRRFreeCrtcInfo(crtcInfo);
+    }
+    XRRFreeOutputInfo(outputInfo);
+  }
+  XRRFreeScreenResources(resources);
+  XCloseDisplay(display);
+  return monitors;
 }
 
 void Configuration::printWallflowerConfig() {
@@ -41,8 +92,16 @@ void Configuration::printWallflowerConfig() {
   Logger::logMsg(LogLabel::DEBUG, "Wallflower Config\n" + msg);
 }
 
+void Configuration::printMonitorInformation() {
+  for (const MonitorInfo& monitor : monitors) {
+    std::string msg = "Monitor found: " + monitor.name + ", {x: " + std::to_string(monitor.x) + ", y: " + std::to_string(monitor.y) + "}, {width: " + std::to_string(monitor.width) + ", height: " + std::to_string(monitor.height) + "}" + ", " + (monitor.primary ? "primary" : "not primary");
+    Logger::logMsg(LogLabel::DEBUG, msg);
+  }
+}
+
 Configuration::Configuration() {
   config = getDefaultConfig();
+  monitors = getActiveMonitors();
   hyprpaperConfigPath = std::filesystem::path(std::string(getenv("HOME")) +
                                               "/.config/hypr/hyprpaper.conf");
   saveFilePath = Utils::getSaveFilePath();
@@ -70,7 +129,12 @@ Configuration::Configuration() {
 Configuration::~Configuration() {
   writeHyprpaperConf();
   writeWallflowerSave();
+  Logger::logMsg(LogLabel::OK, "Destructor ran");
 }
+
+const std::vector<MonitorInfo>& Configuration::getMonitors() {
+  return monitors;
+} 
 
 void Configuration::updateWallpaper(std::string display, std::string path,
                                     FitMode mode) {
@@ -134,19 +198,32 @@ void Configuration::readWallflowerSave() {
     if (!reachedSeparator) {
       config.searchPaths.insert(line);
     } else {
-      std::stringstream ss(line);
-      std::string key, value;
-
-      if (std::getline(ss, key, ',') && std::getline(ss, value)) {
-        // TODO: add parsing support for monitors
-        // just use empty string as default for now
-        std::filesystem::path p(key);
-        if (!std::filesystem::exists(p)) {
-          continue;
-        }
-        config.preferences[key] = (WallpaperData){
-            .path = key, .fitMode = stringToFitMode.at(value), .monitor = ""};
+      std::vector<std::string> values = Utils::split(line, ',');
+      if (values.size() < 2 || values.size() > 3) {
+        Logger::logMsg(LogLabel::FAIL, "unexpected number of parameters in preference line");
+        continue;
       }
+      std::filesystem::path p(values.at(0));
+      if (!std::filesystem::exists(p)) {
+        continue;
+      }
+      // maintain backwards compat where
+      // monitors are not in prev pref line
+      // bad design by me previously...
+      if (values.size() == 2) {
+        config.preferences[values.at(0)] = (WallpaperData) {
+          .path = values.at(0),
+          .fitMode = stringToFitMode.at(values.at(1)),
+          .monitor = ""
+        };
+      } else if (values.size() == 3) {
+        config.preferences[values.at(0)] = (WallpaperData) {
+          .path = values.at(0),
+          .fitMode = stringToFitMode.at(values.at(1)),
+          .monitor = values.at(2)
+        };
+      }
+
     }
   }
   f.close();
@@ -161,10 +238,9 @@ void Configuration::writeWallflowerSave() {
     f << *it << "\n";
   }
   f << "\n";
-  // TODO: add format for adding monitors
   for (auto it = config.preferences.begin(); it != config.preferences.end(); it++) {
     WallpaperData wd = (*it).second;
-    f << wd.path << "," << fitModeToString.at(wd.fitMode) << "\n";
+    f << wd.monitor << "," << wd.path << "," << fitModeToString.at(wd.fitMode) << "\n";
   }
   f.close();
 }
@@ -175,7 +251,7 @@ void Configuration::addPreferences(std::vector<WallpaperData> wds, bool overwrit
   for (const WallpaperData& wd: wds) {
     std::filesystem::path p(wd.path);
     if (std::filesystem::exists(p)) {
-      if (!overwrite && config.preferences.find(wd.path) == config.preferences.end() || overwrite) {
+      if ((!overwrite && config.preferences.find(wd.path) == config.preferences.end()) || overwrite) {
         config.preferences[wd.path] = wd;
       }
     }

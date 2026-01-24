@@ -16,6 +16,7 @@ Settings::Settings(std::shared_ptr<Configuration> configuration) {
 Settings::~Settings() {
   UnloadTexture(folderIcon);
   UnloadTexture(fileIcon);
+  Logger::logMsg(LogLabel::OK, "Destructor ran");
 }
 
 void Settings::folderPicker() {
