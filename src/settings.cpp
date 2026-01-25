@@ -4,6 +4,7 @@
 #include "utils.hpp"
 
 Settings::Settings(std::shared_ptr<Configuration> configuration) {
+  searchPathToRemove = "";
   this->configuration = configuration;
   std::filesystem::path resourcePath = Utils::getResourcePath();
   folderIcon = LoadTexture(
@@ -130,14 +131,20 @@ void Settings::settingsContainerEl() {
         addFolderButtonEl();
         addImageButtonEl();
       }
-      std::string searchPathToRemove = "";
       int id = 0;
+      // INFO: defer deletion until next render
+      // cycle to avoid internal hashing issues
+      // ABSOLUTELY DO NOT PUT THIS AFTER THE
+      // FOR LOOP OR THERE WILL SEG FAULTS
+      if (searchPathToRemove != "") {
+        configuration->removeDirectories({searchPathToRemove});
+        searchPathToRemove = "";
+        Logger::logMsg(LogLabel::OK, "Removed search path from configuration");
+      }
+
       for (auto it = configuration->getConfig().searchPaths.begin();
            it != configuration->getConfig().searchPaths.end(); it++, id++) {
         folderEl(id, *it, searchPathToRemove);
-      }
-      if (searchPathToRemove != "") {
-        configuration->removeDirectories({searchPathToRemove});
       }
     }
   }

@@ -119,11 +119,11 @@ void Wallpapers::wallpaperEl(int id, const std::string &path,
       if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
         Logger::logMsg(LogLabel::DEBUG, "Updating active wallpaper");
         const WallflowerConfig &temp = configuration->getConfig();
-        if (temp.preferences.find(path) != temp.preferences.end()) {
-          configuration->updateWallpaper("", path,
+        if (temp.preferences.contains(path)) {
+          configuration->updateWallpaper(temp.preferences.at(path).monitors, path,
                                          temp.preferences.at(path).fitMode);
         } else {
-          configuration->updateWallpaper("", path, settings->defaultMode);
+          configuration->updateWallpaper({""}, path, settings->defaultMode);
         }
         activeWallpaper = path;
       } else if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {

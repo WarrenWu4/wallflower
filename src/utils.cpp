@@ -131,4 +131,13 @@ std::vector<std::string> getImagesInDirectory(std::string path) {
   }
   return res;
 }
+
+bool inVector(const std::vector<std::string>& vec, std::string str) {
+  for (size_t i = 0; i < vec.size(); i++) {
+    if (str == vec.at(i)) {
+      return true;
+    }
+  }
+  return false;
+}
 } // namespace Utils

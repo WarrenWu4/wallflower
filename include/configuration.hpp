@@ -27,7 +27,7 @@ const std::vector<std::string> modeToStringUpper({"COVER", "CONTAIN", "TILE",
 struct WallpaperData {
   std::string path;
   FitMode fitMode;
-  std::string monitor;
+  std::vector<std::string> monitors;
 };
 
 struct WallflowerConfig {
@@ -58,6 +58,7 @@ private:
   std::vector<MonitorInfo> getActiveMonitors();
   void printWallflowerConfig();
   void printMonitorInformation();
+  void updateConfigWallpapers(WallpaperData wd);
 
 public:
   std::vector<std::function<void()>> callbackAddPreference;
@@ -76,7 +77,7 @@ public:
    * updates app config and hyprpaper.conf
    * with updated data
    */
-  void updateWallpaper(std::string display, std::string path, FitMode mode);
+  void updateWallpaper(std::vector<std::string> display, std::string path, FitMode mode);
 
   /*
    * parsers hyprpaper.conf and

@@ -13,6 +13,8 @@ const std::vector<std::string> supportedImageFormats = {
 };
 
 class Settings {
+private:
+  std::string searchPathToRemove;
 public:
   std::shared_ptr<Configuration> configuration;
   Texture2D folderIcon;

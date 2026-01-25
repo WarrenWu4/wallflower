@@ -52,4 +52,9 @@ std::string toLowerString(std::string str);
  * PNG, JPEG 
  */
 std::vector<std::string> getImagesInDirectory(std::string path);
+
+/*
+ * checks if a string is in a vector 
+ */
+bool inVector(const std::vector<std::string>& vec, std::string str);
 } // namespace Utils

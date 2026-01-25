@@ -138,10 +138,10 @@ void WallpaperDropdown::fitModeOptionEl(int id, const std::string& fitMode, bool
       WallpaperData wd = {
         .path = wallpaperPath,
         .fitMode = stringToFitMode.at(Utils::toLowerString(fitMode)),
-        .monitor = ""
+        .monitors = {} 
       };
       if (temp.contains(wallpaperPath)) {
-        wd.monitor = temp.at(wallpaperPath).monitor;
+        wd.monitors = temp.at(wallpaperPath).monitors;
       }
       config->addPreferences({wd}, true);
     }
@@ -205,7 +205,7 @@ void WallpaperDropdown::monitorsEl() {
     for(size_t i = 0; i < monitors.size(); i++) {
       const std::unordered_map<std::string, WallpaperData>& temp = config->getConfig().preferences; 
       if (temp.contains(wallpaperPath)) {
-        monitorOptionEl(i, monitors.at(i).name, monitors.at(i).name == temp.at(wallpaperPath).monitor || temp.at(wallpaperPath).monitor == "");
+        monitorOptionEl(i, monitors.at(i).name, temp.at(wallpaperPath).monitors.empty() || Utils::inVector(temp.at(wallpaperPath).monitors, monitors.at(i).name));
       } else {
         // if no preference found; default should be all monitors
         monitorOptionEl(i, monitors.at(i).name, true);
@@ -233,10 +233,15 @@ void WallpaperDropdown::monitorOptionEl(int id, const std::string& name, bool se
       WallpaperData wd = {
         .path = wallpaperPath,
         .fitMode = FitMode::COVER,
-        .monitor = name
+        .monitors = { name }
       };
       if (temp.contains(wallpaperPath)) {
         wd.fitMode = temp.at(wallpaperPath).fitMode;
+        for (size_t i = 0; i < temp.at(wallpaperPath).monitors.size(); i++) {
+          if (!Utils::inVector(wd.monitors, temp.at(wallpaperPath).monitors.at(i))) {
+            wd.monitors.push_back(temp.at(wallpaperPath).monitors.at(i));
+          }
+        }
       }
       config->addPreferences({wd}, true);
     }

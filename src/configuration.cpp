@@ -72,8 +72,11 @@ void Configuration::printWallflowerConfig() {
   std::string msg = "";
   for (size_t i = 0; i < config.wallpapers.size(); i++) {
     WallpaperData wd = config.wallpapers.at(i);
-    msg += "wallpaper = " + wd.monitor + "," + wd.path + "," +
-           fitModeToString.at(wd.fitMode) + "\n";
+    for (size_t j = 0; j < wd.monitors.size(); j++) {
+      msg += "wallpaper = " + wd.monitors.at(j) + "," + wd.path + "," +
+             fitModeToString.at(wd.fitMode) + "\n";
+
+    }
   }
   msg += "splash = " + std::string(config.splash ? "true" : "false") + "\n";
   msg += "splash_offset = " + std::to_string(config.splash_offset) + "\n";
@@ -82,8 +85,9 @@ void Configuration::printWallflowerConfig() {
   for (auto it = config.preferences.begin(); it != config.preferences.end();
        it++) {
     WallpaperData wd = (*it).second;
-    msg += "wallpaper_preference = " + wd.monitor + "," + wd.path + "," +
-           fitModeToString.at(wd.fitMode) + "\n";
+    for (size_t i = 0; i < wd.monitors.size(); i++) {
+      msg += "wallpaper_preference = " + wd.monitors.at(i) + "," + wd.path + "," + fitModeToString.at(wd.fitMode) + "\n";
+    }
   }
   for (auto it = config.searchPaths.begin(); it != config.searchPaths.end();
        it++) {
@@ -97,6 +101,38 @@ void Configuration::printMonitorInformation() {
     std::string msg = "Monitor found: " + monitor.name + ", {x: " + std::to_string(monitor.x) + ", y: " + std::to_string(monitor.y) + "}, {width: " + std::to_string(monitor.width) + ", height: " + std::to_string(monitor.height) + "}" + ", " + (monitor.primary ? "primary" : "not primary");
     Logger::logMsg(LogLabel::DEBUG, msg);
   }
+}
+
+void Configuration::updateConfigWallpapers(WallpaperData wd) {
+  // only add to config.wallpapers if path is unique
+  for (size_t i = 0; i < config.wallpapers.size(); i++) {
+    if (config.wallpapers.at(i).path == wd.path) {
+      // path is not unique so combine 
+      // monitors vectors and remove dupes
+      std::unordered_set<std::string> uniqueMonitors = {}; 
+      std::vector<std::string> newMonitors = {};
+      for (size_t j = 0; j < config.wallpapers.at(i).monitors.size(); j++) {
+        if (uniqueMonitors.contains(config.wallpapers.at(i).monitors.at(j))) {
+          continue;
+        }
+        newMonitors.push_back(config.wallpapers.at(i).monitors.at(j));
+        uniqueMonitors.insert(config.wallpapers.at(i).monitors.at(j));
+      }
+      for (size_t j = 0; j < wd.monitors.size(); j++) {
+        if (uniqueMonitors.contains(wd.monitors.at(j))) {
+          continue;
+        }
+        newMonitors.push_back(wd.monitors.at(j));
+        uniqueMonitors.insert(wd.monitors.at(j));
+      }
+      config.wallpapers.at(i).monitors = newMonitors;
+      return;
+    }
+  }
+
+  // path has to be unique
+  // so add new entry to wallpapers
+  config.wallpapers.push_back(wd);
 }
 
 Configuration::Configuration() {
@@ -136,18 +172,26 @@ const std::vector<MonitorInfo>& Configuration::getMonitors() {
   return monitors;
 } 
 
-void Configuration::updateWallpaper(std::string display, std::string path,
-                                    FitMode mode) {
-  WallpaperData wd =
-      (WallpaperData){.path = path, .fitMode = mode, .monitor = display};
-  display += ",";
-  path += ",";
-  std::string wallpaperCmd = "hyprctl hyprpaper wallpaper \"" + display + path +
-                             fitModeToString.at(mode) + "\"";
-  Logger::logMsg(LogLabel::DEBUG, "Running wallpaper command: " + wallpaperCmd);
-  std::system(wallpaperCmd.c_str());
-  // TODO: update to support multiple monitors in the future
-  this->config.wallpapers[0] = wd;
+void Configuration::updateWallpaper(std::vector<std::string> display, std::string path, FitMode mode) {
+  WallpaperData wd = (WallpaperData) {.path = path, .fitMode = mode, .monitors = display};
+
+  // empty vector sets wallpaper to all displays
+  if (display.empty()) {
+    std::string cmdDisplay = ",";
+    std::string cmdPath = path + ",";
+    std::string wallpaperCmd = "hyprctl hyprpaper wallpaper \"" + cmdDisplay + cmdPath + fitModeToString.at(mode) + "\"";
+    Logger::logMsg(LogLabel::DEBUG, "Running wallpaper command: " + wallpaperCmd);
+    std::system(wallpaperCmd.c_str());
+  } else {
+    for (size_t i = 0; i < display.size(); i++) {
+      std::string cmdDisplay = display.at(i) + ",";
+      std::string cmdPath = path + ",";
+      std::string wallpaperCmd = "hyprctl hyprpaper wallpaper \"" + cmdDisplay + cmdPath + fitModeToString.at(mode) + "\"";
+      Logger::logMsg(LogLabel::DEBUG, "Running wallpaper command: " + wallpaperCmd);
+      std::system(wallpaperCmd.c_str());
+    }
+  }
+  this->updateConfigWallpapers(wd);
   this->writeHyprpaperConf();
 }
 
@@ -171,11 +215,13 @@ void Configuration::writeHyprpaperConf() {
   std::ofstream file(hyprpaperConfigPath);
   for (size_t i = 0; i < config.wallpapers.size(); i++) {
     WallpaperData wd = config.wallpapers.at(i);
-    file << "wallpaper {\n";
-    file << "\tmonitor = " << wd.monitor << "\n";
-    file << "\tpath = " << wd.path << "\n";
-    file << "\tfit_mode = " << fitModeToString.at(wd.fitMode) << "\n";
-    file << "}\n";
+    for (size_t j = 0; j < wd.monitors.size(); j++) {
+      file << "wallpaper {\n";
+      file << "\tmonitor = " << wd.monitors.at(j) << "\n";
+      file << "\tpath = " << wd.path << "\n";
+      file << "\tfit_mode = " << fitModeToString.at(wd.fitMode) << "\n";
+      file << "}\n";
+    }
   }
   file << "splash = " << (config.splash ? "true" : "false") << "\n";
   file << "splash_offset = " << config.splash_offset << "\n";
@@ -214,14 +260,18 @@ void Configuration::readWallflowerSave() {
         config.preferences[values.at(0)] = (WallpaperData) {
           .path = values.at(0),
           .fitMode = stringToFitMode.at(values.at(1)),
-          .monitor = ""
+          .monitors = {}
         };
       } else if (values.size() == 3) {
-        config.preferences[values.at(0)] = (WallpaperData) {
-          .path = values.at(0),
-          .fitMode = stringToFitMode.at(values.at(1)),
-          .monitor = values.at(2)
-        };
+        if (config.preferences.contains(values.at(0))) {
+          config.preferences.at(values.at(0)).monitors.push_back(values.at(2));
+        } else {
+          config.preferences[values.at(0)] = (WallpaperData) {
+            .path = values.at(0),
+            .fitMode = stringToFitMode.at(values.at(1)),
+            .monitors = {values.at(2)}
+          };
+        }
       }
 
     }
@@ -240,7 +290,9 @@ void Configuration::writeWallflowerSave() {
   f << "\n";
   for (auto it = config.preferences.begin(); it != config.preferences.end(); it++) {
     WallpaperData wd = (*it).second;
-    f << wd.monitor << "," << wd.path << "," << fitModeToString.at(wd.fitMode) << "\n";
+    for (size_t i = 0; i < wd.monitors.size(); i++) {
+      f << wd.monitors.at(i) << "," << wd.path << "," << fitModeToString.at(wd.fitMode) << "\n";
+    }
   }
   f.close();
 }
@@ -355,7 +407,7 @@ void HyprpaperConfParser::parse(const std::vector<Token> &tokens,
       WallpaperData wd = (WallpaperData){
           .path = "",
           .fitMode = FitMode::COVER,
-          .monitor = "",
+          .monitors = {}
       };
       while (tokens.at(pos).tokenType != TokenType::RBRACE) {
         if (tokens.at(pos).tokenType == TokenType::KEYWORD) {
@@ -370,10 +422,8 @@ void HyprpaperConfParser::parse(const std::vector<Token> &tokens,
               wd.path = tokens.at(pos + 2).value;
             }
           } else if (tokens.at(pos).value == "monitor") {
-            if (tokens.at(pos + 2).value == "\n") {
-              wd.monitor = "";
-            } else {
-              wd.monitor = tokens.at(pos + 2).value;
+            if (tokens.at(pos + 2).value != "\n") {
+              wd.monitors.push_back(tokens.at(pos + 2).value); 
             }
           } else if (tokens.at(pos).value == "fit_mode") {
             if (tokens.at(pos + 2).value == "\n") {
