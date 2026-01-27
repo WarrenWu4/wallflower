@@ -215,12 +215,20 @@ void Configuration::writeHyprpaperConf() {
   std::ofstream file(hyprpaperConfigPath);
   for (size_t i = 0; i < config.wallpapers.size(); i++) {
     WallpaperData wd = config.wallpapers.at(i);
-    for (size_t j = 0; j < wd.monitors.size(); j++) {
+    if (wd.monitors.size() == 0) {
       file << "wallpaper {\n";
-      file << "\tmonitor = " << wd.monitors.at(j) << "\n";
+      file << "\tmonitor = " << "\n";
       file << "\tpath = " << wd.path << "\n";
       file << "\tfit_mode = " << fitModeToString.at(wd.fitMode) << "\n";
       file << "}\n";
+    } else {
+      for (size_t j = 0; j < wd.monitors.size(); j++) {
+        file << "wallpaper {\n";
+        file << "\tmonitor = " << wd.monitors.at(j) << "\n";
+        file << "\tpath = " << wd.path << "\n";
+        file << "\tfit_mode = " << fitModeToString.at(wd.fitMode) << "\n";
+        file << "}\n";
+      }
     }
   }
   file << "splash = " << (config.splash ? "true" : "false") << "\n";
@@ -290,8 +298,12 @@ void Configuration::writeWallflowerSave() {
   f << "\n";
   for (auto it = config.preferences.begin(); it != config.preferences.end(); it++) {
     WallpaperData wd = (*it).second;
-    for (size_t i = 0; i < wd.monitors.size(); i++) {
-      f << wd.monitors.at(i) << "," << wd.path << "," << fitModeToString.at(wd.fitMode) << "\n";
+    if (wd.monitors.size() == 0) {
+        f << "," << wd.path << "," << fitModeToString.at(wd.fitMode);
+    } else {
+        for (size_t i = 0; i < wd.monitors.size(); i++) {
+          f << wd.monitors.at(i) << "," << wd.path << "," << fitModeToString.at(wd.fitMode) << "\n";
+        }
     }
   }
   f.close();
