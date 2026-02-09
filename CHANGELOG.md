@@ -19,6 +19,10 @@ Dates are in the form: **mm-dd-yyyy**
 ### Changed
 - Changed UX for preferences configuration from dropdown to popover 
 
+### Fixed
+- Handles case where no hyprpaper.conf file exists by setting configuration to default values
+- Handles case where hyprpaer.conf is broken by setting configuration to default values
+
 ## [0.0.2] - 01-10-2026
 
 ### Added

@@ -204,12 +204,12 @@ void Configuration::writeHyprpaperConf() {
   std::ofstream backupFile(hyprpaperConfigPath.string() + ".bak");
   std::ifstream originalFile(hyprpaperConfigPath);
   if (!originalFile.is_open()) {
-    throw std::runtime_error("Could not open file: " +
-                             hyprpaperConfigPath.string());
+    Logger::logMsg(LogLabel::FAIL, "Unable to open previous hyprpaper.conf to create backup. Skipping backup procedure.");
+  } else {
+    backupFile << originalFile.rdbuf();
+    backupFile.close();
+    originalFile.close();
   }
-  backupFile << originalFile.rdbuf();
-  backupFile.close();
-  originalFile.close();
 
   // update existing config file
   std::ofstream file(hyprpaperConfigPath);
@@ -360,7 +360,8 @@ HyprpaperConfParser::HyprpaperConfParser(std::string_view path,
                                          WallflowerConfig &config) {
   std::ifstream f(path.data());
   if (!f.is_open()) {
-    throw std::runtime_error("Could not open file: " + std::string(path));
+    Logger::logMsg(LogLabel::FAIL, "Could not open file: " + std::string(path) + ". Using default configuration");
+    return;
   }
   std::string text((std::istreambuf_iterator<char>(f)),
                    std::istreambuf_iterator<char>());
@@ -412,6 +413,16 @@ HyprpaperConfParser::lexer(std::string_view text) {
 
 void HyprpaperConfParser::parse(const std::vector<Token> &tokens,
                                 WallflowerConfig &config) {
+  // create deep copy of config to avoid partial config updates 
+  WallflowerConfig tempConfig = (WallflowerConfig){
+      .wallpapers = {},
+      .splash = true,
+      .splash_offset = 20,
+      .splash_opacity = 0.8,
+      .ipc = true,
+      .preferences = {},
+      .searchPaths = {},
+  };
   size_t pos = 0;
   while (pos < tokens.size()) {
     // handle wallpaper object
@@ -425,7 +436,8 @@ void HyprpaperConfParser::parse(const std::vector<Token> &tokens,
         if (tokens.at(pos).tokenType == TokenType::KEYWORD) {
           if (tokens.at(pos).value == "path") {
             if (!Utils::isValidHyprPath(tokens.at(pos + 2).value)) {
-              throw std::runtime_error("Invalid path found in hyprpaper.conf");
+              Logger::logMsg(LogLabel::FAIL, "Invalid path found in hyprpaper.conf" + tokens.at(pos).value + ". Skipping. Using default configuration");
+              return;
             }
             // INFO: convert everything to absolute path
             if (tokens.at(pos + 2).value.at(0) == '~') {
@@ -444,31 +456,31 @@ void HyprpaperConfParser::parse(const std::vector<Token> &tokens,
               wd.fitMode = stringToFitMode.at(tokens.at(pos + 2).value);
             }
           } else {
-            throw std::runtime_error(
-                "Error parsing hyprpaper.conf: Uknown field for wallpaper " +
-                tokens.at(pos).value);
+            Logger::logMsg(LogLabel::FAIL, "Unknown field found in hyprpaper.conf: " + tokens.at(pos).value + ". Skipping. Using default configuration");
+            return;
           }
         }
         pos++;
       }
-      config.wallpapers.push_back(wd);
+      tempConfig.wallpapers.push_back(wd);
     }
 
     // handle all other assignments
     if (tokens.at(pos).tokenType == TokenType::KEYWORD) {
       if (tokens.at(pos).value == "splash") {
-        config.splash = (tokens.at(pos + 2).value == "true");
+        tempConfig.splash = (tokens.at(pos + 2).value == "true");
       } else if (tokens.at(pos).value == "splash_offset") {
-        config.splash_offset = std::stoi(tokens.at(pos + 2).value);
+        tempConfig.splash_offset = std::stoi(tokens.at(pos + 2).value);
       } else if (tokens.at(pos).value == "splash_opacity") {
-        config.splash_opacity = std::stof(tokens.at(pos + 2).value);
+        tempConfig.splash_opacity = std::stof(tokens.at(pos + 2).value);
       } else if (tokens.at(pos).value == "ipc") {
-        config.ipc = (tokens.at(pos + 2).value == "true");
+        tempConfig.ipc = (tokens.at(pos + 2).value == "true");
       } else {
-        throw std::runtime_error("Error parsing hyprpaper.conf: Uknown field " +
-                                 tokens.at(pos).value);
+        Logger::logMsg(LogLabel::FAIL, "Unknown field found in hyprpaper.conf: " + tokens.at(pos).value + ". Skipping. Using default configuration");
+        return;
       }
     }
     pos++;
   }
+  config = tempConfig;
 }

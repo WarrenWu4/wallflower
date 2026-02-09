@@ -1,4 +1,3 @@
-#include "bouncer.hpp"
 #include "raylib.h"
 #include "utils.hpp"
 #include "wallpaper_dropdown.hpp"
@@ -48,7 +47,6 @@ int main() {
 
   Logger::logMsg(LogLabel::DEBUG, "Initializing program objects");
 
-  std::shared_ptr<Bouncer> bouncer = std::make_shared<Bouncer>();
   std::shared_ptr<Configuration> configuration = std::make_shared<Configuration>();
 
   std::shared_ptr<Settings> settings = std::make_shared<Settings>(configuration);

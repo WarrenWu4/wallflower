@@ -1,5 +1,7 @@
 build
 .clangd
 .SRCINFO
+.cache
+compile_commands.json
 resources/wallflower.save
 resources/wallflower.log
