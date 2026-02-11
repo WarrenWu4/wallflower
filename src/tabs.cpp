@@ -85,6 +85,31 @@ void Tabs::bodyEl() {
           settingsPtr->settingsContainerEl();
           break;
       }
+      Clay_ScrollContainerData scrollData = Clay_GetScrollContainerData(CLAY_ID("ScrollContainer"));
+      Clay_Vector2 scrollOffset = Clay_GetScrollOffset();
+
+      if (scrollData.contentDimensions.height > scrollData.scrollContainerDimensions.height) {
+        float trackHeight = scrollData.scrollContainerDimensions.height;
+        float contentHeight = scrollData.contentDimensions.height;
+        float thumbHeight = (trackHeight / contentHeight) * trackHeight;
+        float thumbY = ((-scrollOffset.y) / contentHeight) * trackHeight;
+
+        CLAY(CLAY_ID("ScrollBar"), {
+            .floating = {
+              .offset = { 0, thumbY },
+              .attachPoints = { .element = CLAY_ATTACH_POINT_RIGHT_TOP, .parent = CLAY_ATTACH_POINT_RIGHT_TOP },
+              .attachTo = CLAY_ATTACH_TO_PARENT,
+            }
+        }) {
+          CLAY(CLAY_ID("ScrollThumb"), {
+              .layout = {
+                .sizing = { .width = CLAY_SIZING_FIXED(6), .height = CLAY_SIZING_FIXED(thumbHeight) }
+              },
+              .backgroundColor = COLOR_FOREGROUND_4, 
+          }) {}
+        }
+      }
+
     }
   }
 }

@@ -69,9 +69,7 @@ int main() {
 
   const float scrollSpeedMultiplier = 8.0f;
 
-  // loop
   while (!WindowShouldClose()) {
-    // update state
     Vector2 mousePosition = GetMousePosition();
     Vector2 scrollDelta = GetMouseWheelMoveV();
     float deltaTime = GetFrameTime();
@@ -80,6 +78,7 @@ int main() {
     Clay_SetLayoutDimensions(
         {(float)GetScreenWidth(), (float)GetScreenHeight()});
     Clay_UpdateScrollContainers(true, (Clay_Vector2) {scrollDelta.x * scrollSpeedMultiplier, scrollDelta.y * scrollSpeedMultiplier}, deltaTime);
+
 
     // build UI
     Clay_BeginLayout();
