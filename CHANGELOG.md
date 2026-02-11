@@ -15,6 +15,7 @@ Dates are in the form: **mm-dd-yyyy**
 - Separate button for opening file dialog to add folders and images
 - Can now select multiple folders or multiple images in file dialog
 - Can now select different monitors for each image
+- Visual scrollbar to indicate scroll position 
 
 ### Changed
 - Changed UX for preferences configuration from dropdown to popover 
