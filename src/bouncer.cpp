@@ -8,7 +8,7 @@
  */
 
 namespace Bouncer {
-void Bouncer::checkRequirements() {
+void checkRequirements() {
   // TODO: wip
   return;
 }
