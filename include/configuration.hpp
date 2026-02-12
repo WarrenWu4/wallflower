@@ -8,21 +8,31 @@
 #include <unordered_set>
 #include <vector>
 
-enum class FitMode { COVER, CONTAIN, TILE, FILL };
-const std::unordered_map<FitMode, std::string> fitModeToString({
-    {FitMode::COVER, "cover"},
-    {FitMode::CONTAIN, "contain"},
-    {FitMode::TILE, "tile"},
-    {FitMode::FILL, "fill"},
-});
-const std::unordered_map<std::string, FitMode> stringToFitMode({
-    {"cover", FitMode::COVER},
-    {"contain", FitMode::CONTAIN},
-    {"tile", FitMode::TILE},
-    {"fill", FitMode::FILL},
-});
-const std::vector<std::string> modeToStringUpper({"COVER", "CONTAIN", "TILE",
-                                                  "FILL"});
+#define FIT_MODE_LIST(V)                                                       \
+  V(COVER, "cover")                                                            \
+  V(CONTAIN, "contain")                                                        \
+  V(TILE, "tile")                                                              \
+  V(FILL, "fill")
+enum class FitMode {
+#define AS_ENUM(name, str) name,
+  FIT_MODE_LIST(AS_ENUM)
+#undef AS_ENUM
+};
+const std::unordered_map<FitMode, std::string> fitModeToString = {
+#define AS_STRING_MAP(name, str) {FitMode::name, str},
+    FIT_MODE_LIST(AS_STRING_MAP)
+#undef AS_STRING_MAP
+};
+const std::unordered_map<std::string, FitMode> stringToFitMode = {
+#define AS_ENUM_MAP(name, str) {str, FitMode::name},
+    FIT_MODE_LIST(AS_ENUM_MAP)
+#undef AS_ENUM_MAP
+};
+const std::vector<std::string> modeToStringUpper = {
+#define AS_UPPER_VEC(name, str) #name,
+    FIT_MODE_LIST(AS_UPPER_VEC)
+#undef AS_UPPER_VEC
+};
 
 struct WallpaperData {
   std::string path;
@@ -69,7 +79,7 @@ public:
   Configuration();
   ~Configuration();
 
-  const std::vector<MonitorInfo>& getMonitors();
+  const std::vector<MonitorInfo> &getMonitors();
 
   /*
    * update the user's current wallpaper by
@@ -77,7 +87,8 @@ public:
    * updates app config and hyprpaper.conf
    * with updated data
    */
-  void updateWallpaper(std::vector<std::string> display, std::string path, FitMode mode);
+  void updateWallpaper(std::vector<std::string> display, std::string path,
+                       FitMode mode);
 
   /*
    * parsers hyprpaper.conf and
@@ -116,12 +127,12 @@ public:
   void addPreferences(std::vector<WallpaperData> wds, bool overwrite = false);
 
   /*
-   * removes preferences from config 
+   * removes preferences from config
    */
   void removePreferences(std::vector<WallpaperData> wds);
 
   /*
-   * adds all new directories to the 
+   * adds all new directories to the
    * app config directories parameter
    * validates that all directory paths exists and no duplicates
    */
