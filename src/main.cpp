@@ -1,4 +1,5 @@
 #include "raylib.h"
+#include "simplified_view.hpp"
 #include "utils.hpp"
 #include "wallpaper_dropdown.hpp"
 #define CLAY_IMPLEMENTATION
@@ -54,7 +55,8 @@ int main() {
   std::shared_ptr<WallpaperDropdown> wd = std::make_shared<WallpaperDropdown>(configuration);
   std::shared_ptr<Wallpapers> wp = std::make_shared<Wallpapers>(configuration, settings, wd);
 
-  std::shared_ptr<Tabs> tabs = std::make_shared<Tabs>(TabType::Gallery, wp, settings);
+  std::shared_ptr<SimplifiedView> simplifiedView = std::make_shared<SimplifiedView>();
+  std::shared_ptr<Tabs> tabs = std::make_shared<Tabs>(TabType::Gallery, wp, settings, simplifiedView);
 
   // register callbacks
   configuration->callbackAddDirectory.push_back([&]() {

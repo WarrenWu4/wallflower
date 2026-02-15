@@ -1,11 +1,14 @@
 #include "tabs.hpp"
+#include "simplified_view.hpp"
 #include "utils.hpp"
 #include "logger.hpp"
+#include "colors.h"
 
-Tabs::Tabs(TabType initType, std::shared_ptr<Wallpapers> wp, std::shared_ptr<Settings> settingsPtr) {
+Tabs::Tabs(TabType initType, std::shared_ptr<Wallpapers> wp, std::shared_ptr<Settings> settingsPtr, std::shared_ptr<SimplifiedView> simplifiedPtr) {
   currentTab = initType;
   this->wp = wp;
   this->settingsPtr = settingsPtr;
+  this->simplifiedPtr = simplifiedPtr;
   std::filesystem::path resourcePath = Utils::getResourcePath();
   settingsIcon = LoadTexture((resourcePath.generic_string() + "icons/settings-icon.png").c_str());
   galleryIcon = LoadTexture((resourcePath.generic_string() + "icons/wallpaper-icon.png").c_str());
@@ -83,6 +86,9 @@ void Tabs::bodyEl() {
           break;
         case TabType::Settings:
           settingsPtr->settingsContainerEl();
+          break;
+        case TabType::Simplified:
+          simplifiedPtr->SimplifiedViewEl();
           break;
       }
       Clay_ScrollContainerData scrollData = Clay_GetScrollContainerData(CLAY_ID("ScrollContainer"));
