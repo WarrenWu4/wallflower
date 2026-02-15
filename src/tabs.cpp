@@ -1,8 +1,74 @@
 #include "tabs.hpp"
+#include "settings.hpp"
 #include "simplified_view.hpp"
 #include "utils.hpp"
 #include "logger.hpp"
 #include "colors.h"
+
+void Tabs::loadMenuButtonData(std::filesystem::path resourcePath) {
+  // TODO: add loading of menu button icon
+  menuButtonData.showDropdown = false;
+}
+
+void Tabs::menuButtonEl() {
+  CLAY(CLAY_ID("MenuButton"), {
+    .layout = {
+      .sizing = {CLAY_SIZING_FIXED(16), CLAY_SIZING_FIXED(16)},
+    },
+    .backgroundColor = COLOR_BLUE_LIGHT,
+  }) {
+
+    if (Clay_Hovered()) {
+      SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
+      if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+        menuButtonData.showDropdown = !menuButtonData.showDropdown;
+      }
+    } else {
+      SetMouseCursor(MOUSE_CURSOR_DEFAULT);
+    }
+
+    if (menuButtonData.showDropdown) {
+
+      CLAY(CLAY_ID("MenuButtonDropdown"), {
+        .layout = {
+          .sizing = { CLAY_SIZING_FIT(), CLAY_SIZING_FIT() },
+          .padding = {12, 12, 12, 12},
+          .childGap = 8,
+          .layoutDirection = CLAY_TOP_TO_BOTTOM
+        },
+        .backgroundColor = COLOR_BACKGROUND_2,
+        .floating = {
+          .offset = { 0, 8 },
+          .attachPoints = {
+            .element = CLAY_ATTACH_POINT_RIGHT_TOP,
+            .parent = CLAY_ATTACH_POINT_RIGHT_BOTTOM
+          },
+          .attachTo = CLAY_ATTACH_TO_PARENT,
+        }
+      }) {
+        for (size_t i = 0; i < tabData.size(); i++) {
+          CLAY(CLAY_IDI("MenuButtonDropdownItem", i), {
+            .layout = {
+              .sizing = { CLAY_SIZING_FIT(), CLAY_SIZING_FIT() },
+            }
+          }) {
+            CLAY_TEXT(
+              Clay_String({
+                .length = static_cast<int32_t>(tabData.at(i).size()),
+                .chars = tabData.at(i).c_str()
+              }),
+              CLAY_TEXT_CONFIG({
+                .textColor = COLOR_FOREGROUND_3,
+                .fontSize = 20
+              })
+            );
+          }
+        }
+      }
+
+    }
+  }
+}
 
 Tabs::Tabs(TabType initType, std::shared_ptr<Wallpapers> wp, std::shared_ptr<Settings> settingsPtr, std::shared_ptr<SimplifiedView> simplifiedPtr) {
   currentTab = initType;
@@ -12,6 +78,7 @@ Tabs::Tabs(TabType initType, std::shared_ptr<Wallpapers> wp, std::shared_ptr<Set
   std::filesystem::path resourcePath = Utils::getResourcePath();
   settingsIcon = LoadTexture((resourcePath.generic_string() + "icons/settings-icon.png").c_str());
   galleryIcon = LoadTexture((resourcePath.generic_string() + "icons/wallpaper-icon.png").c_str());
+  loadMenuButtonData(resourcePath);
 }
 
 Tabs::~Tabs() {
@@ -64,6 +131,7 @@ void Tabs::tabEl() {
         }, 
         .image = { .imageData = (currentTab == TabType::Gallery) ? &settingsIcon : &galleryIcon} 
       }) {}
+      menuButtonEl();
     }
   }
 }
