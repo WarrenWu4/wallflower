@@ -22,6 +22,7 @@ void Tabs::menuButtonEl() {
       SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
       if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
         menuButtonData.showDropdown = !menuButtonData.showDropdown;
+        Logger::logMsg(LogLabel::DEBUG, "Toggling menu dropdown");
       }
     } else {
       SetMouseCursor(MOUSE_CURSOR_DEFAULT);
@@ -52,6 +53,17 @@ void Tabs::menuButtonEl() {
               .sizing = { CLAY_SIZING_FIT(), CLAY_SIZING_FIT() },
             }
           }) {
+
+            if (Clay_Hovered()) {
+              SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
+              if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+                Logger::logMsg(LogLabel::DEBUG, "Moving to screen: " + tabData.at(i));
+                currentTab = static_cast<TabType>(i);
+                Logger::logMsg(LogLabel::DEBUG, "Closing menu dropdown");
+                menuButtonData.showDropdown = false;
+              }
+            }
+
             CLAY_TEXT(
               Clay_String({
                 .length = static_cast<int32_t>(tabData.at(i).size()),
