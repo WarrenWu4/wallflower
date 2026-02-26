@@ -1,13 +1,39 @@
 #include "tabs.hpp"
+#include "raylib.h"
 #include "settings.hpp"
 #include "simplified_view.hpp"
 #include "utils.hpp"
 #include "logger.hpp"
 #include "colors.h"
 
+void Tabs::loadTabsData(std::filesystem::path resourcePath) {
+  const std::vector<std::string> iconNames = {
+    "wallpaper-icon.png", "settings-icon.png", "wallpaper-icon.png"
+  };
+  for (size_t i = 0; i < iconNames.size(); i++) {
+    std::string iconPath = resourcePath / "icons" / iconNames.at(i);
+    tabsData.push_back((TabData){
+      .type = static_cast<TabType>(i),
+      .name = tabData.at(i),
+      .iconPath = iconPath,
+      .icon = LoadTexture(iconPath.c_str())
+    });
+  }
+}
+
+void Tabs::unloadTabsData() {
+  for (const TabData& tab : tabsData) {
+    UnloadTexture(tab.icon);
+  }
+}
+
 void Tabs::loadMenuButtonData(std::filesystem::path resourcePath) {
   // TODO: add loading of menu button icon
   menuButtonData.showDropdown = false;
+}
+
+void Tabs::unloadMenuButtonData() {
+  UnloadTexture(menuButtonData.icon);
 }
 
 void Tabs::menuButtonEl() {
@@ -35,9 +61,10 @@ void Tabs::menuButtonEl() {
           .sizing = { CLAY_SIZING_FIT(), CLAY_SIZING_FIT() },
           .padding = {12, 12, 12, 12},
           .childGap = 8,
-          .layoutDirection = CLAY_TOP_TO_BOTTOM
+          .layoutDirection = CLAY_TOP_TO_BOTTOM,
         },
         .backgroundColor = COLOR_BACKGROUND_2,
+        .cornerRadius = {4, 4, 4, 4},
         .floating = {
           .offset = { 0, 8 },
           .attachPoints = {
@@ -45,33 +72,46 @@ void Tabs::menuButtonEl() {
             .parent = CLAY_ATTACH_POINT_RIGHT_BOTTOM
           },
           .attachTo = CLAY_ATTACH_TO_PARENT,
-        }
+        },
+        .border = {
+          .color = COLOR_FOREGROUND_4,
+          .width = {2, 2, 2, 2}
+        },
       }) {
-        for (size_t i = 0; i < tabData.size(); i++) {
+        for (size_t i = 0; i < tabsData.size(); i++) {
           CLAY(CLAY_IDI("MenuButtonDropdownItem", i), {
             .layout = {
               .sizing = { CLAY_SIZING_FIT(), CLAY_SIZING_FIT() },
+              .padding = {0, 0, 4, 4},
+              .childGap = 8,
             }
           }) {
 
             if (Clay_Hovered()) {
               SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
               if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-                Logger::logMsg(LogLabel::DEBUG, "Moving to screen: " + tabData.at(i));
+                Logger::logMsg(LogLabel::DEBUG, "Moving to screen: " + tabsData.at(i).name);
                 currentTab = static_cast<TabType>(i);
                 Logger::logMsg(LogLabel::DEBUG, "Closing menu dropdown");
                 menuButtonData.showDropdown = false;
               }
             }
 
+            CLAY(CLAY_IDI("MenuButtonDropdownItemIcon", i), {
+                .layout = { 
+                .sizing = { .width = CLAY_SIZING_FIXED(16), .height = CLAY_SIZING_FIXED(16) }
+                }, 
+                .image = { .imageData = &tabsData.at(i).icon } 
+            }) {}
+
             CLAY_TEXT(
               Clay_String({
-                .length = static_cast<int32_t>(tabData.at(i).size()),
-                .chars = tabData.at(i).c_str()
+                .length = static_cast<int32_t>(tabsData.at(i).name.size()),
+                .chars = tabsData.at(i).name.c_str()
               }),
               CLAY_TEXT_CONFIG({
-                .textColor = COLOR_FOREGROUND_3,
-                .fontSize = 20
+                .textColor = COLOR_FOREGROUND_0,
+                .fontSize = 16 
               })
             );
           }
@@ -90,12 +130,16 @@ Tabs::Tabs(TabType initType, std::shared_ptr<Wallpapers> wp, std::shared_ptr<Set
   std::filesystem::path resourcePath = Utils::getResourcePath();
   settingsIcon = LoadTexture((resourcePath.generic_string() + "icons/settings-icon.png").c_str());
   galleryIcon = LoadTexture((resourcePath.generic_string() + "icons/wallpaper-icon.png").c_str());
+
+  loadTabsData(resourcePath);
   loadMenuButtonData(resourcePath);
 }
 
 Tabs::~Tabs() {
   UnloadTexture(settingsIcon);
   UnloadTexture(galleryIcon);
+  unloadTabsData();
+  unloadMenuButtonData();
   Logger::logMsg(LogLabel::OK, "Destructor ran");
 }
 

@@ -15,16 +15,27 @@ struct MenuButtonData {
   bool showDropdown;
 };
 
+struct TabData {
+  TabType type;
+  std::string name;
+  std::string iconPath;
+  Texture2D icon;
+};
+
 class Tabs {
 private:
+  std::vector<TabData> tabsData;
+  void loadTabsData(std::filesystem::path resourcePath);
+  void unloadTabsData();
+
   MenuButtonData menuButtonData;
   void loadMenuButtonData(std::filesystem::path resourcePath);
+  void unloadMenuButtonData();
   void menuButtonEl();
 
 public:
   const int numTabs = 3;
-  const std::vector<std::string> tabData = {"Gallery", "Settings",
-                                            "Simplified"};
+  const std::vector<std::string> tabData = {"Gallery", "Settings", "Simplified"};
 
   Texture2D galleryIcon;
   Texture2D settingsIcon;
