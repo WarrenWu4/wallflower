@@ -79,12 +79,15 @@ void Tabs::menuButtonEl() {
         },
       }) {
         for (size_t i = 0; i < tabsData.size(); i++) {
+          bool isActive = currentTab == static_cast<TabType>(i);
           CLAY(CLAY_IDI("MenuButtonDropdownItem", i), {
             .layout = {
-              .sizing = { CLAY_SIZING_FIT(), CLAY_SIZING_FIT() },
-              .padding = {0, 0, 4, 4},
-              .childGap = 8,
-            }
+              .sizing = { CLAY_SIZING_GROW(), CLAY_SIZING_FIT() },
+              .padding = {12, 12, 6, 6},
+              .childGap = 10,
+            },
+            .backgroundColor = isActive ? COLOR_BACKGROUND_4 : (Clay_Hovered() ? COLOR_BACKGROUND_3 : COLOR_BACKGROUND_2),
+            .cornerRadius = {4, 4, 4, 4},
           }) {
 
             if (Clay_Hovered()) {
@@ -110,7 +113,7 @@ void Tabs::menuButtonEl() {
                 .chars = tabsData.at(i).name.c_str()
               }),
               CLAY_TEXT_CONFIG({
-                .textColor = COLOR_FOREGROUND_0,
+                .textColor = isActive ? COLOR_FOREGROUND_0 : COLOR_FOREGROUND_3,
                 .fontSize = 16 
               })
             );
@@ -173,20 +176,6 @@ void Tabs::tabEl() {
       .backgroundColor = (Clay_Hovered()) ? COLOR_FOREGROUND_1 : COLOR_FOREGROUND_3,
       .cornerRadius = {24, 24, 24, 24},
     }) {
-      if (Clay_Hovered()) {
-        SetMouseCursor(MOUSE_CURSOR_POINTING_HAND);
-        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-          currentTab = (currentTab == TabType::Gallery) ? TabType::Settings : TabType::Gallery;
-        }
-      } else {
-        SetMouseCursor(MOUSE_CURSOR_DEFAULT);
-      }
-      CLAY(CLAY_ID("TabsButtonIcon"), {
-        .layout = { 
-          .sizing = { .width = CLAY_SIZING_FIXED(16), .height = CLAY_SIZING_FIXED(16) }
-        }, 
-        .image = { .imageData = (currentTab == TabType::Gallery) ? &settingsIcon : &galleryIcon} 
-      }) {}
       menuButtonEl();
     }
   }
