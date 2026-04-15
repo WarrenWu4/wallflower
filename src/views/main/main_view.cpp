@@ -1,6 +1,6 @@
 #include "main.hpp"
-#include "../../core/clay.h"
-#include "../../core/colors.h"
+#include "../../include/../../core/clay.h"
+#include "../../include/../../core/colors.h"
 
 AppMsg Main_View(const AppModel *m) {
     AppMsg result = MSG_NONE;

@@ -1,10 +1,10 @@
-#include "wallpapers.hpp"
-#include "configuration.hpp"
-#include "../core/colors.h"
-#include "../utils/logger.hpp"
-#include "../core/raylib.h"
-#include "../utils/utils.hpp"
-#include "wallpaper_dropdown.hpp"
+#include "../../include/data_managers/wallpapers.hpp"
+#include "../../include/configuration.hpp"
+#include "../../include/../core/colors.h"
+#include "../../include/../utils/logger.hpp"
+#include "../../include/../core/raylib.h"
+#include "../../include/../utils/utils.hpp"
+#include "../../include/wallpaper_dropdown.hpp"
 #include <cassert>
 
 Wallpapers::Wallpapers(std::shared_ptr<Configuration> configuration,

@@ -1,12 +1,12 @@
-#include "raylib.h"
+#include "../../include/core/raylib.h"
 #define CLAY_IMPLEMENTATION
-#include "clay.h"
+#include "../../include/core/clay.h"
 #include "clay_renderer_raylib.c"
-#include "colors.h"
-#include "../data_managers/configuration.hpp"
-#include "../utils/utils.hpp"
-#include "../utils/logger.hpp"
-#include "../views/main/main.hpp"
+#include "../../include/core/colors.h"
+#include "../../include/data_managers/configuration.hpp"
+#include "../../include/utils/utils.hpp"
+#include "../../include/utils/logger.hpp"
+#include "../../include/views/main/main.hpp"
 
 #include <memory>
 #include <cstdio>
