@@ -1,7 +1,7 @@
 #pragma once
 
-#include "clay.h"
-#include "raylib.h"
+#include "../core/clay.h"
+#include "../core/raylib.h"
 #include "settings.hpp"
 #include "wallpaper_dropdown.hpp"
 #include <string>

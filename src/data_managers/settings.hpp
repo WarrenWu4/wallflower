@@ -1,8 +1,8 @@
 #pragma once
 
-#include "clay.h"
+#include "../core/clay.h"
 #include "configuration.hpp"
-#include "raylib.h"
+#include "../core/raylib.h"
 #include <memory>
 #include <string>
 

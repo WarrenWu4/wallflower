@@ -1,6 +1,6 @@
 #include "configuration.hpp"
-#include "logger.hpp"
-#include "utils.hpp"
+#include "../utils/logger.hpp"
+#include "../utils/utils.hpp"
 #include <cassert>
 #include <filesystem>
 #include <fstream>

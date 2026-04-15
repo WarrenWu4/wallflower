@@ -1,9 +1,9 @@
 #include "wallpapers.hpp"
 #include "configuration.hpp"
-#include "colors.h"
-#include "logger.hpp"
-#include "raylib.h"
-#include "utils.hpp"
+#include "../core/colors.h"
+#include "../utils/logger.hpp"
+#include "../core/raylib.h"
+#include "../utils/utils.hpp"
 #include "wallpaper_dropdown.hpp"
 #include <cassert>
 
