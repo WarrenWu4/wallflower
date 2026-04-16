@@ -1,12 +1,11 @@
-#include "../../include/core/raylib.h"
+#include "core/raylib.h"
 #define CLAY_IMPLEMENTATION
-#include "../../include/core/clay.h"
-#include "clay_renderer_raylib.c"
-#include "../../include/core/colors.h"
-#include "../../include/data_managers/configuration.hpp"
-#include "../../include/utils/utils.hpp"
-#include "../../include/utils/logger.hpp"
-#include "../../include/views/main/main.hpp"
+#include "core/clay.h"
+#include "core/clay_renderer_raylib.c"
+#include "data_managers/configuration.hpp"
+#include "utils/utils.hpp"
+#include "utils/logger.hpp"
+#include "views/main/main.hpp"
 
 #include <memory>
 #include <cstdio>
@@ -29,11 +28,13 @@ int main() {
   Clay_Arena arena = Clay_CreateArenaWithCapacityAndMemory(clayMemorySize, clayMemory.get());
   Clay_Initialize(arena, (Clay_Dimensions){screenWidth, screenHeight}, (Clay_ErrorHandler){HandleClayErrors});
 
+  Logger::logMsg(LogLabel::DEBUG, "Loading fonts");
   std::filesystem::path resourcePath = Utils::getResourcePath();
   Font fontMontserratSemiBold = LoadFont((resourcePath.generic_string() + "fonts/Montserrat-SemiBold.ttf").c_str());
   SetTextureFilter(fontMontserratSemiBold.texture, TEXTURE_FILTER_BILINEAR);
   Clay_SetMeasureTextFunction(Raylib_MeasureText, &fontMontserratSemiBold);
 
+  Logger::logMsg(LogLabel::DEBUG, "Initializing configuration");
   std::shared_ptr<Configuration> configuration = std::make_shared<Configuration>();
   AppModel appState = { TAB_GALLERY, "", false, FitMode::COVER };
 

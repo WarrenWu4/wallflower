@@ -1,5 +1,5 @@
-#include "../../include/utils/utils.hpp"
-#include "../../include/utils/logger.hpp"
+#include "utils/utils.hpp"
+#include "utils/logger.hpp"
 #include <algorithm>
 #include <filesystem>
 #include <fstream>

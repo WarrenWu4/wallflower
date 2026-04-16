@@ -1,9 +1,8 @@
 #pragma once
 
-#include "../core/clay.h"
-#include "../core/raylib.h"
+#include "core/clay.h"
+#include "core/raylib.h"
 #include "settings.hpp"
-#include "wallpaper_dropdown.hpp"
 #include <string>
 #include <vector>
 
@@ -16,7 +15,6 @@ class Wallpapers {
 private:
   std::shared_ptr<Configuration> configuration;
   std::shared_ptr<Settings> settings;
-  std::shared_ptr<WallpaperDropdown> dropdown;
 
   std::unordered_map<std::string, WallpaperImage> images;
   std::unordered_set<std::string> searchPathSnapshot;
@@ -26,8 +24,7 @@ private:
 
 public:
   Wallpapers(std::shared_ptr<Configuration> configuration,
-             std::shared_ptr<Settings> settings,
-             std::shared_ptr<WallpaperDropdown> wd);
+             std::shared_ptr<Settings> settings);
   ~Wallpapers();
 
   void wallpaperContainerEl();

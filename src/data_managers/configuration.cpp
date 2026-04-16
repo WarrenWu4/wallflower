@@ -1,6 +1,6 @@
-#include "../../include/data_managers/configuration.hpp"
-#include "../../include/../utils/logger.hpp"
-#include "../../include/../utils/utils.hpp"
+#include "data_managers/configuration.hpp"
+#include "utils/logger.hpp"
+#include "utils/utils.hpp"
 #include <cassert>
 #include <filesystem>
 #include <fstream>

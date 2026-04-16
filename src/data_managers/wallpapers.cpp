@@ -1,18 +1,15 @@
-#include "../../include/data_managers/wallpapers.hpp"
-#include "../../include/configuration.hpp"
-#include "../../include/../core/colors.h"
-#include "../../include/../utils/logger.hpp"
-#include "../../include/../core/raylib.h"
-#include "../../include/../utils/utils.hpp"
-#include "../../include/wallpaper_dropdown.hpp"
+#include "data_managers/wallpapers.hpp"
+#include "core/colors.h"
+#include "core/raylib.h"
+#include "data_managers/configuration.hpp"
+#include "utils/logger.hpp"
+#include "utils/utils.hpp"
 #include <cassert>
 
 Wallpapers::Wallpapers(std::shared_ptr<Configuration> configuration,
-                       std::shared_ptr<Settings> settings,
-                       std::shared_ptr<WallpaperDropdown> wd) {
+                       std::shared_ptr<Settings> settings) {
   this->configuration = configuration;
   this->settings = settings;
-  this->dropdown = wd;
 
   this->images = {};
   this->searchPathSnapshot = {};
@@ -40,27 +37,16 @@ Wallpapers::~Wallpapers() {
 void Wallpapers::wallpaperContainerEl() {
   CLAY(CLAY_ID("WallpaperContainer"),
        {
-           .layout =
-               {
-                   .sizing = {CLAY_SIZING_GROW(0), CLAY_SIZING_GROW(0)},
-                   .childGap = 16,
-                   .layoutDirection = CLAY_TOP_TO_BOTTOM
-               },
+           .layout = {.sizing = {CLAY_SIZING_GROW(0), CLAY_SIZING_GROW(0)},
+                      .childGap = 16,
+                      .layoutDirection = CLAY_TOP_TO_BOTTOM},
        }) {
     CLAY_TEXT(
-      CLAY_STRING("Left click to update wallpaper"),
-      CLAY_TEXT_CONFIG({
-        .textColor = COLOR_FOREGROUND_3,
-        .fontSize = 20
-      })
-    );
+        CLAY_STRING("Left click to update wallpaper"),
+        CLAY_TEXT_CONFIG({.textColor = COLOR_FOREGROUND_3, .fontSize = 20}));
     CLAY_TEXT(
-      CLAY_STRING("Right click to configure wallpaper"),
-      CLAY_TEXT_CONFIG({
-        .textColor = COLOR_FOREGROUND_3,
-        .fontSize = 20
-      })
-    );
+        CLAY_STRING("Right click to configure wallpaper"),
+        CLAY_TEXT_CONFIG({.textColor = COLOR_FOREGROUND_3, .fontSize = 20}));
     // distribute wallpapers
     wallpapersOrdered = {};
     if (activeWallpaper != "" && images.find(activeWallpaper) != images.end()) {
@@ -71,12 +57,14 @@ void Wallpapers::wallpaperContainerEl() {
         wallpapersOrdered.push_back((*it).first);
       }
     }
-    CLAY(CLAY_ID("WallpaperColContainer"), {
-      .layout = {
-        .sizing = {CLAY_SIZING_GROW(0), CLAY_SIZING_GROW(0)},
-        .childGap = 16,
-      },
-    }) {
+    CLAY(CLAY_ID("WallpaperColContainer"),
+         {
+             .layout =
+                 {
+                     .sizing = {CLAY_SIZING_GROW(0), CLAY_SIZING_GROW(0)},
+                     .childGap = 16,
+                 },
+         }) {
       wallpaperColEl(0);
       wallpaperColEl(1);
       wallpaperColEl(2);
@@ -120,7 +108,8 @@ void Wallpapers::wallpaperEl(int id, const std::string &path,
         Logger::logMsg(LogLabel::DEBUG, "Updating active wallpaper");
         const WallflowerConfig &temp = configuration->getConfig();
         if (temp.preferences.contains(path)) {
-          configuration->updateWallpaper(temp.preferences.at(path).monitors, path,
+          configuration->updateWallpaper(temp.preferences.at(path).monitors,
+                                         path,
                                          temp.preferences.at(path).fitMode);
         } else {
           configuration->updateWallpaper({""}, path, settings->defaultMode);
@@ -128,8 +117,6 @@ void Wallpapers::wallpaperEl(int id, const std::string &path,
         activeWallpaper = path;
       } else if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {
         Logger::logMsg(LogLabel::DEBUG, "Opening wallpaper config menu");
-        dropdown->wallpaperPath = path;
-        dropdown->open();
       }
     }
   }

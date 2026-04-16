@@ -1,7 +1,7 @@
-#include "../../include/data_managers/settings.hpp"
-#include "../../include/../core/colors.h"
-#include "../../include/../utils/logger.hpp"
-#include "../../include/../utils/utils.hpp"
+#include "data_managers/settings.hpp"
+#include "core/colors.h"
+#include "utils/logger.hpp"
+#include "utils/utils.hpp"
 
 Settings::Settings(std::shared_ptr<Configuration> configuration) {
   searchPathToRemove = "";
