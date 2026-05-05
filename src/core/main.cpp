@@ -6,6 +6,7 @@
 #include "utils/utils.hpp"
 #include "utils/logger.hpp"
 #include "views/main/main.hpp"
+#include "views/gallery/gallery.hpp"
 
 #include <memory>
 #include <cstdio>
@@ -36,7 +37,7 @@ int main() {
 
   Logger::logMsg(LogLabel::DEBUG, "Initializing configuration");
   std::shared_ptr<Configuration> configuration = std::make_shared<Configuration>();
-  AppModel appState = { TAB_GALLERY, "", false, FitMode::COVER };
+  AppModel appState = {.currentTab = TAB_GALLERY, .galleryModel = Gallery_Init()};
 
   while (!WindowShouldClose()) {
     Vector2 mousePosition = GetMousePosition();

@@ -1,26 +1,21 @@
 #pragma once
+#include "views/gallery/gallery.hpp"
 #include <string>
-#include "data_managers/configuration.hpp"
 
 // event/message definitions
 typedef enum {
     MSG_NONE,
     MSG_SELECT_TAB,
-    MSG_SET_WALLPAPER,
-    MSG_TOGGLE_DROPDOWN,
-    MSG_SET_FIT_MODE,
 } AppMsg;
 
-typedef enum { TAB_GALLERY, TAB_SETTINGS, TAB_SIMPLIFIED } TabType;
+typedef enum { TAB_GALLERY, TAB_SETTINGS } TabType;
 
 // define the app data
 typedef struct {
     TabType currentTab;
-    std::string activeWallpaper;
-    bool dropdownVisible;
-    FitMode currentFitMode;
+    GalleryModel galleryModel;
 } AppModel;
 
 // view functions (update to handle events and view to render UI)
 AppModel Main_Update(AppModel m, AppMsg msg, std::string payload = "");
-AppMsg   Main_View(const AppModel *m);
+AppMsg Main_View(const AppModel *m);

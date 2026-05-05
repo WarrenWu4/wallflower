@@ -1,0 +1,10 @@
+---
+# Base your style on a standard (e.g., LLVM, Google, WebKit)
+BasedOnStyle: LLVM
+# Set the indentation width to 4 spaces
+IndentWidth: 4
+# Ensure tabs are not used for indentation
+UseTab: Never
+# (Optional) Width for line continuations
+ContinuationIndentWidth: 4
+
