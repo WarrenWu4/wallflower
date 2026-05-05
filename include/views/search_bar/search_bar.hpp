@@ -4,13 +4,14 @@
 
 // event/message definitions
 typedef enum {
-    SEARCH_BAR_MSG_NONE,
     SEARCH_BAR_MSG_QUERY,
     SEARCH_BAR_MSG_SELECT,
 } SearchBarMsg;
 
 // define the app data
 typedef struct {
+    std::string query;
+    std::string placeholder;
     std::vector<std::string> searchResults;
     std::vector<std::string> searchOptions;
     int activeOption;
