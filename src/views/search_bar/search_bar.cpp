@@ -1,29 +1,27 @@
-#include "views/gallery/gallery.hpp"
+#include "views/search_bar/search_bar.hpp"
 #include "core/clay.h"
 #include "core/colors.h"
 
-GalleryModel Gallery_Init() {
+SearchBarModel SearchBar_Init() {
     return {
-        .activeWallpapers = {},
-        .availableWallpapers = {},
+        .searchResults = {},
+        .searchOptions = {},
+        .activeOption = 0,
     };
 }
 
-GalleryModel Gallery_Update(GalleryModel m, GalleryMsg msg,
-                            std::string payload) {
+SearchBarModel SearchBar_Update(SearchBarModel m, SearchBarMsg msg,
+                                std::string payload) {
     switch (msg) {
-    case MSG_SET_WALLPAPER:
-        m.activeWallpapers.push_back(payload);
-        break;
     default:
         break;
     }
     return m;
 }
 
-GalleryModel Gallery_View(GalleryModel m) {
+SearchBarModel SearchBar_View(SearchBarModel m) {
 
-    CLAY(CLAY_ID("GalleryContainer"),
+    CLAY(CLAY_ID("SearchBarContainer"),
          {
              .layout = {.sizing = {CLAY_SIZING_GROW(0), CLAY_SIZING_GROW(0)},
                         .padding = {CLAY_PADDING_ALL(16)},

@@ -5,8 +5,7 @@
 #include "data_managers/configuration.hpp"
 #include "utils/utils.hpp"
 #include "utils/logger.hpp"
-#include "views/main/main.hpp"
-#include "views/gallery/gallery.hpp"
+#include "views/root/root.hpp"
 
 #include <memory>
 #include <cstdio>
@@ -37,7 +36,7 @@ int main() {
 
   Logger::logMsg(LogLabel::DEBUG, "Initializing configuration");
   std::shared_ptr<Configuration> configuration = std::make_shared<Configuration>();
-  AppModel appState = {.currentTab = TAB_GALLERY, .galleryModel = Gallery_Init()};
+  RootModel rootModel = Root_Init();
 
   while (!WindowShouldClose()) {
     Vector2 mousePosition = GetMousePosition();
@@ -49,8 +48,7 @@ int main() {
     Clay_UpdateScrollContainers(true, (Clay_Vector2) {scrollDelta.x * 8.0f, scrollDelta.y * 8.0f}, deltaTime);
 
     Clay_BeginLayout();
-    AppMsg msg = Main_View(&appState);
-    appState = Main_Update(appState, msg);
+    rootModel = Root_View(rootModel);
     Clay_RenderCommandArray renderCommands = Clay_EndLayout();
 
     BeginDrawing();

@@ -18,4 +18,4 @@ typedef struct {
 GalleryModel Gallery_Init();
 GalleryModel Gallery_Update(GalleryModel m, GalleryMsg msg,
                             std::string payload = "");
-GalleryMsg Gallery_View(const GalleryModel *m);
+GalleryModel Gallery_View(GalleryModel m);

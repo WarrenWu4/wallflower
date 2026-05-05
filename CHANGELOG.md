@@ -55,4 +55,5 @@ Dates are in the form: **mm-dd-yyyy**
 
 ---
 
+[0.0.2]: https://github.com/WarrenWu4/wallflower/releases/tag/v0.0.2
 [0.0.1]: https://github.com/WarrenWu4/wallflower/releases/tag/v0.0.1
