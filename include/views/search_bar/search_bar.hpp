@@ -1,5 +1,6 @@
 #pragma once
 #include "core/messages.hpp"
+#include <memory>
 #include <queue>
 #include <string>
 #include <vector>
@@ -14,7 +15,8 @@ struct SearchBarModel {
 };
 
 // view functions (update to handle events and view to render UI)
-SearchBarModel SearchBar_Init();
-SearchBarModel SearchBar_Update(SearchBarModel model,
-                                SearchBarMessageGroup message);
-void SearchBar_View(SearchBarModel m, std::queue<Message> &messageQueue);
+std::shared_ptr<SearchBarModel> SearchBar_Init();
+void SearchBar_Update(std::shared_ptr<SearchBarModel> model,
+                      SearchBarMessageGroup message);
+void SearchBar_View(std::shared_ptr<SearchBarModel> model,
+                    std::queue<Message> &messageQueue);

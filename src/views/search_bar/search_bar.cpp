@@ -2,29 +2,33 @@
 #include "core/clay.h"
 #include "core/colors.h"
 
-SearchBarModel SearchBar_Init() {
-    return {
-        .query = "",
-        .placeholder = "Search wallpapers...",
-        .searchResults = {},
-        .searchOptions = {},
-        .activeOption = 0,
-    };
-}
-
-SearchBarModel SearchBar_Update(SearchBarModel model, SearchBarMessageGroup message) {
-    std::visit([&](auto&& arg) {
-        using T = std::decay_t<decltype(arg)>;
-        if constexpr (std::is_same_v<T, SearchBarMessages::Query>) {
-            model.query = arg.query;
-        } else if constexpr (std::is_same_v<T, SearchBarMessages::Select>) {
-            model.activeOption = arg.optionIndex;
-        }
-    }, message);
+std::shared_ptr<SearchBarModel> SearchBar_Init() {
+    std::shared_ptr<SearchBarModel> model =
+        std::make_shared<SearchBarModel>(SearchBarModel{
+            .query = "",
+            .placeholder = "Search wallpapers...",
+            .searchResults = {},
+            .searchOptions = {"Option 1", "Option 2", "Option 3"},
+            .activeOption = -1,
+        });
     return model;
 }
 
-void SearchBar_View(SearchBarModel model, std::queue<Message> &messageQueue) {
+void SearchBar_Update(std::shared_ptr<SearchBarModel> model,
+                      SearchBarMessageGroup message) {
+    std::visit(
+        [&](auto &&arg) {
+            using T = std::decay_t<decltype(arg)>;
+            if constexpr (std::is_same_v<T, SearchBarMessages::Query>) {
+                model->query = arg.query;
+            } else if constexpr (std::is_same_v<T, SearchBarMessages::Select>) {
+                model->activeOption = arg.optionIndex;
+            }
+        },
+        message);
+}
+
+void SearchBar_View(std::shared_ptr<SearchBarModel> model, std::queue<Message> &messageQueue) {
     CLAY(CLAY_ID("SearchBarContainer"),
          {.layout =
               {
@@ -52,25 +56,26 @@ void SearchBar_View(SearchBarModel model, std::queue<Message> &messageQueue) {
                                             .y = CLAY_ALIGN_Y_CENTER},
                      },
              }) {
-            if (model.query.empty()) {
-                CLAY_TEXT(
-                    Clay_String({
-                        .length = static_cast<int32_t>(model.placeholder.length()),
-                        .chars = model.placeholder.c_str(),
-                    }),
-                    CLAY_TEXT_CONFIG({
-                        .textColor = COLOR_FOREGROUND_3,
-                        .fontSize = 14,
-                    }));
-            } else {
+            if (model->query.empty()) {
                 CLAY_TEXT(Clay_String({
-                              .length = static_cast<int32_t>(model.query.length()),
-                              .chars = model.query.c_str(),
+                              .length = static_cast<int32_t>(
+                                  model->placeholder.length()),
+                              .chars = model->placeholder.c_str(),
                           }),
                           CLAY_TEXT_CONFIG({
-                              .textColor = COLOR_FOREGROUND_1,
+                              .textColor = COLOR_FOREGROUND_3,
                               .fontSize = 14,
                           }));
+            } else {
+                CLAY_TEXT(
+                    Clay_String({
+                        .length = static_cast<int32_t>(model->query.length()),
+                        .chars = model->query.c_str(),
+                    }),
+                    CLAY_TEXT_CONFIG({
+                        .textColor = COLOR_FOREGROUND_1,
+                        .fontSize = 14,
+                    }));
             }
         }
     }

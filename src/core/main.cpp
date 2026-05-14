@@ -44,7 +44,7 @@ int main() {
         std::make_shared<Configuration>();
 
     // initialize UI components 
-    AppModel appModel = App_Init();
+    std::shared_ptr<AppModel> appModel = App_Init();
     std::queue<Message> messageQueue;
 
     while (!WindowShouldClose()) {
@@ -66,7 +66,7 @@ int main() {
         for (size_t i = 0; i < messageQueue.size(); i++) {
             Message msg = messageQueue.front();
             messageQueue.pop();
-            appModel = App_Update(appModel, msg);
+            App_Update(appModel, msg);
         }
 
         Clay_RenderCommandArray renderCommands = Clay_EndLayout();

@@ -1,5 +1,6 @@
 #pragma once
 #include "core/messages.hpp"
+#include <memory>
 #include <queue>
 #include <string>
 #include <vector>
@@ -10,6 +11,6 @@ struct GalleryModel {
 };
 
 // view functions (update to handle events and view to render UI)
-GalleryModel Gallery_Init();
-GalleryModel Gallery_Update(GalleryModel model, GalleryMessageGroup message);
-void Gallery_View(GalleryModel model, std::queue<Message> &messageQueue);
+std::shared_ptr<GalleryModel> Gallery_Init();
+void Gallery_Update(std::shared_ptr<GalleryModel> model, GalleryMessageGroup message);
+void Gallery_View(std::shared_ptr<GalleryModel> model, std::queue<Message> &messageQueue);
