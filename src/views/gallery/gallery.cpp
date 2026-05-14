@@ -1,6 +1,8 @@
 #include "views/gallery/gallery.hpp"
 #include "core/clay.h"
 #include "core/colors.h"
+#include "core/messages.hpp"
+#include <queue>
 
 GalleryModel Gallery_Init() {
     return {
@@ -9,20 +11,20 @@ GalleryModel Gallery_Init() {
     };
 }
 
-GalleryModel Gallery_Update(GalleryModel m, GalleryMsg msg,
-                            std::string payload) {
-    switch (msg) {
-    case MSG_SET_WALLPAPER:
-        m.activeWallpapers.push_back(payload);
-        break;
-    default:
-        break;
-    }
-    return m;
+GalleryModel Gallery_Update(GalleryModel model, GalleryMessageGroup message) {
+    std::visit([&](auto&& arg) {
+        using T = std::decay_t<decltype(arg)>;
+        if constexpr (std::is_same_v<T, GalleryMessages::SetWallpaper>) {
+            model.activeWallpapers.push_back(arg.wallpaperPath);
+        } else if constexpr (std::is_same_v<T, GalleryMessages::ToggleDropdown>) {
+            // TODO: implement dropdown toggle logic
+            model.availableWallpapers = {"Wallpaper 1", "Wallpaper 2", "Wallpaper 3"};
+        }
+    }, message);
+    return model;
 }
 
-GalleryModel Gallery_View(GalleryModel m) {
-
+void Gallery_View(GalleryModel model, std::queue<Message> &messageQueue) {
     CLAY(CLAY_ID("GalleryContainer"),
          {
              .layout = {.sizing = {CLAY_SIZING_GROW(0), CLAY_SIZING_GROW(0)},
@@ -31,6 +33,4 @@ GalleryModel Gallery_View(GalleryModel m) {
                         .layoutDirection = CLAY_TOP_TO_BOTTOM},
              .backgroundColor = COLOR_FOREGROUND_3,
          }) {}
-
-    return m;
 }

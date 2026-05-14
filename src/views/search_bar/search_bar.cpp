@@ -12,17 +12,19 @@ SearchBarModel SearchBar_Init() {
     };
 }
 
-SearchBarModel SearchBar_Update(SearchBarModel m, SearchBarMsg msg,
-                                std::string payload) {
-    switch (msg) {
-    default:
-        break;
-    }
-    return m;
+SearchBarModel SearchBar_Update(SearchBarModel model, SearchBarMessageGroup message) {
+    std::visit([&](auto&& arg) {
+        using T = std::decay_t<decltype(arg)>;
+        if constexpr (std::is_same_v<T, SearchBarMessages::Query>) {
+            model.query = arg.query;
+        } else if constexpr (std::is_same_v<T, SearchBarMessages::Select>) {
+            model.activeOption = arg.optionIndex;
+        }
+    }, message);
+    return model;
 }
 
-SearchBarModel SearchBar_View(SearchBarModel m) {
-
+void SearchBar_View(SearchBarModel model, std::queue<Message> &messageQueue) {
     CLAY(CLAY_ID("SearchBarContainer"),
          {.layout =
               {
@@ -50,11 +52,11 @@ SearchBarModel SearchBar_View(SearchBarModel m) {
                                             .y = CLAY_ALIGN_Y_CENTER},
                      },
              }) {
-            if (m.query.empty()) {
+            if (model.query.empty()) {
                 CLAY_TEXT(
                     Clay_String({
-                        .length = static_cast<int32_t>(m.placeholder.length()),
-                        .chars = m.placeholder.c_str(),
+                        .length = static_cast<int32_t>(model.placeholder.length()),
+                        .chars = model.placeholder.c_str(),
                     }),
                     CLAY_TEXT_CONFIG({
                         .textColor = COLOR_FOREGROUND_3,
@@ -62,8 +64,8 @@ SearchBarModel SearchBar_View(SearchBarModel m) {
                     }));
             } else {
                 CLAY_TEXT(Clay_String({
-                              .length = static_cast<int32_t>(m.query.length()),
-                              .chars = m.query.c_str(),
+                              .length = static_cast<int32_t>(model.query.length()),
+                              .chars = model.query.c_str(),
                           }),
                           CLAY_TEXT_CONFIG({
                               .textColor = COLOR_FOREGROUND_1,
@@ -72,6 +74,4 @@ SearchBarModel SearchBar_View(SearchBarModel m) {
             }
         }
     }
-
-    return m;
 }

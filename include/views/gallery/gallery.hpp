@@ -1,21 +1,15 @@
 #pragma once
+#include "core/messages.hpp"
+#include <queue>
 #include <string>
 #include <vector>
 
-// event/message definitions
-typedef enum {
-    MSG_SET_WALLPAPER,
-    MSG_TOGGLE_DROPDOWN,
-} GalleryMsg;
-
-// define the app data
-typedef struct {
+struct GalleryModel {
     std::vector<std::string> activeWallpapers;
     std::vector<std::string> availableWallpapers;
-} GalleryModel;
+};
 
 // view functions (update to handle events and view to render UI)
 GalleryModel Gallery_Init();
-GalleryModel Gallery_Update(GalleryModel m, GalleryMsg msg,
-                            std::string payload = "");
-GalleryModel Gallery_View(GalleryModel m);
+GalleryModel Gallery_Update(GalleryModel model, GalleryMessageGroup message);
+void Gallery_View(GalleryModel model, std::queue<Message> &messageQueue);
